@@ -11,6 +11,6 @@ We are aiming to have our first session in June and are actively looking for vol
 When adding new content please:
 
 - Use branching (create a branch and submit a merge request for approval when you are finished)
-- Follow the naming convention for your session's folder (`YYYYMMDD Session Name`)
+- Follow the naming convention for your session's folder (`YYYY-MM-DD Session Name`)
 - Include a `README.md` for your session to introduce it (+ any slides that you use)
 - Include code to play along in a Jupyter Notebook (`.ipynb` files render as HTML so look better than `.R` or `.py`)
