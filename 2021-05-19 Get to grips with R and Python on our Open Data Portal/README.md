@@ -9,6 +9,5 @@ Launching the new 'Coffee and Coding' sessions by introducing two programming la
 	
 ## Lab (R then Python)
 - Setup
-- Basic syntax
-- Pulling data from the ODP API into a Data Frame
+- Pulling data from the ODP API into a DataFrame
 - Basic exploratory analysis (including plotting)
