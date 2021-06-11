@@ -11,6 +11,6 @@ At this stage your branch will be merged and then you can:
 
 Finally, after your session:
 
-- Update the `ipynb` files to include the cell outputs
+- Update the `.ipynb` files to include the cell outputs
 
 Note: The easiest way to create new content is to use [conda](https://conda.io/projects/conda/en/latest/index.html) to create an environment using the `environment.yml` and then launch JupyterLab. 
