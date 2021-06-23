@@ -1,13 +1,16 @@
-image: docker:latest
+# .gitlab-ci.yml
+trigger_binder_build:
 
-stage: build
+    stage: build
 
-only:
-- master
+    image: docker:latest
 
-variables:
-    TARGET_REPO: https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding
-    SERVICE_NAME: gl
+    only:
+    - master
 
-script:
-    - docker run s-weigand/trigger-mybinder-build $TARGET_REPO $SERVICE_NAME
+    variables:
+        TARGET_REPO: https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding
+        SERVICE_NAME: gl
+
+    script:
+        - docker run s-weigand/trigger-mybinder-build $TARGET_REPO $SERVICE_NAME
