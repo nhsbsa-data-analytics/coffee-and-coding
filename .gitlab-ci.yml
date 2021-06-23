@@ -5,6 +5,7 @@ trigger-binder:
   stage: build
   script:
     - apk update && apk add curl
+    - chmod +x ./trigger_binder.sh
     - ./trigger_binder.sh https://mybinder.org/build/gl/https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding/master
   only:
     - master
