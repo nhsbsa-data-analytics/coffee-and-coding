@@ -18,7 +18,7 @@ We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online
 
 ### Sessions
 
-Our next session is organised for 23rd June and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](Adding new content.md) when adding new content.
+Our next session is organised for 23rd June and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host            | Title                                                      |
 | :-------------------- | :-------------- | :--------------------------------------------------------- | 
