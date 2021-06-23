@@ -1,7 +1,7 @@
 stages:
   - build
 
-build-binder:
+trigger-binder:
   stage: build
   script:
     - apk update && apk add curl
