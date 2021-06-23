@@ -9,8 +9,7 @@ trigger_binder_build:
     - master
 
     variables:
-        TARGET_REPO: https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding
-        SERVICE_NAME: gl
+        NO_PUSH: true
 
     script:
-        - docker run s-weigand/trigger-mybinder-build $TARGET_REPO $SERVICE_NAME
+        - docker run jupyterhub/repo2docker-action 
