@@ -12,4 +12,4 @@ trigger_binder_build:
         NO_PUSH: true
 
     script:
-        - docker run jupyterhub/repo2docker-action 
+        - docker run jupyterhub/repo2docker-action $NO_PUSH
