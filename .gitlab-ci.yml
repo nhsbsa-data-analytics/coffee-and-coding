@@ -5,6 +5,6 @@ trigger-binder:
   stage: build
   script:
     - apk update && apk add curl
-    - curl -L --connect-timeout 20 --max-time 900 https://mybinder.org/build/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/HEAD
+    - ./trigger_binder.sh https://mybinder.org/build/gl/https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding/master
   only:
     - master
