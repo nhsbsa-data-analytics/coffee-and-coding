@@ -18,15 +18,15 @@ We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online
 
 ### Sessions
 
-Our next session is organised for 23rd June and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](Adding new content.md) when adding new content.
+Our next session is organised for 23rd June and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host            | Title                                                      |
 | :-------------------- | :-------------- | :--------------------------------------------------------- | 
 | 2021-11-24            | Adnan Shroufi   | Text analytics and NLP in R                                |
 | 2021-10-22            | Phillip Godfrey | TBC                                                        |
 | 2021-08-25            | Matthew Wilson  | R functions for Statistical Disclosure Control (SDC)       |
-| 2021-07-21            | Kayoung Goffe   | Using TidyTuesday data-set - analysing penguins in Python  |
-| 2021-06-23*           | Adam Ivison     | Python goals... exploring a football data-set using Pandas |
+| 2021-07-21*           | Kayoung Goffe   | Using TidyTuesday data-set - analysing penguins in Python  |
+| 2021-06-23            | Adam Ivison     | Python goals... exploring a football data-set using Pandas |
 | 2021-05-19            | Adam Ivison     | Get to grips with R and Python on our Open Data Portal     |
 
 ---
