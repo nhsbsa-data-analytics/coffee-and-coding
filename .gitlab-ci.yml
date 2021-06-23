@@ -10,7 +10,7 @@ build-binder:
   script:
     # Use Binder build API to trigger repo2docker to build image on GKE and OVH Binder Federation clusters
     - ls
-    - apk update && apk add curl
+    - apk update && apk add curl && apk add bash
     - chmod +x ./trigger_binder.sh
     - ./trigger_binder.sh https://mybinder.org/build/gl/https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding/master
     - ls
