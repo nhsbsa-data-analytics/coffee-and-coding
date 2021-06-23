@@ -1,17 +1,10 @@
-image: docker:19.03.1
-services:
-  - docker:19.03.1-dind
-
 stages:
   - build
 
 build-binder:
   stage: build
   script:
-    # Use Binder build API to trigger repo2docker to build image on GKE and OVH Binder Federation clusters
-    - ls
     - apk update && apk add curl
-    - curl https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/HEAD
-    - ls
+    - curl -L --connect-timeout 20 --max-time 900 "https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/HEAD"
   only:
     - master
