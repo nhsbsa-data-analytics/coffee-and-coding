@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env bash
+# from https://github.com/scikit-hep/pyhf/blob/master/binder/trigger_binder.sh
 
 function trigger_binder() {
     local URL="${1}"
 
-    curl -L --connect-timeout 10 --max-time 30 "${URL}"
+    curl -L --connect-timeout 20 --max-time 900 "${URL}"
     curl_return=$?
 
     # Return code 28 is when the --max-time is reached
@@ -24,4 +25,3 @@ function main() {
 }
 
 main "$@" || exit 1
-
