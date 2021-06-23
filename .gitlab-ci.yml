@@ -9,7 +9,7 @@ trigger_binder_build:
     - master
 
     variables:
-        NO_PUSH: true
+        NO_PUSH: "true"
 
     script:
         - docker run jupyterhub/repo2docker-action $NO_PUSH
