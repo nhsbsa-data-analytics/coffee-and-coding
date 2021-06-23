@@ -1,15 +1,18 @@
-# .gitlab-ci.yml
-trigger_binder_build:
+image: docker:19.03.1
+services:
+  - docker:19.03.1-dind
 
-    stage: build
+stages:
+  - build
 
-    image: gitlab/dind
-
-    only:
+build-binder:
+  stage: build
+  script:
+    # Use Binder build API to trigger repo2docker to build image on GKE and OVH Binder Federation clusters
+    - ls
+    - apk update && apk add curl
+    - chmod +x trigger_binder.sh
+    - trigger_binder.sh https://mybinder.org/build/gl/https://gitlab.com/nhsbsa/insight/shared/coffee-and-coding/master
+    - ls
+  only:
     - master
-
-    variables:
-        NO_PUSH: "true"
-
-    script:
-        - docker run jupyterhub/repo2docker-action $NO_PUSH
