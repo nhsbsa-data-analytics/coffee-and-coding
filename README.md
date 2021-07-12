@@ -18,10 +18,12 @@ We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online
 
 ### Sessions
 
-Our next session is organised for 23rd June and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
+Our next session is organised for 21st July and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host            | Title                                                      |
 | :-------------------- | :-------------- | :--------------------------------------------------------- | 
+| 2022-01-19            | Grace Libby     | TBC                                                        |
+| 2021-12-15            | TBC             | TBC (Christmas themed)                                     |
 | 2021-11-24            | Adnan Shroufi   | Text analytics and NLP in R                                |
 | 2021-10-22            | Phillip Godfrey | TBC                                                        |
 | 2021-08-25            | Matthew Wilson  | R functions for Statistical Disclosure Control (SDC)       |
