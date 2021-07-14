@@ -27,7 +27,7 @@ Our next session is organised for 21st July and we are actively looking for volu
 | 2021-11-24            | Adnan Shroufi   | Text analytics and NLP in R                                |
 | 2021-10-22            | Phillip Godfrey | TBC                                                        |
 | 2021-08-25            | Matthew Wilson  | R functions for Statistical Disclosure Control (SDC)       |
-| 2021-07-21*           | Kayoung Goffe   | Using TidyTuesday data-set - analysing penguins in Python  |
+| 2021-07-21*           | Kayoung Goffe   | TidyTuesday Penguins with Python                           |
 | 2021-06-23            | Adam Ivison     | Python goals... exploring a football data-set using Pandas |
 | 2021-05-19            | Adam Ivison     | Get to grips with R and Python on our Open Data Portal     |
 

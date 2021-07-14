@@ -16,3 +16,10 @@ dependencies:
   - requests
   - pandas
   - matplotlib
+  - seaborn
+  - numpy
+  - statsmodels 
+  - scikit-learn
+  - scipy
+  
+  
