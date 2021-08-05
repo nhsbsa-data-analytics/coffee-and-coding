@@ -1,0 +1,441 @@
+---
+title: "Tidyverse the Titanic"
+#subtitle: "by Phil Godfrey" "August 2021"
+#description: | 
+#date: August 2021
+#author:
+#  - name: "Phil Godfrey"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+---
+
+# What springs to mind when you first think of the Titanic? #
+
+![](C:/Users/i.phil.godfrey/Pictures/titanic_picture.jpg){width=40%}
+
+  
+### As well as a popular meme (^) it's also a classic film based on a tragic disaster, but the Titanic is also a readily available and popular dataset. ###  
+
+### It's one of many datasets that are built-in to R, we can access this by loading the [Titanic Package](https://cran.r-project.org/web/packages/titanic/index.html), and this is what we'll be using today to understand Tidyverse in R. ###
+
+## What will be covered in the session? ##
+This session will work through the core Tidyverse functions, including packages commonly used in data analyses:
+
+* [ggplot2](http://ggplot2.tidyverse.org/) for data visualization.
+* [dplyr](http://dplyr.tidyverse.org/) for data wrangling. 
+
+To start with, we'll install the Tidyverse package, as well as the others we'll be working with today:
+
+```{r message = FALSE, warning = FALSE}
+# Install tidyverse, titanic and dplyr packages
+#install.packages("tidyverse")
+#install.packages("titanic")
+#install.packages("dplyr")
+
+```
+
+Now that we've installed tidyverse, titanic and dplyr packages, we need to load libraries, then we'll load in the data and get started on our analyses.
+
+### Load libraries ###
+
+```{r message = FALSE, warning = FALSE}
+# Load libraries
+library(titanic)
+library(dplyr)
+library(tidyverse)
+
+```
+
+We'll then load in the data. The titanic data consists of two datasets, `train` and `test`, but we'll only use the train data today.
+
+### Load data ###
+
+``` {r message = FALSE}
+# Load in titanic data into "Train" and "Test" data
+train <- (titanic_train)
+
+```
+
+Before we begin working on the dataset, lets have a quick look at the raw data.
+
+We can do so using `head` to show the first 5 rows, and `tail` to show the last 5 rows.
+
+``` {r message = FALSE}
+# Check out the first several observations of your dataframe
+head(train)
+tail(train)
+
+```
+
+### What are the variables in the dataset? ###
+
+* **PassengerId**: Serial Number
+* **Survived**: Contains binary Values of 0 & 1. Passenger did not survive — 0, Passenger Survived — 1.
+* **Pclass**: Ticket Class | 1st Class, 2nd Class or 3rd Class Ticket
+* **Name**: Name of the passenger
+* **Sex**: Male or Female
+* **Age**: Age in years — Integer
+* **SibSp**: No. of Siblings / Spouses — brothers, sisters and/or husband/wife
+* **Parch**: No. of parents/children — mother/father and/or daughter, son
+* **Ticket**: Serial Number
+* **Fare**: Passenger fare
+* **Cabin**: Cabin Number
+* **Embarked**: Port of Embarkment | C- Cherbourg, Q — Queenstown, S — Southampton
+
+A good first step in understanding your data is to check the structure of the data, such as the data type of each attribute, as well as how many rows and columns (observations and variables in R language) we can do this using `str()`
+
+```{r message = FALSE}
+# Check the Structure of Titanic data
+str(train)
+```
+
+To get an overview of the data, we can use the function `summary` :
+
+```{r message = FALSE}
+# Summarize Titanic data
+summary(train)
+```
+
+Now do the same using a pipe `%>%`, one of the handiest tools in Tidyverse:
+
+```{r message = FALSE}
+# Summarize Titanic data using a pipe %>%
+train %>% 
+  summary()
+```
+
+**Recap:**
+
+* We've imported Titanic data and viewed some of the data
+* We've used the pipe operator `%>%`
+
+**Next:**
+
+* Data wrangling with `dplyr` to:
+* **filter** our data to areas of interest
+* **arrange** the data to generate new insights
+* create new features by **mutating** existing ones.
+
+## Wrangle data
+
+We'll start pulling out some initial insights using `dplyr` **verbs** such as `filter`, `arrange` and `mutate`.
+
+If we wanted to investigate a particular observation, such as the "Sex" was 'male'. `dplyr` allows us to do this using the `filter` verb. This limits the data to only the observations that match the condition:
+
+* we can read `dplyr` code like a sentence: start with our "train" data (%>% and then) filter to only return those records where the sex is male `(filter(Sex == "male")`.
+
+```{r message = FALSE}
+# Filter to get all "male" rows
+train %>% 
+  filter(Sex == "male")
+```
+
+**Does our data give us any indication about whether men are likely to have survived or not?** 
+
+An initial view of the first 10 rows seems to suggest that men typically did not survive (at least in the data we can see here). 
+
+**Write the code to filter to filter to only return females**
+
+```{r message = FALSE}
+# Filter to get all "female" rows
+train %>% 
+  filter(Sex == "female")
+
+```
+
+**Does our data give us any indication about whether women are likely to have survived or not?**
+
+An initial view of the first 10 rows of data suggests that a lot of women did survive. We'll come on to this a little bit later.
+
+What if we wanted to `arrange` our observations by increasing `Age` to see if we can notice any trends? We can use the **verb** `arrange` to achieve this:
+
+```{r message = FALSE}
+# Arrange by increasing Fare
+train %>% 
+  arrange(Fare)
+```
+
+**Does our data give us any indication about whether fare paid has an effect on the chance of survival or not?**
+
+From the data we can see, a lot of the people who paid less did not survive the disaster. That's something interesting that we've just discovered just by re-arranging our data!
+
+We can also `arrange` by decreasing `Fare`:
+
+```{r message = FALSE}
+# Arrange by decreasing Fare
+train %>% 
+  arrange(desc(Fare))
+```
+**Does our data give us any indication about whether fare paid has an effect on the chance of survival or not?**
+
+From the data we can see, a lot of the people who paid more did survive the disaster.
+
+We can also create new variables to add to our dataset, to give us new insights. 
+
+We know that the variable "Parch" is the number of parents and children while "SibSp" is the number of siblings and spouses. We can add these together to get a new variable "FamSize". To do so, we `mutate` the original variables into the new one.
+
+```{r message = FALSE}
+# Create new column FamSize (size of family)
+train %>% 
+mutate(FamSize = Parch + SibSp)
+
+```
+
+**Is it possible that larger families have a lower rate of survival?**
+
+To test this, we can create a new variable "FamSize" which is the sum of "Parch" and "SibSp" and arrange by decreasing "FamSize":
+
+```{r message = FALSE}
+# Create new column FamSize (size of family)
+# Arrange by decreasing FamSize
+
+train %>% 
+  mutate(FamSize = Parch + SibSp) %>% 
+  arrange(desc(FamSize))
+```
+**Does our data give us any indication about whether larger families had an impact on the chance of survival or not?**
+
+From the data we can see, some families had 7 or 10 members on-board, and all of the largest families we can see did not survive.
+
+We can use `mutate` to amend existing columns, we might want to re-assign 0 and 1 in the "Survived" column to a Yes or No.
+
+```{r message = FALSE}
+# Turn numerical values of Survived column to "No" & "Yes" (but assign to a new dataframe)
+
+survived <- train %>%
+  mutate(Survived = ifelse(Survived == 0, "No", "Yes"))
+
+head(survived)
+```
+Notice that the Survived column has amended 0 to No, and 1 to Yes, which makes the dataset a little more user-friendly.
+
+**Recap:**
+
+* We've imported our Titanic data and viewed some of the data
+* We've used the pipe operator `%>%`
+* We can now use `dplyr` to wrangle our data to `filter`, `arrange` and create new features by `mutating` existing ones.
+
+**Next:**
+
+* We'll plot our data using `ggplot2` to get a visual view to derive new insights.
+
+
+## Plotting our data
+
+To plot our data using `ggplot2`, we need to specify three things:
+
+* Data
+* Aesthetics (e.g. what's on the x-axis and y-axis)
+* Plot (e.g. barplot, scatterplot)
+
+The first question that springs to mind regarding the Titanic is "How many people survived?"
+
+```{r message = FALSE}
+# Plot barplot of passenger surivival rate
+ggplot(train, aes(x = Survived)) +
+  geom_bar()
+```
+This is useful, but it's quite tricky to see from this plot to know what proportion survived. We can make this clearer by returning the proportion:
+
+``` {r message = FALSE}
+prop.table(table(train$Survived))
+```
+We can see that only 38.4% of all passengers who on-boarded the Titanic survived.
+
+We might want to investigate if the Age of any given passenger correlates with the fare paid. We can do this using a scatterplot, know as `geom_point` in `ggplot`.
+
+```{r message = FALSE}
+# Scatter plot of Age vs Fare
+ggplot(train, aes(x = Age, y = Fare)) +
+  geom_point()
+```
+
+**Does our data give us any indication about whether there was any correlation between fare paid and age of the passenger?**
+
+We can see that the majority of points within the data have a fare of £100 or less. There are also two notable outliers who had a fare greater than £500!
+
+**About ggplot:**
+
+* We can read the `ggplot2` code like a sentence to understand what is happening: 
+
+`ggplot(train, aes(x = Age, y = Fare)) +
+  geom_point()`
+
+We take the titanic `train` data and we map `Age` to the x axis and `Fare` to the y axis, we then add points on as the layer of the plot.
+
+If we use the previous plot and colour each point by `Sex` to see if there are any correlations between `Sex`, `Age` and `Fare`:
+
+```{r message = FALSE}
+# Scatter plot of Age vs Fare colored by Sex
+ggplot(train, aes(x = Age, y = Fare, color = Sex)) +
+  geom_point()
+```
+
+**We can use facet to produce multiple plots at the same time**
+
+The plot above is useful, we can now see the data points are coloured by sex, as well as our original fare and age, but what if we wanted to add the Survived variable to the plot, to see if that shows us anything of interest?
+
+We can do this using `facet_grid`
+
+Faceting is a way to produce multiple plots simultaneously:
+
+```{r message = FALSE}
+# Scatter plot of Age vs Fare colored by Sex faceted by Survived
+ggplot(train, aes(x = Age, y = Fare, color = Sex)) +
+  geom_point() +
+  facet_grid(~Survived)
+```
+
+**Does our data give us any indication about whether Sex had an impact on the chance of survival or not?** 
+
+We see that the survival rate amongst women was significantly higher when compared to men.
+
+It is believed that in case of rescue operations during disasters, women's safety is prioritised. It certainly looks as though this is the case, with women much more likely to survive.
+
+We can create a bar plot to see if this was the case overall, by plotting Sex and whether they survived or not.
+
+```{r message = FALSE}
+# Plot barplot of passenger Sex & fill according to Survival
+ggplot(survived, aes(x = Sex, fill = Survived)) +
+  geom_bar()
+```
+
+**Does our data give us any indication about whether Sex had an impact on the chance of survival or not?** 
+
+We see that the survival rate amongst women was significantly higher when compared to men.
+
+Can we see any differences depending on the type of ticket they held? This can be determined using the *pclass* variable e.g. 1st, 2nd or 3rd class
+
+``` {r message = FALSE}
+ggplot(survived, aes(x = Pclass, fill = Survived)) +
+  geom_bar()
+```
+**Does our data give us any indication about whether class had an impact on the chance of survival or not?** 
+
+There were 3 groups of passengers, depending upon the class they were travelling in - 1st class, 2nd class and 3rd class. 
+We see that over 50% of the passengers were travelling in the 3rd class, but a much higher proportion of passengers in 1st class survived.
+
+Could it be preferential treatment why the passengers travelling first class, or could it be because the 3rd class compartments were in the lower extremity of the ship? Or could it be down to the placement of the lifeboats and how accessible they are to each class?
+
+![](C:/Users/i.phil.godfrey/Pictures/titanic_class.png)
+
+**Recap:**
+
+* We've imported our Titanic data and viewed some of the data
+* We've used the pipe operator `%>%`
+* We can use `dplyr` to wrangle our data to `filter`, `arrange` and create new features by `mutating` existing ones.
+* We've plotted our data using `ggplot2`.
+
+**Next:**
+
+* Learn how to `summarise` our data.
+
+## Summarizing and grouping our data
+
+Use the `summarise` verb to find out the mean fare paid:
+
+```{r message = FALSE}
+# Check out mean Fare
+train %>% 
+  summarise(meanFare = mean(Fare))
+```
+
+Use the `filter` and `summarise` verbs to find out the mean fare paid among men:
+
+```{r message = FALSE}
+# Return the mean Fare for men
+train %>% 
+  filter(Sex == "male") %>% 
+  summarise(meanFare = mean(Fare))
+```
+
+Use the `filter` and `summarise` verbs to find out the mean fare paid among women:
+
+```{r message = FALSE}
+# Return the mean Fare for women
+
+#train %>% 
+#  filter(Sex == "female") %>% 
+#  summarise(meanFare = mean(Fare))
+
+```
+
+
+Use the `filter` and `summarise` verbs to find out the mean fare paid among women **and** how many women survived:
+
+```{r message = FALSE}
+# Check out mean Fare & number of survivors for women
+train %>% 
+  filter(Sex == "female") %>%
+  summarise(meanFare = mean(Fare), 
+             NumSurv = sum(Survived))
+
+```
+
+Use the `group_by` and `summarise` verbs to find the mean fare and number of survivors as a function of sex:
+
+```{r message = FALSE}
+# Check out mean Fare & number of survivors grouped by Sex
+train %>% 
+  group_by(Sex) %>% 
+  summarise(meanFare = mean(Fare),
+            NumSurv = sum(Survived))
+
+```
+
+Use the `group_by` and `summarise` verbs to find the mean fare and proportion of survivors as a function of sex:
+
+
+```{r message = FALSE}
+# Check out mean Fare & proportion of survivors grouped by Sex
+train %>% 
+  group_by(Sex) %>% 
+  summarise(meanFare = mean(Fare),
+            NumSurv = sum(Survived)/n())
+
+```
+
+
+Can we do the same using PClass to see if the class of ticket has any significant impact on survival?
+
+```{r message = FALSE}
+# Check out mean Fare & proportion of survivors grouped by Sex
+train %>% 
+  group_by(Pclass) %>% 
+  summarise(meanFare = mean(Fare),
+            NumSurv = sum(Survived)/n())
+
+```
+
+* Around 6 in 10 passengers within first class survived
+* Around 5 in 10 passengers within second class survived
+* Around 2 in 10 passengers within third class survived 
+
+
+# In Summary: #
+
+* We've imported our Titanic data and viewed some of the data
+* We've used the pipe operator `%>%`
+* We can use `dplyr` to wrangle our data to `filter`, `arrange` and create new features by `mutating` existing ones.
+* We can plot our data using `ggplot2`.
+* We can summarise our data using `summarise`
+
+# Interested to know more? # 
+
+Feel free to play around and do your own exploratory analysis, thinking about which fields you could explore or combine to create new insights.
+
+If you want to take this one step further, you could enter the [Titanic Kaggle competition](https://www.kaggle.com/c/titanic/overview)
+
+The aim of this challenge is to build a predictive model that answers the question: “what sorts of people were more likely to survive?” using the passenger data we've worked through today.
+
+All you need to do is: 
+
+* create a model
+* upload your prediction as a submission on Kaggle
+* you will receive an accuracy score of how your model performed (and a Leaderboard if you're the competitive type!).
+
+Kaggle also has a popular [forum](https://www.kaggle.com/c/titanic/discussion) which other users regularly post with suggestions, questions and coding examples so you can all learn from one another.
+
+## Thanks for joining! ##
