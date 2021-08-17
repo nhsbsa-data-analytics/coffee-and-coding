@@ -10,6 +10,7 @@ dependencies:
   - r-irkernel
   - r-jsonlite
   - r-ggplot2
+  - r-dplyr
 # Python
   - python=3.*
   - ipykernel
