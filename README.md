@@ -20,16 +20,17 @@ We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online
 
 Our next session is organised for 22nd September and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
-| Date (* next session) | Host            | Title                                                      |
-| :-------------------- | :-------------- | :--------------------------------------------------------- | 
-| 2022-01-19            | Grace Libby     | TBC                                                        |
-| 2021-12-15            | TBC             | TBC (Christmas themed)                                     |
-| 2021-11-24            | Adnan Shroufi   | Text analytics and NLP in R                                |
-| 2021-10-20            | Matthew Wilson  | R functions for Statistical Disclosure Control (SDC)       |
-| 2021-09-22 *          | TBC             | TBC                                                        |
-| 2021-08-25            | Philip Godfrey  | Exploring the Titanic in R                                 |
-| 2021-07-21            | Kayoung Goffe   | TidyTuesday Penguins with Python                           |
-| 2021-06-23            | Adam Ivison     | Python goals... exploring a football data-set using Pandas |
-| 2021-05-19            | Adam Ivison     | Get to grips with R and Python on our Open Data Portal     |
+| Date (* next session) | Host             | Title                                                      |
+| :-------------------- | :--------------  | :--------------------------------------------------------- | 
+| 2022-01-19            | Grace Libby      | TBC                                                        |
+| 2021-12-15            | Helen O'Donnell/ | TBC (Christmas themed)                                     |
+                          Mark McPherson   |                                                            |
+| 2021-11-24            | Adnan Shroufi    | Text analytics and NLP in R                                |
+| 2021-10-20            | Matthew Wilson   | R functions for Statistical Disclosure Control (SDC)       |
+| 2021-09-22 *          | Graham Platten   | TBC (R Shiny)                                              |
+| 2021-08-25            | Philip Godfrey   | Exploring the Titanic in R                                 |
+| 2021-07-21            | Kayoung Goffe    | TidyTuesday Penguins with Python                           |
+| 2021-06-23            | Adam Ivison      | Python goals... exploring a football data-set using Pandas |
+| 2021-05-19            | Adam Ivison      | Get to grips with R and Python on our Open Data Portal     |
 
 ---
