@@ -27,7 +27,7 @@ Our next session is organised for 22nd September and we are actively looking for
 |                       | Mark McPherson   |                                                            |
 | 2021-11-24            | Adnan Shroufi    | Text analytics and NLP in R                                |
 | 2021-10-20            | Matthew Wilson   | R functions for Statistical Disclosure Control (SDC)       |
-| 2021-09-22 *          | Graham Platten   | TBC (R Shiny)                                              |
+| 2021-09-22 *          | Graham Platten   | Using R Shiny with our Open Data Portal                    |
 | 2021-08-25            | Philip Godfrey   | Exploring the Titanic in R                                 |
 | 2021-07-21            | Kayoung Goffe    | TidyTuesday Penguins with Python                           |
 | 2021-06-23            | Adam Ivison      | Python goals... exploring a football data-set using Pandas |
