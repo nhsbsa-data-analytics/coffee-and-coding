@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+library(dplyr)
 library(jsonlite)
 library(crul)
 library(highcharter)
@@ -105,13 +106,13 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   #load in BNF lookup table
-  bnf_lookup <- data.frame(read_excel("data\\bnf_lookup.xlsx"))
+  bnf_lookup <- data.frame(read_excel(file.path("data", "bnf_lookup.xlsx")))
   
   #load in PCO lookup table
-  pco_lookup <- data.frame(read_excel("data\\pco_lookup.xlsx"))
+  pco_lookup <- data.frame(read_excel(file.path("data", "pco_lookup.xlsx")))
   
   #read in postcode polygon data for mapping
-  postcodes = readOGR("./data/postcode_polygons.gpkg", layer = "postcode_district")
+  postcodes = readOGR(file.path("data", "postcode_polygons.gpkg"), layer = "postcode_district")
   postcodes = spTransform(postcodes, CRS("+proj=longlat +datum=WGS84"))
   postcodes$pc_district <- as.character(postcodes$pc_district)
   
