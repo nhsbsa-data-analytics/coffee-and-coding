@@ -12,7 +12,10 @@ The goal of these sessions is to provide a relaxed environment to share new skil
 
 ### Tools
 
-We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online interactive environment to execute code in online. If you are playing along, please launch a JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/master?urlpath=lab).
+We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online interactive environment to execute code in online. If you are playing along, depending on the session then please launch either a: 
+
+* JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/master?urlpath=lab)
+* RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/master?urlpath=rstudio)
 
 ---
 
@@ -26,8 +29,8 @@ Our next session is organised for 22nd September and we are actively looking for
 | 2021-12-15            | Helen O'Donnell /| TBC (Christmas themed)                                     |
 |                       | Mark McPherson   |                                                            |
 | 2021-11-24            | Adnan Shroufi    | Text analytics and NLP in R                                |
-| 2021-10-20            | Matthew Wilson   | R functions for Statistical Disclosure Control (SDC)       |
-| 2021-09-22 *          | Graham Platten   | TBC (R Shiny)                                              |
+| 2021-10-20            | Matthew Wilson   | R Markdown and Official Statistics                         |
+| 2021-09-22 *          | Graham Platten   | Using R Shiny with our Open Data Portal                    |
 | 2021-08-25            | Philip Godfrey   | Exploring the Titanic in R                                 |
 | 2021-07-21            | Kayoung Goffe    | TidyTuesday Penguins with Python                           |
 | 2021-06-23            | Adam Ivison      | Python goals... exploring a football data-set using Pandas |
