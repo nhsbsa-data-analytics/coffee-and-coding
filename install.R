@@ -1,0 +1,15 @@
+install.packages(
+  c(
+    "jsonlite",
+    "ggplot2",
+    "dplyr",
+    "shiny",
+    "crul",
+    "highcharter",
+    "readxl",
+    "shinycssloaders",
+    "shinywidgets",
+    "rgdal",
+    "leaflet"
+  )
+)
