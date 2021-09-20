@@ -316,7 +316,8 @@ server <- function(input, output) {
               y = n)
       ) %>%
       hc_xAxis(type = "category") %>%
-      hc_title(text = "Total items dispensed by practice")
+      hc_title(text = "Total items dispensed by practice") %>%
+      hc_credits(enabled = TRUE)
     
     
     
@@ -344,7 +345,8 @@ server <- function(input, output) {
       ) %>%
       hc_xAxis(type = "category") %>%
       hc_yAxis(type = "logarithmic") %>%
-      hc_title(text = "Total items dispensed by BNF description")
+      hc_title(text = "Total items dispensed by BNF description") %>%
+      hc_credits(enabled = TRUE)
     
     
     
