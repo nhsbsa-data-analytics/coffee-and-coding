@@ -8,7 +8,7 @@ install.packages(
     "highcharter",
     "readxl",
     "shinycssloaders",
-    "shinywidgets",
+    "shinyWidgets",
     "rgdal",
     "leaflet"
   )
