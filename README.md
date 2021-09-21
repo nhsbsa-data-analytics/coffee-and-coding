@@ -14,8 +14,8 @@ The goal of these sessions is to provide a relaxed environment to share new skil
 
 We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online interactive environment to execute code in online. If you are playing along, depending on the session then please launch either a: 
 
-* JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/master?urlpath=lab)
-* RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/nhsbsa%2Finsight%2Fshared%2Fcoffee-and-coding/master?urlpath=rstudio)
+* JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=lab)
+* RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=rstudio)
 
 ---
 
