@@ -1,4 +1,4 @@
-Create a branch and submit a merge request for approval by at least one of the previous hosts:
+Create a branch and:
 
 - Follow the naming convention for your session's directory (`YYYY-MM-DD Session Name`)
 - Include a `README.md` for your session to introduce it + any slides that you use as `.pdf` (renders in GitHub unlike `.pptx`)
@@ -7,12 +7,14 @@ Create a branch and submit a merge request for approval by at least one of the p
     + `.R` files if you are demoing RStudio / R Shiny
 - Update Python (`environment.yml`) and R (`install.R`) with any new dependencies
 
-At this stage your branch will be merged and then you can:
+When you are happy, submit a pull request:
 
-- Build the docker image using Binder and check everything works
+- Check everything works in the `github-actions` pull request Binder link
+- Merge it once approved by at least one of the previous hosts
 
-Finally, after your session:
+Finally, after your session if you have used `.ipynb` notebooks then create another branch and:
 
-- Update the `.ipynb` files to include the cell outputs if you used them
+- Include the cell outputs
+- Submit a pull request and merge it once approved by at least one of the previous hosts
 
 Note: If you are using `.ipynb` notebooks then the easiest way to create new content is by using [conda](https://conda.io/projects/conda/en/latest/index.html) to create an environment using `environment.yml` and then launch JupyterLab.
