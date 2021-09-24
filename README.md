@@ -12,16 +12,18 @@ The goal of these sessions is to provide a relaxed environment to share new skil
 
 ### Tools
 
-We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online interactive environment to execute code in online. If you are playing along, depending on the session then please launch either a: 
+We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online interactive environment to execute code in online. If you are playing along, depending on the session then please launch either: 
 
 * JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=lab)
 * RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=rstudio)
+
+We also use GitHub Actions to automate the Binder build process.
 
 ---
 
 ### Sessions
 
-Our next session is organised for 22nd September and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
+Our next session is organised for 20th October and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host             | Title                                                      |
 | :-------------------- | :--------------  | :--------------------------------------------------------- | 
