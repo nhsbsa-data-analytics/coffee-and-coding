@@ -3,3 +3,4 @@
 
 # Powerpoint presentations (upload .pdf into the repo instead)
 *.pptx
+.Rproj.user
