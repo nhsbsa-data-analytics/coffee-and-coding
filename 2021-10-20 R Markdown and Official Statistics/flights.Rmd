@@ -1,0 +1,246 @@
+---
+title: "Flights from NYC - 2013"
+author: "Matthew Wilson"
+date: "20/10/2021"
+output: 
+  html_document:
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+
+# this is the setup code chunk. it is used to library packages, set any global 
+# options for the document, and do any pre-requisite functions
+
+# set knit options so code isn't printed below charts in HTML output
+knitr::opts_chunk$set(echo = FALSE)
+
+# library packages
+library(nycflights13)
+library(lubridate)
+library(highcharter)
+library(dplyr)
+library(scales)
+
+# set thousand separator global option for highcharts
+hcoptslang <- getOption("highcharter.lang")
+hcoptslang$thousandsSep <- ","
+options(highcharter.lang = hcoptslang)
+
+```
+
+<!-- this is a level 2 header --> 
+## Introduction
+
+Today we're going to be doing some analysis of the `flights` dataset that is part of the `nycflights13` package. We'll then use this R Markdown document to produce a dynamic report. To finish things off, we'll then use a pipeline to create multiple reports with dynamic content at once.
+
+An R Markdown document allows you to merge visualisations, code, and narrative into one reproducible script that can then be shared as a script, or as a rendered HTML, PDF, or even MS Word document. The document is split into `code chunks` and regular text. When the document is `knitted` together the code chunks are executed and their outputs inserted into the relevant place in the final output. Any text is rendered as such, but we can use Markdown formatting to structure and prettify our document.
+
+You can see the basic formatting options at https://rmarkdown.rstudio.com/authoring_basics.html.
+
+## Let's look at our data
+
+We can do a little digging in our data to help us understand it, and to help the final users of our report understand its context. The flights dataset provides details of all flights that departed New York city airports -- JFK, La Guardia (LGA), or Newark (EWR) -- in 2013.
+
+```{r flights_head}
+
+# head() returns the first 6 rows of a dataframe for us to look at. We can alter
+# the amount rows returned if we want to.
+head(flights)
+
+```
+
+We can have a look at the `nycflights13` [documentation](https://cran.r-project.org/web/packages/nycflights13/nycflights13.pdf) to see what each variable means:
+
+<!-- we can use markdown syntax here to create an unordered list -->
+* __year, month, day:__ date of departure held as separate variables in numeric format
+* __dep_time, arr_time:__ actual departure and arrival times in `HHMM` or `HMM` format. Local timezone
+* __sched_dep_time, sched_arr_time:__ scheduled departure and arrival times in `HHMM` or `HMM` format. Local timezone
+* __dep_delay, arr_delay:__ departure and arrival delays, in minutes. Negative times represent early departures/arrivals
+* __carrier:__ two letter carrier abbreviation. See `airlines` dataset to get names
+* __flight:__ flight number
+* __tailnum:__ plane tail number. See `planes` for additional metadata
+* __origin, dest:__ origin and destination. See `airports` for additional metadata
+* __air_time:__ amount of time spent in the air in minutes
+* __distance:__ distance between airports, in miles
+* __hour, minute:__ time of scheduled departure broken into hour and minutes
+* __time_hour:__ scheduled date and hour of the fight as a `POSIXct` date. Along with `origin`, can be used to join flights data to `weather` data
+
+```{r flights_missing_vals}
+
+# let's check if there are any missing values
+sum(is.na(flights))
+
+# how many rows have at least one missing value
+nrow(flights[rowSums(is.na(flights)) > 0, ])
+
+```
+
+We would normally do some further investigations into the data but we'll skip this step as this session is more focussed on the uses of R Markdown. But we do know that there are missing values in the data set, we'll keep this in mind.
+
+Let's try `knitting` our document know to see how the formatting we've just used looks and how our `head(flights)` function and missing values investigation has rendered.
+
+[//]: (code chunk options)
+
+## Now let's make some summaries
+
+Now that we've had a look at our data and had a little play with a code chunk we can start to draw out some insights and visualise them. Today we'll be using the `highcharter` package which is an R wrapper for the popular [Highcharts JavaScript library](https://www.highcharts.com/).
+
+The `highcharter` package could easily have multiple coffee and coding session dedicated to it, so we'll just be using the `hchart()` function to make some quick visualisations. We'll also be using the `dplyr` package to perform some manipulations. 
+
+```{r flights_volume_chart}
+
+# create a date and month column to help us plot flight volumes
+flights2 <- flights %>% 
+  # use dplyr mutate function to create a new column
+  mutate(date = as.Date(format(time_hour, "%Y-%m-%d")),
+         
+         # we'll use the month() function from the lubridate package here to
+         # quickly give us the name of a month from its numeric representation
+         month_name = month(date, label = TRUE, abbr = FALSE)) 
+
+# now we'll create a summary dataset to use in a chart
+num_flights_df <- flights2 %>% 
+  group_by(month_name, month) %>% 
+  summarise(num_flights = n(),
+            .groups = "drop") %>% 
+  arrange(month)
+
+# lets create our first chart to visualise how many flights departed NYC 
+# each month. we can use the magrittr pipe with highcharts.
+num_flights_df %>% 
+  hchart(type = "column", 
+         # the hcaes() function works in the same manner as ggplot2::aes()
+         hcaes(x = month_name, y = num_flights),
+         dataLabels = list(enabled = T)) %>% 
+
+# when adding a title, we can also include some HTML to make key points stand out
+  hc_title(text = "Number of flights <i>departing</i><span style='color: red;'> NYC</span> airports by month in <b>2013</b>") %>% 
+  hc_xAxis(title = list(text = "Month")) %>%
+  hc_yAxis(title = list(text = "Number of flights"))
+
+```
+
+Now that we can see the volumes of flights for each month of the year let's write some commentary.
+
+In __2013__, there were __337,000__ flights that departed New York city. __July__ saw __29,400__ departures, the highest in the period. __February__ saw the least departures with __25,000__.
+
+Now let's try `knitting` again and seeing the output.
+
+## Making dynamic content
+
+In the previous section we have created a chart for that displays 2013 data and draws out some key figures. But what if we got a hold of updated data that included up to 2020? We would have to go through and manually change parts of the code that explicitly referenced 2013, and the parts of the commentary that used 2013 figures. That is a slow error prone process. Fortunately we can implement dynamic elements that mean the report stays up to date and removes manual processing.
+
+## Building dynamic content
+
+When first starting out to make your content dynamic it's a good idea to first of all make it static, then identify the parts that need to be able to change and embed code to do this. Below are some visualisations that have been built dynamically.
+
+```{r set_date, echo=TRUE}
+
+# fl_date <- Sys.Date() 
+
+fl_date <- as.Date("2013-09-30")
+```
+
+Let's have a look at the percentage of flights that have had delayed departures for the previous 28 days. We'll set and change the `fl_date` variable to simulate running the report on different days.
+
+```{r per_flights_delayed}
+
+# first, we need to construct the data set
+delays_df <- flights2 %>%
+  # use lubridate days() function to give the previous 28 days
+  filter(date <= fl_date, date > fl_date - days(28)) %>% 
+  group_by(date) %>%
+  # get counts
+  summarise(num_flights = n(),
+            delayed_flights = sum(dep_delay > 0, na.rm = TRUE),
+            delayed_flights_per = delayed_flights / num_flights * 100,
+            .groups = "drop")
+
+# create delays chart
+delays_df %>% 
+  hchart(type = "line", hcaes(x = date, y = delayed_flights_per)) %>% 
+  # we can make the title of the chart dynamic, to update automatically
+  hc_title(text = paste0(
+    "Daily percentage of delayed flights <i>departing</i><span style='color: red;'> NYC</span> airports between <b>",
+    format(min(delays_df$date), "%d %b %Y"),
+    "</b> and <b>",
+    format(max(delays_df$date), "%d %b %Y"),
+    "<b>"
+  )) %>% 
+  hc_xAxis(title = list(text = "Date")) %>% 
+  hc_yAxis(title = list(text = "Delayed flights (%)"),
+           min = 0,
+           max = 100)
+
+```
+
+We can also embed R code directly into text to update important figures without us having to manually calculate them each time.
+
+In the previous 28 days, the daily average percentage of delayed flights __`r delays_df %>% summarise(avg_per = sum(delayed_flights) / sum(num_flights) * 100) %>% pull(avg_per) %>% percent(scale = 1)`__.
+
+Between __`r format(min(delays_df$date), "%d %B %Y")`__ and __`r format(max(delays_df$date), "%d %B %Y")`__, there were __`r delays_df %>% filter(delayed_flights_per >= 50) %>% nrow()`__ days where 50% or more of flights where delayed.
+
+Now when we update the `fl_date` variable the chart and figures in the text will update on their own. Let's try it now and then `knit` again.
+
+## Putting it into practice 
+
+Now its time for you to put these concepts into practice and create a dynamic chart and some text below that will update depending on the input.
+
+I've created a summary dataset that looks at the most popular destinations from NYC airports in the previous month. Feel free to use dplyr to create your own summary dataset to work from, perhaps you could try one of the below:
+
+* in the 3 months previous to `fl_date`, what carrier is most likely to have flights with early departures? __HINT:__ use the `months()` function from `lubridate`.
+* create a new dynamic variable `dep_airport` that allows you to produce an individual chart for each departure airport on their average departure delay in minutes. __HINT:__ the `dep_airport` variable will have to be included in any `filter()` functions.
+  + JFK
+  + LGA
+  + EWR
+
+```{r delays_by_airport}
+
+# create summary data set
+dest_df <- flights2 %>% 
+  filter(date <= fl_date, date > fl_date - months(1)) %>% 
+  group_by(dest) %>% 
+  summarise(num_flights = n()) %>% 
+  slice_max(num_flights, n = 10) 
+
+# uncomment the code below and use it as the basis to make your chart
+
+# dest_df %>% 
+#   hchart(type = "", hcaes(x = , y = )) %>% 
+  
+  # add some stylings such as axis titles to your chart
+
+
+```
+
+It's time for you to add some of you own text. Pull 1 or 2 insights from the chart and make some dynamic text so it will update when we change any variables we have.
+
+
+
+## Styling your report
+
+You can style your report in any way imaginable by using Cascading Style Sheets (`CSS`) and even reuse styles across reports by creating a single CCS file and incorporating into the `YAML` header of your markdown document. 
+
+```
+---
+output:
+  html_document:
+    css: "style.css"
+---
+```
+
+There are a load of parameters that can be set in the YAML header to customise your document, including themes, table of contents and even custom chunks of HTML to be included. You can even include R functions in the YAML header to make aspects dynamic. Try changing the parameters below in the YAML and `knitting` the document to see the outputs.
+
+```
+---
+author: "`r Sys.getenv('USERNAME')`"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+---
+
+```
+
+Pretty much every element of a `highcharter` plot can be customised as well. You can use the `highcharts` JavaScript API reference to see the full range of customisation options.
+
+__NOTE:__ the JavaScript reference needs to be "translated" into R.
+
