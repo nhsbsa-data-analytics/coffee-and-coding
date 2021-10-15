@@ -13,6 +13,7 @@ install.packages(
     "leaflet",
     "scales",
     "lubridate",
-    "nycflights13"
+    "nycflights13",
+    "knitr"
   )
 )
