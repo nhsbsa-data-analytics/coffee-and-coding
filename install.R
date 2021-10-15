@@ -10,6 +10,9 @@ install.packages(
     "shinycssloaders",
     "shinyWidgets",
     "rgdal",
-    "leaflet"
+    "leaflet",
+    "scales",
+    "lubridate",
+    "nycflights13"
   )
 )
