@@ -14,6 +14,7 @@ install.packages(
     "scales",
     "lubridate",
     "nycflights13",
-    "knitr"
+    "knitr",
+    "rmarkdown"
   )
 )
