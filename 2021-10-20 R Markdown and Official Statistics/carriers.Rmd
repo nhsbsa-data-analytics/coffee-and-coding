@@ -1,0 +1,62 @@
+---
+title: "Flights from NYC - 2013"
+author: "`r Sys.getenv('USERNAME')`"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output: 
+  html_document:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Delays report for carrier -  `r carrier_nm`
+
+This is a report for all flights that departed NYC airports for the carrier - `r carrier_nm`.
+
+## Delayed departures
+
+```{r carrier_delays}
+
+carrier_delays_df %>% 
+  hchart(type = "line", hcaes(x = month_name, y = delayed_flights_per)) %>% 
+  # we can make the title of the chart dynamic, to update automatically
+  hc_title(text = paste0("Monthly percentage of delayed flights for carrier <span style='color: red;'><b>", carrier_nm, "</b></span>")) %>% 
+  hc_xAxis(title = list(text = "Date"),
+           type = "category") %>% 
+  hc_yAxis(title = list(text = "Delayed flights (%)"),
+           min = 0,
+           max = 100)
+```
+
+## Average delay
+
+```{r carrier_avg_delays}
+
+carrier_avg_delays_df %>% 
+  hchart(type = "line", hcaes(x = month_name, y = avg_delay)) %>% 
+  # we can make the title of the chart dynamic, to update automatically
+  hc_title(text = paste0("Average delay time <i>in minutes</i> for carrier <span style='color: red;'><b>", carrier_nm, "</b></span>")) %>% 
+  hc_xAxis(title = list(text = "Date")) %>% 
+  hc_yAxis(title = list(text = "Average delay time (mins)"),
+           min = 0,
+           max = 100)
+```
+
+## Most delayed flights
+
+The flight with the longest delay for each month and most likely to have passengers claiming compensation are:
+
+* January: __`r flights2 %>% filter(carrier == carrier, month == 1) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* February: __`r flights2 %>% filter(carrier == carrier, month == 2) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* March: __`r flights2 %>% filter(carrier == carrier, month == 3) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* April: __`r flights2 %>% filter(carrier == carrier, month == 4) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* May: __`r flights2 %>% filter(carrier == carrier, month == 5) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* June: __`r flights2 %>% filter(carrier == carrier, month == 6) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* July: __`r flights2 %>% filter(carrier == carrier, month == 7) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* August: __`r flights2 %>% filter(carrier == carrier, month == 8) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* September: __`r flights2 %>% filter(carrier == carrier, month == 9) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* October: __`r flights2 %>% filter(carrier == carrier, month == 10) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* November: __`r flights2 %>% filter(carrier == carrier, month == 11) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__
+* December: __`r flights2 %>% filter(carrier == carrier, month == 12) %>% filter(dep_delay == max(dep_delay, na.rm = TRUE)) %>% pull(tailnum)`__

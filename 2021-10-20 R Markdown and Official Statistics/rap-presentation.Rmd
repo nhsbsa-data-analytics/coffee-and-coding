@@ -1,0 +1,94 @@
+---
+title: "R Markdown & Official Statistics"
+author: "Matthew Wilson"
+date: "20 Oct 2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+library(htmltools)
+
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Agenda
+
+1. introduction
+2. a quick presentation -- time to let binder load
+3. code along
+4. questions
+
+## Reproducible Analytical Pipelines (RAP)
+
+RAPs are automated statistical and analytical processes. They incorporate elements of software engineering best practice to ensure that the pipelines are reproducible, auditable, efficient, and high quality.
+
+They use open source software, version control, unit testing, and should be well documented.
+
+First used by statisticians and data scientists at the Government Digital Service (GDS) in 2016 to help streamline and improve the quality of government Official Statistics.
+
+Now used across government and the public sector in a myriad of data science and analytical projects.
+
+## The problem
+
+Traditionally government statistics used proprietary software, were published in inaccessible formats, involved a lot of manual processes, were subject to user error, and were resource intensive.
+\
+\
+\
+
+```{r problem_image}
+htmltools::img(src = "assets/rap-problem.png", 
+               alt = "Traditional Official Statistics workflow",
+               style = "display: block; margin-left: auto; margin-right: auto;")
+```
+
+## The solution
+
+RAPs use free, open source software, allow publishing in HTML, automate tasks from data extraction to final presentation, reduce user error due to removing manual processes, and reduce the amount of resource required.
+\
+\
+\
+
+```{r solution_image}
+htmltools::img(src = "assets/rap-solution.png", 
+               alt = "RAP Official Statistics workflow",
+               style = "display: block; margin-left: auto; margin-right: auto;")
+```
+
+## Levels of RAP
+
+```{r levels_image}
+htmltools::img(src = "assets/rap-levels.png", 
+               alt = "Different levels of reproducible analytical pipelines",
+               style = "display: block; margin-left: auto; margin-right: auto; max-width: 100%; max-height: 100%;")
+```
+
+## R Markdown
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. 
+
+Can be used to create:
+
+* static & interactive documents
+* dashboards
+* presentations
+* books
+* websites
+* package & code documentation
+
+For more details on using R Markdown see the [R Studio website](http://rmarkdown.rstudio.com).
+
+## How we use R Markdown
+
+The Official Statistics team use RAPs and R Markdown to produce the narrative the we publish alongside all of our statistics. These narratives are static HTML web pages that are accessible through our main website. They meet WCAG 2.1, and look a lot better than a PDF document that contains Excel charts.
+
+Using R Markdown and RAP principles dramatically reduces the time required produce a publication once the pipeline is created. Bringing the resource burden down from weeks to days.
+
+Quality assurance is built in and automated.
+
+We can produce a full publication "with the click of a button".
+
+## NHSBSA examples
+
+* [Prescription Cost Analysis (PCA)](https://nhsbsa-opendata.s3.eu-west-2.amazonaws.com/pca/pca_summary_narrative_2020_21_v001.html)
+* [Medicines Used in Mental Health](https://nhsbsa-opendata.s3.eu-west-2.amazonaws.com/mumh/mumh_annual_2020_21_v001.html)
+* [Prescribing for Diabetes](https://nhsbsa-opendata.s3.eu-west-2.amazonaws.com/pfd/pfd_annual_2020_21_v001.html)
