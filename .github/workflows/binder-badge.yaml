@@ -20,9 +20,7 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: |
-              `[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/${PR_HEAD_USERREPO}/${PR_HEAD_REF}) :point_left: Launch a Binder JupyterLab instance on branch _${PR_HEAD_USERREPO}/${PR_HEAD_REF}_`
-              `[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/${PR_HEAD_USERREPO}/${PR_HEAD_REF}?urlpath=rstudio) :point_left: Launch a Binder RStudio instance on branch _${PR_HEAD_USERREPO}/${PR_HEAD_REF}_`
+            body: `Launch a Binder JupyterLab [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/${PR_HEAD_USERREPO}/${PR_HEAD_REF}) or RStudio [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/${PR_HEAD_USERREPO}/${PR_HEAD_REF}?urlpath=rstudio) instance on branch _${PR_HEAD_USERREPO}/${PR_HEAD_REF}_`
           })
       env:
         PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
