@@ -15,6 +15,8 @@ install.packages(
     "lubridate",
     "nycflights13",
     "knitr",
-    "rmarkdown"
+    "rmarkdown",
+    "skimr",
+    "tidyr"
   )
 )
