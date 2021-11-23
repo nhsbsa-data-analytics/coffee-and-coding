@@ -1,0 +1,723 @@
+---
+title: "Highcharts - Introduction"
+author: "Adnan Shroufi"
+date: "23/11/2021"
+output: html_document
+---
+
+### Introduction ---------------------------------------------------------------
+
+## Introduction to Highcharter
+
+This is an introduction to highcharter.
+We will look at:
+
+- Using the hchart() function
+- Editing the appearance of a highchart
+- Making a highchart interactive
+- Using dplyr for data manipulation
+
+We'll be using a small extract of data from the ODP to do this.
+
+## Load Packages
+
+Before we bring in the data downloaded from data ODP, we need to make sure have all the required packages installed.
+
+```{r, message=F}
+library(highcharter)
+library(dplyr)
+library(tidyr)
+library(skimr)
+```
+
+## Load some Data downloaded from the ODP
+
+To save time, data has been already extacted from the ODP.
+We will load this directly, rather than 'live' through the API.
+Below are the key features of the data:
+
+- 12 months of data (2020)
+- BNF Chapter 23 on Stoma Appliances (e.g. colostomy bags)
+- Only for postcodes beginning with 'NE42' (the Prudhoe area)
+
+```{r pressure, echo=FALSE}
+data = readRDS("highcharter_intro.Rds")
+```
+
+### Data Overview --------------------------------------------------------------
+
+## Summary Functions
+
+We can have a quick look at the data and see that it's fairly straight forward, with just 6 columns.
+
+```{r}
+head(data)
+skim(data)
+```
+
+## Further Inspection of Category-based Variables
+
+We can inspect some of the category-based variables.
+We can see that most of records relate to prescribing from the Prudhoe Medical Group.
+
+```{r}
+table(data$practice_name)
+```
+
+Skin fillers and protectives, adhesive removers and colostomy bags were the most prescribed stoma appliances.
+
+```{r}
+table(data$chemical_substance_bnf_descr)
+```
+
+If we pitch the above 2 variables against each other, we can get a handy 2-way summary table.
+
+```{r}
+table(data$chemical_substance_bnf_descr, data$practice_name)
+```
+
+### Creating Charts using Highcharter ------------------------------------------
+
+## Introduction to hchart()
+
+In highcharter there are a couple of ways of creating plots, either using hchart() or with individual series.
+This introduction will focus on hchart, as it is the easiest way to create nice looking plots with highcharter.
+
+The hchart() function is very similar to the ggplot() function, although there are a couple of differences.
+In ggplot you specify the aes() and then on a following line specify the plot type.
+
+E.g. ggplot(data, aes(x = practice_name, y = items))+
+      geom_col()
+
+Whereas with hchart you specify the plot type within the initial function.
+
+E.g. hchart(data, type = "column", hcaes(x = practice_name, y = items))
+
+The hchart function works in a similar way to ggplot, with the hcaes() functioning similar to ggplot's aes().
+Aside from that, while you '+' ggplot commands together, in highcharter you need to '%>%' them.
+All in all, the way you chain multiple lines of code together is similar, in order to build plots of building complexity.
+We'll be doing that in this introduction, starting with simple plots and then building them up.
+
+We will be looking at 3 plots.
+First up is a bar chart.
+
+## Plot 1.1: Column/Bar Chart
+
+The first plot is looked at all items across all 3 practices, grouped by the 12 'chemical substances' present in the data.
+After we've grouped the data, the 12 chemical substances are put on the x-axis and the number of items on the y-axis.
+
+
+```{r, message=F}
+filtered_data = data %>% 
+  group_by(chemical_substance_bnf_descr) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup()
+
+filtered_data
+
+hchart(filtered_data, type = "column", hcaes(x = chemical_substance_bnf_descr, y = items))
+```
+
+# Plot 1.2: 'Piping' Data straight into hchart
+
+An alternative way of doing the above is to actually the aggregation and plot together.
+You do can this by piping the aggregation code straight into hchart().
+As a result, you don't need to insert any data object into the function, as the data is already being piped through.
+We'll be doing this with hchart() for the rest of the introduction.
+The below code returns the same as above, but as a single code-block.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup() %>% 
+  hchart(type = "column", hcaes(x = chemical_substance_bnf_descr, y = items))
+```
+
+## Plot 1.3: Arranging the Data
+
+Before evven tweaking any highcharter code, we can order the bars.
+This is using the arrange(...) function within dplyr.
+If you used arrange(desc(...)), this would order the data from largest from smallest.
+The would mean the tallest bar would be on the far left.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup() %>% 
+  arrange(items) %>% 
+  hchart(type = "column", hcaes(x = chemical_substance_bnf_descr, y = items))
+```
+
+## Plot 1.4: Group by Practice
+
+Putting the practice_name within the group_by allows us to see the number of items by chem-sub per practice.
+Within the hcaes(), if we put in group = practice_name, this then separates each practice as a different group.
+Within a "column" type plot, this defaults to a side-by-side plot.
+This could be turned into a stacked bar without much work if needed.
+That code is hashed-out below, as we haven't covered hc_plotOptions yet.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup() %>% 
+  arrange(items) %>% 
+  hchart(type = "column", hcaes(x = chemical_substance_bnf_descr, y = items, group = practice_name)) 
+```
+
+## Plot 1.5: Add a Tooltip
+
+One of the (many) good things about highcharter, is the ease at which a tooltip can be implemented/formatted.
+You can do this manually, as we'll do later.
+Or if you just want each series (i.e. group = practice_name) to appear within the same tooltip, using hc_tooltip(table = T).
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup() %>% 
+  arrange(items) %>% 
+  hchart(type = "column", hcaes(x = chemical_substance_bnf_descr, y = items, group = practice_name)) %>% 
+  hc_tooltip(table = T)
+```
+
+## Plot 1.6 Commplete the Data within the Chart
+
+However, the tooltip appear incomplete.
+This is because we need to generate zero values when a practice does not have any chem-sub types.
+To generate these zero values, we can use complete().
+The tooltip will now show these 'missing' values.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup() %>% 
+  complete(chemical_substance_bnf_descr, practice_name, fill = list(items = 0)) %>% 
+  arrange(items) %>% 
+  hchart(type = "column", hcaes(x = chemical_substance_bnf_descr, y = items, group = practice_name)) %>% 
+  hc_tooltip(table = T)
+```
+
+# Plot 1.7: Bar vs Column
+
+Using the exact same code, we can change the plot to a horizontal bar chart, just by using type = "bar", rather than "column".
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(items = sum(items)) %>% 
+  ungroup() %>% 
+  complete(chemical_substance_bnf_descr, practice_name, fill = list(items = 0)) %>% 
+  arrange(items) %>% 
+  hchart(type = "bar", hcaes(x = chemical_substance_bnf_descr, y = items, group = practice_name)) %>% 
+  hc_tooltip(table = T)
+```
+
+## Plot 2.1: Basic Line Chart
+
+If type is changed to "line", this creates a line chart.
+Obviously we neeed to use year_month for the x-axis here.
+There is only 1 line, as the data is not grouped by practice.
+
+```{r, message=F}
+data %>% 
+  group_by(year_month) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  hchart(type = "line", hcaes(x = year_month, y = nic))
+```
+
+## Plot 2.2: Grouped Line Chart
+
+If we add practice_name to the group_by and the hcaes(), we will create 1 line per practice.
+
+```{r, message=F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  hchart(type = "line", hcaes(x = year_month, y = nic, group = practice_name))
+```
+
+# Plot 2.3: Add Tooltip and Complete Data
+
+As with the previous plot, we can generate the zero values using complete and add a tooltip-table.
+
+```{r, message=F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  hchart(type = "line", hcaes(x = year_month, y = nic, group = practice_name)) %>% 
+  hc_tooltip(table = T)
+```
+
+## Plot 2.4: Add a Zoom
+
+Another quick win.
+Using hc_chart(zoomType = "..."), we can add a zoom.
+"xy" means the zoom box can be dragged both horizontally and vertically.
+
+```{r, message=F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  hchart(type = "spline", hcaes(x = year_month, y = nic, group = practice_name)) %>% 
+  hc_tooltip(table = T) %>% 
+  hc_chart(zoomType = "xy")
+```
+
+## Plot 2.5: Edit Zoom Type and Manually Specify Tooltip
+
+With a line chart, you may want a zoom that only moves horizontally.
+This means a zoom on a particular year_month will not exclude any data.
+This can be done easilt through zoomType = "x", rather than "xy".
+
+To manually specify the tooltip we use 'pointFormat = ' to format the tooltip appearance.
+We can use HTML within this to fine tune the appearance.
+
+'<b>' means begin bold text.
+'</b>' means end bold text.
+This means the word 'NIC:' will be in bold below.
+
+In contrast to the hard-coded text above, we can choose appears dynamically, as the cursor moves.
+{point.vars_name} determines this.
+
+{point.items} = items
+{point.year_month} = year_month
+And so on.
+
+```{r, message = F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  hchart(type = "spline", hcaes(x = year_month, y = nic, group = practice_name)) %>% 
+  hc_tooltip(
+    pointFormat = "<b>NIC:</b> {point.nic}"
+    )
+```
+
+## Plot 2.6: Continue to Develop Chart Tooltip
+
+We can now add further items to the tooltip.
+'<br>' = line break.
+This means we can spread a tooltip over multiple lines.
+
+```{r, message = F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  hchart(type = "spline", hcaes(x = year_month, y = nic, group = practice_name)) %>% 
+  hc_chart(zoomType = "x") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Year Month:</b> {point.year_month}<br>
+    <b>Practice Name:</b> {point.practice_name}<br>
+    <b>NIC:</b> {point.nic}"
+  )
+```
+
+## Plot 2.7: Mutate Additional Variables Specifically for Tooltip
+
+The mutate() function either creates, or overrides, a variable.
+Using substr(), inside a mutate, we can then take a substring of year_month to get the year and month alone. 
+The tooltip code needs to be edited to reflect this.
+
+```{r, message = F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  mutate(
+    year = substr(year_month, 1, 4),
+    month = substr(year_month, 5, 6)
+  ) %>% 
+  hchart(type = "spline", hcaes(x = year_month, y = nic, group = practice_name)) %>% 
+  hc_chart(zoomType = "x") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Year:</b> {point.year}<br>
+    <b>Month:</b> {point.month}<br>
+    <b>Practice Name:</b> {point.practice_name}<br>
+    <b>NIC:</b> {point.nic}"
+  )
+```
+
+## Plot 2.8: Generate Month as words and Add £ to NIC
+
+We can convert a month from a number to a word using month.name[...].
+However, month,name[...] expects an integer, but the output of substr() is a character.
+Therefore, we need to convert the substr month to an integer first.
+We can also insert a '£' symbol into the tooltip.
+
+```{r, message = F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  mutate(
+    year = substr(year_month, 1, 4),
+    month = substr(year_month, 5, 6),
+    month = month.name[as.integer(month)]
+    ) %>% 
+  hchart(type = "spline", hcaes(x = year_month, y = nic, group = practice_name)) %>% 
+  hc_chart(zoomType = "x") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Year:</b> {point.year}<br>
+    <b>Month:</b> {point.month}<br>
+    <b>Practice Name:</b> {point.practice_name}<br>
+    <b>NIC:</b> £{point.nic}"
+  )
+```
+
+## Plot 2.9: Finally, remove the Tooltip Header, add a Thousand Separator and change x-axis 
+
+Within the manually specified tooltip, we need to remove the header.
+This can be done using 'headerFormat = ""'.
+A little bit of code can also generate a thousand separator.
+We can also set month on the x-axis instead of year_month.
+
+```{r, message=F}
+data %>% 
+  group_by(year_month, practice_name) %>% 
+  summarise(nic = round(sum(nic))) %>% 
+  ungroup() %>% 
+  complete(year_month, practice_name, fill = list(nic = 0)) %>% 
+  mutate(
+    year_month = as.integer(year_month),
+    year = substr(year_month, 1, 4),
+    month = as.integer(substr(year_month, 5, 6)),
+    month = month.name[month]
+    ) %>% 
+  hchart(type = "spline", hcaes(x = month, y = nic, group = practice_name)) %>% 
+  hc_chart(zoomType = "x") %>% 
+  hc_tooltip(
+    headerFormat = "",
+    pointFormat = "<b>Year:</b> {point.year}<br>
+    <b>Month:</b> {point.month}<br>
+    <b>Practice Name:</b> {point.practice_name}<br>
+    <b>NIC:</b> £{point.nic:,2f}"
+  )
+```
+
+## Plot 3.1: Basic Scatter Graph
+
+'type = "scatter"' creates a basic scatter plot.
+'group = ' determines the series within the data.
+
+3 groups create 3 series.
+Each series can be selected/de-selectedd from the legend.
+Each series is coloured differently.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, group = practice_name))
+```
+
+## 3.2: Add a Zoom
+
+Add a zoom, zooms are great for exploring data within a scatter plot.
+Highcharter scatter plots with zoom, can be a great way to conduct EDA.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") 
+```
+
+## Plot 3.3: Edit Tooltip & Add Z-Value
+
+Although the tooltip highlights an entire series, the data displayed just refers to a single point.
+You will need to manually create a tooltip for a scatter plot.
+
+If we add 'z = ' to the plot, we can determine point size in relation to a variable within the data.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr}"
+  )
+```
+
+## Plot 3.4: Further Edit Tooltip & Z-Value
+
+We can build the tooltip up as like with a previous plot.
+
+If we square the z-value, this will accentuate the difference in size in point size.
+Squaring the values means the relative difference between the smallest and biggest values will be bigger. 
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> {point.nic} <br>
+    <b>Items:</b> {point.items} <br>
+    <b>Total Quantity:</b> {point.total_quantity}"
+  )
+```
+
+## Plot 3.5: Change Series Colors
+
+There are 3 series.
+If we pass 3 colours to hc_colors, we can change each respective colour.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> £{point.nic:,.0f} <br>
+    <b>Items:</b> {point.items:,.0f} <br>
+    <b>Total Quantity:</b> {point.total_quantity:,.0f} "
+  ) %>% 
+  hc_colors(colors = c("darkblue", "lightblue", "purple"))
+```
+
+## Plot 3.6: Credits & Title
+
+Credits need to be added to all highcharts plots, which is easily done.
+A title can also be easily added.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> £{point.nic:,.0f} <br>
+    <b>Items:</b> {point.items:,.0f} <br>
+    <b>Total Quantity:</b> {point.total_quantity:,.0f}"
+  ) %>% 
+  hc_colors(colors = c("darkblue", "lightblue", "purple")) %>% 
+  hc_credits(enabled = T) %>% 
+  hc_title(text = "Total NIC and Items for GP Practices in Prudhoe in 2020")
+```
+
+## Plot 3.7: Fine Tune Title Appearance 
+
+We can also use HTML within hc_title.
+We can also change the font and font size easily.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> £{point.nic:,.0f} <br>
+    <b>Items:</b> {point.items:,.0f} <br>
+    <b>Total Quantity:</b> {point.total_quantity:,.0f}"
+  ) %>% 
+  hc_colors(colors = c("darkblue", "lightblue", "purple")) %>% 
+  hc_credits(enabled = T) %>% 
+  hc_title(
+    text = "<b>Total NIC and Items for GP Practices in Prudhoe in 2020</b>",
+    style = list(
+      fontFamily = "arial",
+      fontSize = 25
+      )
+  )
+```
+
+## Plot 3.8: Change Theme and Add Subtitle
+
+We can add a subtitle too easily.
+Again, HTML can be used, for example to create a line break.
+
+You can also change the theme of a plot, which changes how its axes and background appears.
+Note, some themes also change the font.
+Custom themes can also be created, although we won't do that today.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> £{point.nic:,.0f} <br>
+    <b>Items:</b> {point.items:,.0f} <br>
+    <b>Total Quantity:</b> {point.total_quantity:,.0f}"
+  ) %>% 
+  hc_colors(colors = c("darkblue", "lightblue", "purple")) %>% 
+  hc_credits(enabled = T) %>% 
+  hc_title(
+    text = "<b>Total NIC and Items for GP Practices in Prudhoe in 2020</b>",
+    style = list(
+      fontFamily = "arial",
+      fontSize = 25
+    )
+  ) %>% 
+  hc_subtitle(text = "Only Stoma Appliances Included <br> BNF Chapter 23") %>% 
+  hc_add_theme(hc_theme_elementary())
+```
+
+## Plot 3.9: Add a Caption
+
+We can also easily add a caption below a plot.
+Again, this can contain HTML.
+<em> and </em> allow us to italicise text.
+We can also use the 'align=' and 'margin=' parameters to change the caption position, and the distance between the caption and the plot.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> £{point.nic:,.0f} <br>
+    <b>Items:</b> {point.items:,.0f} <br>
+    <b>Total Quantity:</b> {point.total_quantity:,.0f}"
+  ) %>% 
+  hc_colors(colors = c("darkblue", "lightblue", "purple")) %>% 
+  hc_credits(enabled = T) %>% 
+  hc_title(
+    text = "<b>Total NIC and Items for GP Practices in Prudhoe in 2020</b>",
+    style = list(
+      fontFamily = "arial",
+      fontSize = 25
+    )
+  ) %>% 
+  hc_subtitle(text = "Only Stoma Appliances Included <br> BNF Chapter 23") %>% 
+  hc_add_theme(hc_theme_elementary()) %>% 
+  hc_caption(
+    text = '<b>Size of points related to Total Quantity</b> <br><em>Use Tooltip to Check Total Quantity</em>',
+    align = "center",
+    margin = 20
+    )
+```
+
+## Plot 3.10: Edit Axes
+
+Axis text can be added easily enough.
+Axis limits can be defined too within the same functions.
+
+```{r, message=F}
+data %>% 
+  group_by(chemical_substance_bnf_descr, practice_name) %>% 
+  summarise(
+    nic = sum(nic),
+    total_quantity = sum(total_quantity),
+    items = sum(items)
+  ) %>% 
+  ungroup() %>% 
+  hchart(type = "scatter", hcaes(x = nic, y = items, z = total_quantity^2, group = practice_name)) %>% 
+  hc_chart(zoomType = "xy") %>% 
+  hc_tooltip(
+    pointFormat = "<b>Chemical Substance:</b> {point.chemical_substance_bnf_descr} <br>
+    <b>NIC:</b> £{point.nic:,.0f} <br>
+    <b>Items:</b> {point.items:,.0f} <br>
+    <b>Total Quantity:</b> {point.total_quantity:,.0f}"
+  ) %>%  
+  hc_colors(colors = c("darkblue", "lightblue", "purple")) %>% 
+  hc_credits(enabled = T) %>% 
+  hc_title(
+    text = "<b>Total NIC and Items for GP Practices in Prudhoe in 2020</b>",
+    style = list(
+      fontFamily = "arial",
+      fontSize = 25
+    )
+  ) %>% 
+  hc_subtitle(text = "Only Stoma Appliances Included <br> BNF Chapter 23") %>% 
+  hc_caption(
+    text = '<b>Size of points related to Total Quantity</b> <br><em>Use Tooltip to Check Total Quantity</em>',
+    align = "center",
+    margin = 20
+  ) %>% 
+  hc_add_theme(hc_theme_elementary()) %>% 
+  hc_xAxis(
+    min = 0,
+    max = 7000,
+    title = list(text = "Total Ingredient Cost (NIC) in £")
+  ) %>% 
+  hc_yAxis(
+    min = 0,
+    max = 200,
+    title = list(text = "Total Items")
+  )
+```
+
+### Review of 3 Charts
+
+If we look at the final code for the 3 plot charts, while it looks fairly lengthy, if you break it down it's fairly simple.
+Using a small number of functions we can build plots of increasing complexity.
+The final thing, is to now review all of the code/functions used today (see powerpoint).
+
+## End of Highcharter introduction----------------------------------------------
