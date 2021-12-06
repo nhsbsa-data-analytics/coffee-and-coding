@@ -23,15 +23,15 @@ We also use GitHub Actions to automate the Binder build process.
 
 ### Sessions
 
-Our next session is organised for 20th October and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
+Our next session is organised for 15th December and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host             | Title                                                      |
 | :-------------------- | :--------------  | :--------------------------------------------------------- | 
-| 2022-01-19            | Grace Libby      | TBC                                                        |
-| 2021-12-15            | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R                                     |
+| 2022-01-19            | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}` |
+| 2021-12-15 *          | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R        |
 |                       | Mark McPherson   |                                                            |
 | 2021-11-24            | Adnan Shroufi    | Introduction to Highcharter                                |
-| 2021-10-20 *          | Matthew Wilson   | R Markdown and Official Statistics                         |
+| 2021-10-20            | Matthew Wilson   | R Markdown and Official Statistics                         |
 | 2021-09-22            | Graham Platten   | Using R Shiny with our Open Data Portal                    |
 | 2021-08-25            | Philip Godfrey   | Exploring the Titanic in R                                 |
 | 2021-07-21            | Kayoung Goffe    | TidyTuesday Penguins with Python                           |
