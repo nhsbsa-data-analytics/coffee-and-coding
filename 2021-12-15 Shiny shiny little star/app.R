@@ -18,8 +18,8 @@ library(qdapRegex)
 library(reshape2)
 library(chron)
 
-
-#~~~~WARNING: before running this app, set the correct current month on the data page~~~~
+local_secrets <- paste0(Sys.getenv("Home"),"/.secrets")
+app_secrets   <- ".secrets"
 
 #~~~~header function~~~~
 mbie_header <- function()
@@ -50,45 +50,40 @@ options(warn=-1)
 server <- function(input, output, session) {
 
   source('./Pages/ui/pages/overall.R', local = TRUE)
-  
+
   values <- reactiveValues()
 
-  # Set authentication token to be stored in a folder called `.secrets`
-  options(
-    gargle_oauth_cache = ".secrets",
-    gargle_oauth_email = TRUE,
-    gargle_verbosity = "debug"
-  )
-  
-  # Authenticate manually
-  #gs4_auth()
-  
-  # If successful, the previous step stores a token file.
-  # Check that a file has been created with:
-  #list.files(".secrets/")
-  
-  # Check that the non-interactive authentication works by first deauthorizing:
-  #gs4_deauth()
-  
-  # Authenticate using token. If no browser opens, the authentication works.
-  gs4_auth()
-  #gs4_auth(cache = ".secrets", email = "helen.odonnell3@nhs.net")
-  
-  #Allows the google sheets file to be accessed via the token id
-  # sheets_auth(email = 'helen.odonnell3@nhs.net', cache = 'token/', token = 'token/AIzaSyATJ2Dk3Jt_RbwA6OHZZqcrDKoBBPhMSBE_helen.odonnell3@nhs.net')
-  
+  ### FIRST TIME RUN ONLY ###
+  ### Handling file path too long issue ###
+  #' Set authentication token to be stored in a folder called `.secrets` in users
+  #' Home directory, e.g."C:/Users/Mark/Documents/.secrets"
+  # options(gargle_oauth_cache = local_secrets)
+
+  #' Authenticate manually
+  # gs4_auth()
+
+  #' If successful, the previous step stores a token file.
+  #' Check that a file has been created with:
+  # list.files(app_secrets)
+
+  #' Check that the non-interactive authentication works by first deauthorizing:
+  # gs4_deauth()
+  ### END FIRST TIME RUN ###
+
+  ### USE cache = local_secrets FOR RUNNING LOCALLY ###
+  #' Authenticate using token. If no browser opens, the authentication works.
+  #' Replace the email with your own email.
+  # gs4_auth(cache = local_secrets, email = "mark.mcpherson1@nhs.net")
+
+  ### USE cache = app_secrets WHEN DEPLOYING ###
+  ### REMEMBER TO COPY YOUR .secrets FOLDER INTO APP! ###
+  gs4_auth(cache = app_secrets, email = "mark.mcpherson1@nhs.net")
+
   #The data sheet is read in and saved
   #https://docs.google.com/spreadsheets/d/131i5fa-I7XD3CYJWUyd5s52OXLBELWTOfrHv12Y5iio/edit?usp=sharing
   values$data_input <- read_sheet(ss = '131i5fa-I7XD3CYJWUyd5s52OXLBELWTOfrHv12Y5iio', sheet = 'Sheet1', col_types = 'ncnnnnnnnnnnnn', col_names = TRUE)
   #values$data_input <- read_sheet(ss = '1smjyczJJGjnbpT78NxLqar6-SUXHVkgXdjY1IMHNUB0', sheet = 'Sheet1', col_types = 'ncnnnnnnnnnnnn', col_names = TRUE)
-  
-  
-  #Allows the google sheets file to be accessed via the token id
-  sheets_auth(email = 'helen.odonnell3@nhs.net', cache = 'token/', token = 'token/AIzaSyATJ2Dk3Jt_RbwA6OHZZqcrDKoBBPhMSBE_helen.odonnell3@nhs.net')
-  
-  #The data sheet is read in and saved
-  values$data_input <- read_sheet(ss = '1smjyczJJGjnbpT78NxLqar6-SUXHVkgXdjY1IMHNUB0', sheet = 'Sheet1', col_types = 'ncnnnnnnnnnnnn', col_names = TRUE)
-
+  print(isolate(values$data_input))
   #This event happens when the log details button is clicked
   observeEvent(input$logButton, {
 
@@ -111,10 +106,10 @@ server <- function(input, output, session) {
     )
 
     #the tibble is added onto the bottom row of the LOGGING datatable in the Google Sheets database
-    sheet_append(logging_details, ss = '1smjyczJJGjnbpT78NxLqar6-SUXHVkgXdjY1IMHNUB0', sheet = 'Sheet1')
+    sheet_append(logging_details, ss = '131i5fa-I7XD3CYJWUyd5s52OXLBELWTOfrHv12Y5iio', sheet = 'Sheet1')
 
-    values$data_input <- read_sheet(ss = '1smjyczJJGjnbpT78NxLqar6-SUXHVkgXdjY1IMHNUB0', sheet = 'Sheet1', col_types = 'ncnnnnnnnnnnnn', col_names = TRUE)
-    
+    values$data_input <- read_sheet(ss = '131i5fa-I7XD3CYJWUyd5s52OXLBELWTOfrHv12Y5iio', sheet = 'Sheet1', col_types = 'ncnnnnnnnnnnnn', col_names = TRUE)
+
     values$dataset <<- values$data_input %>%
       mutate(
         One = case_when(One == TRUE ~ 1, TRUE ~ 0),
@@ -134,17 +129,17 @@ server <- function(input, output, session) {
         Weight_Total = (11*One)+(2*Two)+(3*Three)+(4*Four)+(0.5*Five)+(5*Six)+
           (7*Seven)+(14*Eight)+(13*Nine)+(16*Ten)+(15*Eleven)+(17*Twelve)
       )
-    
+
     latest_details <- values$dataset %>%
       filter(ID == max(ID))
-    
+
     #The validation text is rendered to be displayed on the page
     output$submittedLogDetails <- renderText ({
       paste0("Details submitted. Total items taken: ", latest_details$Total[1], ". Total weight: ", latest_details$Weight_Total[1], "kg.")
     })
-    
+
   })
-  
+
 }
 
 shinyApp(ui = ui, server = server)
