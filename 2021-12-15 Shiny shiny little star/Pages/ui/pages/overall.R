@@ -161,9 +161,10 @@ output$total_items <- renderHighchart({
     # select(ID, Elf, Total, Weight_Total) %>%
     mutate(factor = Weight_Total/Usual_weight) %>%
     filter(!factor > 8/6.5) %>%
-    filter(Total == max(Total))
+    filter(Total == head(Total))
 
   items_combo <- data_used %>%
+    filter(Total == max(Total)) %>%
     gather(ID, Elf) %>%
     filter(!ID == "Total", !ID == "factor", !ID == "Weight_Total", !Elf == 0) %>%
     mutate(
@@ -209,13 +210,9 @@ output$total_items <- renderHighchart({
       )
     )
   
-  joined <- latest_attempt %>%
-    full_join(data_used) %>%
-    mutate(
-      colour = c("#da291c", "#12c41e")
-    ) %>%
-    arrange(desc(Total)) %>%
-    ungroup()
+  data_used <- data_used %>%
+    ungroup() %>%
+    arrange(desc(Total))
 
   highchart() %>%
     hc_title(text = paste0("Maximum items brought so far, arriving by 8am. Items combination:")) %>%
@@ -224,14 +221,23 @@ output$total_items <- renderHighchart({
              title = list(text = "Elf")
     ) %>%
     hc_add_series(
-      data = joined,
+      data = latest_attempt,
       hcaes(
         x = Elf,
         y = Total
       ),
+      color = "#005EB8",
       type = 'column'
     ) %>%
-    hc_colors(c("#12c41e")) %>%
+    hc_add_series(
+      data = data_used,
+      hcaes(
+        x = Elf,
+        y = Total
+      ),
+      color = "#66d4ff",
+      type = 'column'
+    ) %>%
     hc_tooltip(
       shared = FALSE,
       pointFormat = "<b>{point.Elf}: </b>{point.Total} items.<br>",
