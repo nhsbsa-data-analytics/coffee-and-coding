@@ -1,15 +1,21 @@
 install.packages(
   c(
+    "chron",
     "crul",
     "dplyr",
+    "DT",
     "ggplot2",
+    "googlesheets4",
     "highcharter",
     "jsonlite",
     "knitr",
     "leaflet",
     "lubridate",
     "nycflights13",
+    "qdapRegex",
+    "RColorBrewer",
     "readxl",
+    "reshape2",
     "rgdal",
     "rmarkdown",
     "scales",
@@ -17,6 +23,12 @@ install.packages(
     "shinyWidgets",
     "shinycssloaders",
     "skimr",
-    "tidyr"
+    "stringr",
+    "textdata",
+    "tidyr",
+    "tidytext",
+    "tidyverse",
+    "tm",
+    "wordcloud2"
   )
 )
