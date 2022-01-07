@@ -41,15 +41,15 @@ mbie_header <- function()
     div(class = "mbie-topbar"))
 
 
-source('./Pages/ui/ui.R', local = TRUE)
+source("Pages/ui/ui.R")
 
 options(warn=-1)
 
 
 server <- function(input, output, session) {
   
-  source("utils.R", local = TRUE)
-  source('./Pages/ui/pages/overall.R', local = TRUE)
+  source("utils.R")
+  source("Pages/ui/pages/overall.R")
   
   eval_lines("token.txt")
   
