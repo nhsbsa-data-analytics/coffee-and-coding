@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# Install a JupyterLab extension for rendering excel files (2022-01-19 session)
-jupyter labextension install jupyterlab-spreadsheet
