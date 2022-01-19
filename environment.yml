@@ -14,4 +14,4 @@ dependencies:
   - scipy=1.7.1
   # R
   - r-base=4.1.2
-  - r-chron=2.3_53
+  - r-dplyr=1.0.7
