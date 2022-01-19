@@ -1,7 +1,6 @@
 channels:
   - defaults
   - conda-forge
-  - f30a78ec8 # For r-textdata
 
 dependencies:
   # Python
@@ -39,7 +38,6 @@ dependencies:
   - r-shinycssloaders=1.0.0
   - r-skimr=2.1.3
   - r-stringr=1.4.0
-  - r-textdata
   - r-tidyr=1.1.4
   - r-tidytext=0.3.2
   - r-tidyverse=1.3.1
