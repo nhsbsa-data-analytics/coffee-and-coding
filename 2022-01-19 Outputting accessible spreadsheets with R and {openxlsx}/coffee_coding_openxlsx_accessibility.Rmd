@@ -1,0 +1,429 @@
+---
+title: "Outputting accessible spreadsheets in R using openxlsx"
+author: "Grace Libby"
+date: "19/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction to {openxlsx}
+
+Today we'll look at writing data into spreadsheets using the openxlsx package and data previously extracted from our Open Data Portal. 
+Along the way we will be referring to the Government Statistical Service's guidelines for improving accessibility in spreadsheet releases for the public. To start, we'll load in our data, then write a file with a single worksheet and add some formatting options. Then we'll move on to writing a workbook with multiple worksheets.
+
+##Resources
+
+Some useful resources for today's session include:
+
+- [GSS spreadsheet guidance](https://gss.civilservice.gov.uk/policy-store/releasing-statistics-in-spreadsheets/)
+- [openxlsx package introduction](https://cran.r-project.org/web/packages/openxlsx/vignettes/Introduction.html)
+- [openxlsx formatting vignette](https://cran.r-project.org/web/packages/openxlsx/vignettes/Formatting.html)
+- [NHSBSA Open Data Portal (ODP)](https://opendata.nhsbsa.net/) 
+
+You can also find an example of an output from the Official Statistics team in our recent MUMH Quarterly publication, 
+where Graham Platten wrote code using openxlsx to format the supporting tables released to the public. Much of the code used in this session is based on this.
+
+##Load required packages
+
+We'll start by loading the packages we need. I'm loading {tidyverse} as a whole package, but we'll mostly be using dplyr 
+from it for data manipulation.
+
+```{r, message = F}
+library(tidyverse)
+library(openxlsx)
+library(data.table)
+```
+
+##Load data
+
+As this session is focused on the outputs rather than the data itself, this step will be kept brief. I've chosen to 
+get a month's worth of data from the [PCA Monthly administrative dataset](https://opendata.nhsbsa.net/dataset/prescription-cost-analysis-pca-monthly-data). 
+
+Adam Ivison did a coffee and coding session on querying the ODP API previously, so I'd suggest looking at that if you want to go that route instead. I was interested in the total number of items and total Net Ingredient Cost (NIC) for each of the 42 Sustainability and Transformation Partnerships and the 7 NHS England Regions. To save time I already downloaded data for the month of November 2021 from the main dataset, kept the columns for STP Name, STP Code, Region Name, Region Code, then totaled the number of Items and Net Ingredient Cost (NIC) for each STP and kept those too.  
+
+
+This data can be found as a .csv file in the folder for today's session in the coffee and coding repo on Github.
+
+```{r data}
+DT <- data.table::fread("pca_nov_totals.csv")
+```
+
+###Look at data
+
+As this session is mostly focused on the output, the data itself is very simple. We'll fetch the first 6 rows to look at,
+but as there are only 42 STP's it's possible to look at the whole dataset without any issues around size.
+
+```{r}
+head(DT)
+
+#Can view whole dataset and check the class, if you want to
+
+# view(DT)
+# class(DT)
+```
+
+We need to change the column names. This can be done in dplyr, or when reading in the data using the col.names function in data.table::fread, but we'll actually end up doing this later when we write the data through openxlsx. As the session is looking at the output rather than the input, some of the usual initial data analysis and visualisation has been ommitted from the code.
+
+Have another quick look at the data by finding the STPs with the minimum and maximum:
+
+- number of items 
+- Net Ingredient Cost
+
+```{r}
+min_items <- DT %>%
+  dplyr::filter(TOTAL_ITEMS == min(TOTAL_ITEMS)) %>%
+  select(STP_NAME, TOTAL_ITEMS)
+
+max_items <- DT %>%
+  dplyr::filter(TOTAL_ITEMS == max(TOTAL_ITEMS)) %>%
+  select(STP_NAME, TOTAL_ITEMS)
+
+min_nic <- DT %>%
+  dplyr::filter(TOTAL_NIC == min(TOTAL_NIC)) %>%
+  select(STP_NAME, TOTAL_NIC)
+
+max_nic <- DT %>%
+  dplyr::filter(TOTAL_NIC == max(TOTAL_NIC)) %>%
+  select(STP_NAME, TOTAL_NIC)
+```
+
+###Write data to a file with openxlsx
+
+Openxlsx has a a lot of formatting options but can (in theory) be used without specifying any. As a quick test, we'll try writing the data in
+without setting up the formatting, just to see what it defaults to. This will write the file to your working directory. You might want to change the file name to something more descriptive.
+
+``` {r}
+openxlsx::write.xlsx(DT, file = "stp_pca_1.xlsx")
+```
+
+You could probably move it in and out of R without too many issues, but to a viewer it looks pretty terrible. We'll need to begin applying some formatting. 
+
+However, if we only format things to look good to a human viewer, we'll run into some accessibility issues. Most of the GSS guidelines for creating spreadsheets are aimed at creating a better experience for anyone using screenreader technology. But when creating publications and files, especially for external users unfamiliar with the data, only focusing on machine readability also leaves some people out. So we have to try and balance the two.
+
+In Official Statistics, the summary tables for our publications contain multiple sheets. Let's look at writing a workbook with a single sheet to start.
+
+We'll assign it to a workbook and apply the following:
+
+- set font style and size
+- remove gridlines
+- make sure data is written as an excel table and given a name 
+- rename column headers
+- choose an appropriate row to start the table at
+- make sure columns don't have a filter button
+
+It's important to write the data in as an Excel table in the final file as this lets the screenreader find the header row and edges of the data. Avoid having blank rows in the data. If some whitespace is needed between two rows of data for visual reasons, it's possible to adjust the row height of either all rows or a specific row. Having the table style as "none" and filter option set to FALSE in the code avoids Excel's default table options, which do not meet accessibility standards. 
+
+When choosing which row to start at, titles and notes should go above the table, so leave space for these while avoiding having blank rows. Ideally notes should be in a separate notes worksheet for users to refer to, but this may mean some users miss or ignore this information.
+
+An appropriate and descriptive title for the worksheet should go in the first cell (1,1).
+
+```{r workbook}
+#assign workbook as an object so we can edit it further afterwards
+
+wb <- createWorkbook()
+
+#add a worksheet (we'll look at adding more later) and set font style and size
+addWorksheet(wb, sheetName = "STP Totals")
+modifyBaseFont(wb, fontName = "Arial", fontSize = 10)
+
+#remove gridlines
+showGridLines(wb, sheet = "STP Totals", showGridLines = FALSE)
+
+#specify as excel table and rename columns
+#startRow is where the data starts, but keep in mind you must put a title in, and any notes go above the table
+openxlsx::writeDataTable(wb,
+          sheet = "STP Totals",
+          x = DT %>%
+            rename(`STP Name` = STP_NAME,
+                   `STP Code` = STP_CODE,
+                   `Region Name` = REGION_NAME,
+                   `Region Code` = REGION_CODE,
+                   `Total Items` = TOTAL_ITEMS,
+                   `Total Net Ingredient Cost (GBP)` = TOTAL_NIC) %>%
+            select(`STP Name`,
+                   `STP Code`,
+                   `Region Name`,
+                   `Region Code`,
+                   `Total Items`,
+                   `Total Net Ingredient Cost (GBP)`),
+          startRow = 3,
+          tableStyle = "none",
+          withFilter = FALSE,
+          tableName = "stp_totals")
+
+saveWorkbook(wb,
+             file = "stp_pca_2.xlsx",
+             overwrite = TRUE)
+```          
+
+###Write to multiple worksheets 
+
+Openxlsx code does get long very quickly, especially for multiple sheets.
+The output above doesn't look much different yet, so we'll continue to apply more formatting. We'll also add another worksheet after splitting up the data into STP level and Region level. 
+
+```{r}
+#take DT table and split into 2 datasets: one by STP level and one by Region level
+
+#the data is already totaled to STP level, so we just drop the Region Name and Region Code
+stp_dt <- DT %>%
+  dplyr::select(STP_NAME, STP_CODE, TOTAL_ITEMS, TOTAL_NIC)
+  
+#group by region and total the Items and NIC for each region  
+region_dt <- DT %>%
+  dplyr::select(REGION_NAME, REGION_CODE, TOTAL_ITEMS, TOTAL_NIC) %>%
+  dplyr::group_by(REGION_NAME, REGION_CODE) %>%
+  dplyr::summarise(TOTAL_ITEMS = sum(TOTAL_ITEMS), TOTAL_NIC = sum(TOTAL_NIC)) %>%
+  ungroup()
+```
+
+Now we'll write both datasets to the workbook.
+
+Note that automatically setting column widths and row heights is a bit tricky - generally these work but may need adjustment such as if a column header is a much different length to that column's contents. It's easiest to create the file, check, then adjust any code as needed and overwrite the old file. Openxlsx works well within a reproducible analytical pipeline (RAP), especially if column names are unlikely to change drastically. 
+
+Consider accessibility requirements when choosing text styles and font.
+
+```{r}
+
+wb_2 <- createWorkbook()
+
+addWorksheet(wb_2, sheetName = "STP Level")
+addWorksheet(wb_2, sheetName = "Region Level")
+
+#now there's more than 1 sheet, modifyBaseFont is useful as it applies across all sheets
+modifyBaseFont(wb_2, fontName = "Arial", fontSize = 10)
+
+showGridLines(wb_2, sheet = "STP Level", showGridLines = FALSE)
+showGridLines(wb_2, sheet = "Region Level", showGridLines = FALSE)
+
+#rename columns and write as data table
+openxlsx::writeDataTable(wb_2,
+          sheet = "STP Level",
+          x = stp_dt %>%
+            rename(`STP Name` = STP_NAME,
+                   `STP Code` = STP_CODE,
+                   `Total Items` = TOTAL_ITEMS,
+                   `Total Net Ingredient Cost (GBP)` = TOTAL_NIC) %>%
+            select(`STP Name`,
+                   `STP Code`,
+                   `Total Items`,
+                   `Total Net Ingredient Cost (GBP)`),
+          startRow = 4,
+          tableStyle = "none",
+          withFilter = FALSE,
+          tableName = "stp_totals")
+
+openxlsx::writeDataTable(wb_2,
+          sheet = "Region Level",
+          x = region_dt %>%
+            rename(`Region Name` = REGION_NAME,
+                   `Region Code` = REGION_CODE,
+                   `Total Items` = TOTAL_ITEMS,
+                   `Total Net Ingredient Cost (GBP)` = TOTAL_NIC) %>%
+            select(`Region Name`,
+                   `Region Code`,
+                   `Total Items`,
+                   `Total Net Ingredient Cost (GBP)`),
+          startRow = 4,
+          tableStyle = "none",
+          withFilter = FALSE,
+          tableName = "region_totals")
+```
+
+The previous code is mostly a repeat of the first workbook made. The following code adds the extra formatting options, including column widths, row heights, title text and style, and notes text and style. Headers and data are aligned with style guidelines based on if the column contents are words or numbers.
+
+```{r}
+#automatically set width of columns to fit, dynamically get number of columns from dataset
+setColWidths(wb_2, "STP Level", cols = 1:ncol(stp_dt), widths = "auto")
+
+setColWidths(wb_2, "Region Level", cols = 1:ncol(region_dt), widths = "auto")
+
+#set row heights to 14.5
+setRowHeights(wb_2, "STP Level", rows = 1:(nrow(stp_dt) + 3), heights = "14.5")
+setRowHeights(wb_2, "Region Level", rows = 1:(nrow(region_dt) + 3), heights = "14.5")
+
+#add titles to first cell
+openxlsx::writeData(
+  wb_2,
+  sheet = "STP Level",
+  x = "Total Items and Net Ingredient Cost (GBP) by Sustainable Transport Partnership in November 2021",
+  xy = c(1,1)
+)
+
+openxlsx::writeData(
+  wb_2,
+  sheet = "Region Level",
+  x = "Total Items and Net Ingredient Cost (GBP) by NHS England Region in November 2021",
+  xy = c(1,1)
+)
+
+#Title must be bolded using styles
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(textDecoration = "bold"),
+  cols = 1,
+  rows = 1
+)
+
+addStyle(
+  wb_2,
+  sheet = "Region Level",
+  style = createStyle(textDecoration = "bold"),
+  cols = 1,
+  rows = 1
+)
+
+openxlsx::writeData(
+  wb_2,
+  sheet = "STP Level",
+  x = "Notes",
+  xy = c(1,2)
+)
+
+openxlsx::writeData(
+  wb_2,
+  sheet = "STP Level",
+  x = "Source: NHSBSA Open Data Portal",
+  xy = c(1,3)
+)
+
+openxlsx::writeData(
+  wb_2,
+  sheet = "Region Level",
+  x = "Notes",
+  xy = c(1,2)
+)
+
+openxlsx::writeData(
+  wb_2,
+  sheet = "Region Level",
+  x = "Source: NHSBSA Open Data Portal",
+  xy = c(1,3)
+)
+
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(textDecoration = "bold"),
+  cols = 1,
+  rows = 2
+)
+
+addStyle(
+  wb_2,
+  sheet = "Region Level",
+  style = createStyle(textDecoration = "bold"),
+  cols = 1,
+  rows = 2
+)
+
+#alignments for column headers - left for columns containing characters 
+#right for columns with numerical data
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(halign = "left", textDecoration = "bold"),
+  cols = 1:2,
+  rows = 4,
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(halign = "right", textDecoration = "bold"),
+  cols = 3:4,
+  rows = 4,
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(halign = "left"),
+  cols = 1:2,
+  rows = 5:(nrow(stp_dt) + 4),
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(halign = "right", numFmt = "#,##0"),
+  cols = 3,
+  rows = 5:(nrow(stp_dt) + 4),
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(halign = "right", numFmt = "#,##0"),
+  cols = 4,
+  rows = 5:(nrow(stp_dt) + 4),
+  gridExpand = T
+)
+
+#same again for other sheet
+addStyle(
+  wb_2,
+  sheet = "Region Level",
+  style = createStyle(halign = "left", textDecoration = "bold"),
+  cols = 1:2,
+  rows = 4,
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "Region Level",
+  style = createStyle(halign = "right", textDecoration = "bold"),
+  cols = 3:4,
+  rows = 4,
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "Region Level",
+  style = createStyle(halign = "left"),
+  cols = 1:2,
+  rows = 5:(nrow(region_dt) + 4),
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "Region Level",
+  style = createStyle(halign = "right", numFmt = "#,##0"),
+  cols = 3,
+  rows = 5:(nrow(region_dt) + 4),
+  gridExpand = T
+)
+
+addStyle(
+  wb_2,
+  sheet = "STP Level",
+  style = createStyle(halign = "right", numFmt = "#,##0"),
+  cols = 4,
+  rows = 5:(nrow(stp_dt) + 4),
+  gridExpand = T
+)
+```
+
+Save the workbook to your global environment, or specify another file path.
+
+```{r}
+saveWorkbook(wb_2,
+             file = "pca_nov_totals.xlsx",
+             overwrite = TRUE)
+```
+
+Openxlsx has many more formatting options beyond what's here. You can also import images and plots into the final file but for accessibility reasons this is discouraged.
+
+Openxlsx code can get long, if there are multiple worksheets. It's difficult to shorten this process through loops or functions. However the code is relatively intuitive and repetitive, and once set up will help next time a file is produced. This saves time over the alternative of applying formatting manually in Excel each time an .xlsx file is made.
+
+The GSS have a [checklist of basic accessibility requirements for spreadsheets](https://gss.civilservice.gov.uk/policy-store/making-spreadsheets-accessible-a-brief-checklist-of-the-basics/).
