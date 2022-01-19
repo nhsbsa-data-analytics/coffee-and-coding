@@ -18,3 +18,10 @@ dependencies:
   - r-dplyr=1.0.7
   - r-dt=0.20
   - r-ggplot2=3.3.5
+  - r-googlesheets4=1.0.0
+  - r-highcharter=0.9.4
+  - r-jsonlite=1.7.3
+  - r-knitr=1.37
+  - r-leaflet=2.0.4.1
+  - r-lubridate=1.8.0
+  - r-nycflights13=1.0.2
