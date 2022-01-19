@@ -14,4 +14,7 @@ dependencies:
   - scipy=1.7.1
   # R
   - r-base=4.1.2
+  - r-crul=1.2.0
   - r-dplyr=1.0.7
+  - r-dt=0.20
+  - r-ggplot2=3.3.5
