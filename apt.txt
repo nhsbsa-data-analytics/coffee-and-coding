@@ -1,3 +1,2 @@
 libgdal-dev
-gdal-bin
 libproj-dev
