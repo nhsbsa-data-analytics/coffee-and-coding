@@ -1,6 +1,7 @@
 channels:
   - defaults
   - conda-forge
+  - f30a78ec8 # For r-textdata
 
 dependencies:
   # Python
@@ -13,34 +14,34 @@ dependencies:
   - scikit-learn=0.24.2
   - scipy=1.7.1
   # R
-  - r-base
-  - r-chron
-  - r-crul
-  - r-dplyr
-  - r-DT
-  - r-ggplot2
-  - r-googlesheets4
-  - r-highcharter
-  - r-jsonlite
-  - r-knitr
-  - r-leaflet
-  - r-lubridate
-  - r-nycflights13
-  - r-qdapRegex
-  - r-RColorBrewer
-  - r-readxl
-  - r-reshape2
-  - r-rgdal
-  - r-rmarkdown
-  - r-scales
-  - r-shiny
-  - r-shinyWidgets
-  - r-shinycssloaders
-  - r-skimr
-  - r-stringr
+  - r-base=4.1.2
+  - r-chron=2.3_53
+  - r-crul=1.2.0
+  - r-dplyr=1.0.7
+  - r-dt=0.20
+  - r-ggplot2=3.3.5
+  - r-googlesheets4=1.0.0
+  - r-highcharter=0.9.4
+  - r-jsonlite=1.7.3
+  - r-knitr=1.37
+  - r-leaflet=2.0.4.1
+  - r-lubridate=1.8.0
+  - r-nycflights13=1.0.2
+  - r-qdapRegex=0.7.2
+  - r-RColorBrewer=1.1_2
+  - r-readxl=1.3.1
+  - r-reshape2=1.4.4
+  - r-rgdal=1.5_28
+  - r-rmarkdown=2.11
+  - r-scales=1.1.1
+  - r-shiny=1.7.1
+  - r-shinyWidgets=0.6.3
+  - r-shinycssloaders=1.0.0
+  - r-skimr=2.1.3
+  - r-stringr=1.4.0
   - r-textdata
-  - r-tidyr
-  - r-tidytext
-  - r-tidyverse
-  - r-tm
-  - r-wordcloud2
+  - r-tidyr=1.1.4
+  - r-tidytext=0.3.2
+  - r-tidyverse=1.3.1
+  - r-tm=0.7_8
+  - r-wordcloud2=0.2.1
