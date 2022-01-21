@@ -424,6 +424,6 @@ saveWorkbook(wb_2,
 
 Openxlsx has many more formatting options beyond what's here. You can also import images and plots into the final file but for accessibility reasons this is discouraged.
 
-Openxlsx code can get long, if there are multiple worksheets. It's difficult to shorten this process through loops or functions. However the code is relatively intuitive and repetitive, and once set up will help next time a file is produced. This saves time over the alternative of applying formatting manually in Excel each time an .xlsx file is made.
+Openxlsx code can get long, if there are multiple worksheets. However the code is relatively intuitive and repetitive, and once set up will help next time a file is produced. This saves time over the alternative of applying formatting manually in Excel each time an .xlsx file is made.
 
 The GSS have a [checklist of basic accessibility requirements for spreadsheets](https://gss.civilservice.gov.uk/policy-store/making-spreadsheets-accessible-a-brief-checklist-of-the-basics/).
