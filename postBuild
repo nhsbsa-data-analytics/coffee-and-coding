@@ -1,2 +1,2 @@
-jupyter labextension install --no-build jupyterlab-spreadsheet
-jupyter lab build --minimize=False
+jupyter labextension install jupyterlab-spreadsheet --no-build
+jupyter lab build
