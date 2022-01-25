@@ -1,2 +1,4 @@
+#!/bin/bash
+
 jupyter labextension install jupyterlab-spreadsheet --no-build
 jupyter lab build
