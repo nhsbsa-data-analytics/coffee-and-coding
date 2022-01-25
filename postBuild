@@ -1,1 +1,4 @@
-jupyter labextension jupyterlab-spreadsheet --minimize=False
+#!/bin/bash
+
+# Install a JupyterLab extension for demonstration purposes
+jupyter labextension install @jupyterlab/geojson-extension jupyterlab-drawio
