@@ -1,4 +1,7 @@
 #!/bin/bash
 
-# Install JupyterLab extension to view excel files (for 2020-01-19 session)
-jupyter labextension install jupyterlab-spreadsheet
+set -ex
+
+jupyter labextension install jupyterlab-spreadsheet --no-build
+
+jupyter lab build
