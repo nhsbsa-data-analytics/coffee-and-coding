@@ -27,8 +27,8 @@ Our next session is organised for 19th January and we are actively looking for v
 
 | Date (* next session) | Host             | Title                                                      |
 | :-------------------- | :--------------  | :--------------------------------------------------------- | 
-| 2022-02-23            | Adam Ivison      | Extracting data from images using Python and the cloud     |
-| 2022-01-19  *         | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}` |
+| 2022-02-23   *        | Adam Ivison      | Extracting data from images using Python and the cloud     |
+| 2022-01-19            | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}` |
 | 2021-12-15            | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R        |
 |                       | Mark McPherson   |                                                            |
 | 2021-11-24            | Adnan Shroufi    | Introduction to Highcharter                                |
