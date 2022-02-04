@@ -5,7 +5,7 @@ Create a branch and:
 - Include code to play along as either:
     + `.ipynb` notebooks (to facilitate JupyterLab better than `.R` or `.py` ensuring you [clear all of the cell outputs](https://stackoverflow.com/questions/39924826/keyboard-shortcut-to-clear-cell-output-in-jupyter-notebook) before your session)
     + `.R` files if you are demoing RStudio / R Shiny
-- Update Python (`environment.yml`) and R (`install.R`) with any new dependencies
+- Update any of the files (Python -> `environment.yml` or R -> `install.R`) in the `binder` directory with any new dependencies
 
 When you are happy, submit a pull request:
 
