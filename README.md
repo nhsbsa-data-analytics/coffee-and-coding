@@ -23,10 +23,16 @@ We also use GitHub Actions to automate the Binder build process.
 
 ### Sessions
 
-Our next session is organised for 19th January and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
+Our next session is organised for 23rd Fabruary and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host             | Title                                                      |
 | :-------------------- | :--------------  | :--------------------------------------------------------- | 
+| 2022-07-20            |                  |                                                            | 
+| 2022-06-22            | Kayoung Goffe    | Exploring Python with R using {reticulate}                 |                                                           |
+| 2022-05-25            |                  |                                                            |
+| 2022-04-27            | Matthew Wilson   | Reproducible Analytical Pipelines:Automating high quality  | 
+|                       |                  | analysis                                                   |
+| 2022-03-23            |                  |                                                            |
 | 2022-02-23   *        | Adam Ivison      | Extracting data from images using Python and the cloud     |
 | 2022-01-19            | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}` |
 | 2021-12-15            | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R        |
