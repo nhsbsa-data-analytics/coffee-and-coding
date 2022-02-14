@@ -25,24 +25,23 @@ We also use GitHub Actions to automate the Binder build process.
 
 Our next session is organised for 23rd Fabruary and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
-| Date (* next session) | Host             | Title                                                      |
-| :-------------------- | :--------------  | :--------------------------------------------------------- | 
-| 2022-07-20            |                  |                                                            | 
-| 2022-06-22            | Kayoung Goffe    | Exploring Python with R using {reticulate}                 |                                                           |
-| 2022-05-25            |                  |                                                            |
-| 2022-04-27            | Matthew Wilson   | Reproducible Analytical Pipelines:Automating high quality  | 
-|                       |                  | analysis                                                   |
-| 2022-03-23            |                  |                                                            |
-| 2022-02-23   *        | Adam Ivison      | Extracting data from images using Python and the cloud     |
-| 2022-01-19            | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}` |
-| 2021-12-15            | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R        |
-|                       | Mark McPherson   |                                                            |
-| 2021-11-24            | Adnan Shroufi    | Introduction to Highcharter                                |
-| 2021-10-20            | Matthew Wilson   | R Markdown and Official Statistics                         |
-| 2021-09-22            | Graham Platten   | Using R Shiny with our Open Data Portal                    |
-| 2021-08-25            | Philip Godfrey   | Exploring the Titanic in R                                 |
-| 2021-07-21            | Kayoung Goffe    | TidyTuesday Penguins with Python                           |
-| 2021-06-23            | Adam Ivison      | Python goals... exploring a football data-set using Pandas |
-| 2021-05-19            | Adam Ivison      | Get to grips with R and Python on our Open Data Portal     |
+| Date (* next session) | Host             | Title                                                               |
+| :-------------------- | :--------------  | :-------------------------------------------------------------------| 
+| 2022-07-20            |                  |                                                                     | 
+| 2022-06-22            | Kayoung Goffe    | Exploring Python with R using `{reticulate}`                        |
+| 2022-05-25            |                  |                                                                     |
+| 2022-04-27            | Matthew Wilson   | Reproducible Analytical Pipelines: Automating high quality analysis |
+| 2022-03-23            |                  |                                                                     |
+| 2022-02-23   *        | Adam Ivison      | Extracting data from images using Python and the cloud              |
+| 2022-01-19            | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}`          |
+| 2021-12-15            | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R                 |
+|                       | Mark McPherson   |                                                                     |
+| 2021-11-24            | Adnan Shroufi    | Introduction to `{highcharter}`                                     |
+| 2021-10-20            | Matthew Wilson   | R Markdown and Official Statistics                                  |
+| 2021-09-22            | Graham Platten   | Using R Shiny with our Open Data Portal                             |
+| 2021-08-25            | Philip Godfrey   | Exploring the Titanic in R                                          |
+| 2021-07-21            | Kayoung Goffe    | TidyTuesday Penguins with Python                                    |
+| 2021-06-23            | Adam Ivison      | Python goals... exploring a football data-set using Pandas          |
+| 2021-05-19            | Adam Ivison      | Get to grips with R and Python on our Open Data Portal              |
 
 ---
