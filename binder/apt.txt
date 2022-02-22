@@ -1,2 +1,3 @@
 libgdal-dev
 libproj-dev
+python3-opencv
