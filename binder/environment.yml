@@ -12,7 +12,7 @@ dependencies:
   - scikit-learn=0.24.2
   - scipy=1.7.1
   - opencv=4.5.5
-  - azure=1.0.2
-  - msrest=0.6.21
-  - boto3=1.20.24
+  - azure
+  - msrest
+  - boto3
   
