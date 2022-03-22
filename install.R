@@ -1,22 +1,37 @@
 install.packages(
   c(
-    "jsonlite",
-    "ggplot2",
-    "dplyr",
-    "shiny",
+    "config",
     "crul",
+    "dplyr",
+    "DT",
+    "ggplot2",
+    "glue",
+    "golem",
     "highcharter",
+    "jsonlite",
+    "leaflet",
+    "lubridate",
+    "knitr",
+    "magrittr",
+    "markdown",
+    "mongolite",
+    "NPS",
+    "nycflights13",
+    "pkgload",
     "readxl",
+    "rgdal",
+    "rlang",
+    "rmarkdown",
+    "scales",
+    "shiny",
     "shinycssloaders",
     "shinyWidgets",
-    "rgdal",
-    "leaflet",
-    "scales",
-    "lubridate",
-    "nycflights13",
-    "knitr",
-    "rmarkdown",
     "skimr",
+    "stringr",
     "tidyr"
   )
 )
+
+# Use devtools to install packages not on CRAN, e.g. from Github
+install.packages("devtools")
+devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
