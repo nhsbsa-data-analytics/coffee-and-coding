@@ -2,8 +2,7 @@
 title: "Coffee & Coding: Updating Shiny dashboards from Excel via MongoDB (the Good, the Bad and the Shiny)"
 author: "Mark McPherson"
 output:
-  ioslides_presentation:
-    css: temp.css
+  pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -44,6 +43,9 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 * They visit the dashboard online and check it is as expected
 * If it is not they let MI know so it can be investigated and fixed
 * Note that if something is not right, it is almost definitely due to a change in the data - I will cover how this can be handled in a manner that at least makes identifying the cause of the error very easy towards the end of the session
+
+All the code is in the https://github.com/nhsbsa-data-analytics/coffee-and-coding repo. However, the dashboard is not running in there.
+The fully working app including excel macro files and MongoDB Realm app is at https://github.com/MarkMc1089/FIC. Note that no real data or credentials are in the repo of course! If you want to try it out just get in touch and I will supply the credentials :)
 
 ## Step 1: Excel -> MongoDB
 
