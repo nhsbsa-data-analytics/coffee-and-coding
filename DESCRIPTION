@@ -1,0 +1,49 @@
+Package: CoffeeAndCoding
+Version: 0.1
+Date: 2021-03-24
+Description: Coffee and Coding code for NHSBSA
+Author: NHSBSA
+Depends:
+    R (>= 4.1.0)
+Imports:
+    chron
+    config
+    crul
+    dplyr
+    data.table
+    DT
+    ggplot2
+    googlesheets4
+    glue
+    golem
+    highcharter
+    jsonlite
+    knitr
+    leaflet
+    lubridate
+    magrittr
+    markdown
+    mongolite
+    NPS
+    nycflights13
+    openxlsx
+    pkgload
+    qdapRegex
+    RColorBrewer
+    readxl
+    reshape2
+    rgdal
+    rlang
+    rmarkdown
+    scales
+    shiny
+    shinycssloaders
+    shinyWidgets
+    skimr
+    stringr
+    textdata
+    tidyr
+    tidytext
+    tidyverse
+    tm
+    wordcloud2

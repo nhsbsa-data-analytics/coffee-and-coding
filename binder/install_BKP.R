@@ -1,29 +1,38 @@
 install.packages(
   c(
     "chron",
+    "config",
     "crul",
     "dplyr",
     "data.table",
     "DT",
     "ggplot2",
     "googlesheets4",
+    "glue",
+    "golem",
     "highcharter",
     "jsonlite",
     "knitr",
     "leaflet",
     "lubridate",
+    "magrittr",
+    "markdown",
+    "mongolite",
+    "NPS",
     "nycflights13",
     "openxlsx",
+    "pkgload",
     "qdapRegex",
     "RColorBrewer",
     "readxl",
     "reshape2",
     "rgdal",
+    "rlang",
     "rmarkdown",
     "scales",
     "shiny",
-    "shinyWidgets",
     "shinycssloaders",
+    "shinyWidgets",
     "skimr",
     "stringr",
     "textdata",
@@ -34,3 +43,7 @@ install.packages(
     "wordcloud2"
   )
 )
+
+# Use devtools to install packages not on CRAN, e.g. from Github
+install.packages("devtools")
+devtools::install_github("nhsbsa-data-analytics/nhsbsaR")

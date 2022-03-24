@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+rsconnect
+.mongo-credentials
+data-raw/nhs_pensions_FIC_data.xlsm
+data-raw/nhs_pensions_FIC_targets.xlsm
+inst/app/www/.colours.css
+inst/app/www/.style.css
+data/data.rda
+**/mongoDB_realm/.realm_api_key_*
