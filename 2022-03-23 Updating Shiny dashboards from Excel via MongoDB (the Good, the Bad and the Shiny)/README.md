@@ -6,6 +6,7 @@
 Reads in data from a mongoDB collection. Includes a macro-enabled Excel workbook that can push data to a mongoDB collection at the push of a button (well 2 buttons...`CTRL+W`).
 
 This R package is based on the [`{mongo2shiny}`](https://github.com/MarkMc1089/mongo2shiny) template, which is
+<<<<<<< HEAD
 an extension of [`{nhsbsaShinyR}`](https://github.com/nhsbsa-data-analytics/nhsbsaShinyR) template developed by NHS Business Services Authority Data Analytics Learning Lab to use as a template for building NHSBSA branded R `{shiny}` dashboards.
 
 ## Usage
@@ -21,6 +22,9 @@ data_prep(sample_data)
 ```
 
 To run the app, just open `app.R` and click Run app in RStudio.
+=======
+an extension of [`{nhsbsaShinyR}`](https://github.com/nhsbsa-data-analytics/nhsbsaShinyR) template developed by NHS Business Services Authority Data Analytics Learning Lab to use as a template for building NHSBSA branded R `{shiny}` dashboards. 
+>>>>>>> 60adb8509e3444283a9124d8dbedbae4639eb756
 
 ## Features
 
