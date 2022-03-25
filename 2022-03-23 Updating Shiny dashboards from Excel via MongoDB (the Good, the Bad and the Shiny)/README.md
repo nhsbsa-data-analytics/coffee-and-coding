@@ -5,8 +5,21 @@
 # A single page `{shiny}` app to display some data from the Financial Information Collection Customer Satisfaction Survey.
 Reads in data from a mongoDB collection. Includes a macro-enabled Excel workbook that can push data to a mongoDB collection at the push of a button (well 2 buttons...`CTRL+W`).
 
-This R package is based on the [`{mongo2shiny}`](https://github.com/MarkMc1089/mongo2shiny) template, which is
-an extension of [`{nhsbsaShinyR}`](https://github.com/nhsbsa-data-analytics/nhsbsaShinyR) template developed by NHS Business Services Authority Data Analytics Learning Lab to use as a template for building NHSBSA branded R `{shiny}` dashboards. 
+This R package is based on the [`{mongo2shiny}`](https://github.com/MarkMc1089/mongo2shiny) template, which is an extension of [`{nhsbsaShinyR}`](https://github.com/nhsbsa-data-analytics/nhsbsaShinyR) template developed by NHS Business Services Authority Data Analytics Learning Lab to use as a template for building NHSBSA branded R `{shiny}` dashboards.
+
+## Usage
+After initially cloning the repo, there will be no `data.rda` file in the `data` folder. This will cause an error in the case that the MongoDB connection is not available, as the fallback is to read the latest data. To ensure there is one, run the below code from the project root directory, making sure to source `R/data_prep.R` first.
+
+```
+library(dplyr)
+library(readxl)
+# Ensure you are in the project root folder
+sample_data <- read_excel("data-raw/nhs_pensions_FIC_data.example.xlsm")
+# You will need to source the data_prep.R file in the R folder
+data_prep(sample_data)
+```
+
+To run the app, just open `app.R` and click Run app in RStudio.
 
 ## Features
 
