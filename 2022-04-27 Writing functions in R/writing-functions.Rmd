@@ -1,0 +1,166 @@
+---
+title: "Writing functions in R"
+author: "Matthew Wilson"
+date: "27 Apr 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(highcharter)
+```
+
+Lets look at some data and do some basic analysis that you might do on any data set and create some charts. We'll use the `dplyr` package and look at the `starwars` data set that is built into it.
+
+```{r view_iris}
+dplyr::starwars
+```
+
+We want to look at what planets the characters call home, along with how diverse each planet is. We're only bothered about a few entries though:
+* Tatooine
+* Naboo
+* Coruscant
+
+## Tatooine
+
+```{r tatooine_analysis}
+dplyr::starwars %>% 
+  filter(homeworld == "Tatooine") %>%
+  group_by(species) %>% 
+  summarise(count = n()) %>% 
+  hchart(type = "column", hcaes(x = species, y = count))
+```
+
+## Naboo
+
+```{r naboo_analysis}
+dplyr::starwars %>% 
+  filter(homeworld == "Naboo") %>%
+  group_by(species) %>% 
+  summarise(count = n()) %>%
+  hchart(type = "column", hcaes(x = species, y = count))
+```
+
+characters with a species of `NA` are shown with an entry of 3 because of a quirk of `highcharter`.
+
+## Coruscant
+
+```{r tatooine_analysis}
+dplyr::starwars %>% 
+  filter(homeworld == "Coruscant") %>%
+  group_by(eye_color) %>% 
+  summarise(count = n()) %>% 
+  hchart(type = "column", hcaes(x = eye_color, y = count))
+```
+
+## Writing a function
+
+We can see that we've had to use a total of 15 lines of identical code with only minor changes to create these 3 charts. If we wanted to create this chart for all `homeworlds` we would be here for a long time copy and pasting **A LOT** of code. Instead, we can turn this into a function that we can reuse.
+
+```{r chart_function}
+chart_homeworld <- function(data, planet) {
+  data %>% 
+    filter(homeworld == planet) %>% 
+    group_by(species) %>% 
+    summarise(count = n()) %>% 
+    hchart(type = "column", hcaes(x = species, y = count))
+}
+```
+
+Here we have we have defined our function `chart_homeworld` and given it 2 arguments:
+* `data` -- a dataframe for us to manipulate
+* planet -- the name of the planet that we want to look at
+
+Let's use this function and see if the outputs look the same
+
+```{r use_chart_function}
+chart_homeworld(data = starwars, planet = "Tatooine")
+```
+
+We've now replaced what was 15 lines of code with 10 and instead having multiple copies of the code to maintain if we want to change something, like the type of chart to display, we only have one.
+
+## Extending our function
+
+There are no limits to the amount of arguments that you can give to a function, so lets take our existing `chart_homeworld` function a step further. Now that we can produce a chart for any `homeworld`, what if we want to produce a different type of chart. We can add another argument. However, we only want to be able to select either a `bar` or `column` chart, we can achieve this with the `match.arg` function.
+
+```{r extend_chart_function}
+chart_homeworld <- function(data, planet, chart_type = c("bar", "column")) {
+  
+  match.arg(chart_type)
+  
+  data %>% 
+    filter(homeworld == planet) %>% 
+    group_by(species) %>% 
+    summarise(count = n()) %>% 
+    hchart(type = chart_type, hcaes(x = species, y = count))
+}
+```
+
+What happens if we try to use `chart_homeworld` to create a line chart?
+
+```{r}
+chart_homeworld(starwars, "Tatooine", "line")
+```
+
+## Using variables as arguments
+
+Now that we've looked at the different species for planets, we want to look at some other attributes of our characters -- maybe `eye_color`. We could copy and paste our earlier code, or create a new function altogether. But both of those options require maintaining duplicate code, we can instead just adapt our current `chart_homeworld` function.
+
+We'll add a new argument -- `var` -- which will be the variable that we group and plot as the X axis of our chart.
+
+```{r adapt_chart_function}
+chart_homeworld <- function(data, planet, var, chart_type = c("bar", "column")) {
+  
+  match.arg(chart_type)
+  
+  data %>% 
+    filter(homeworld == planet) %>% 
+    group_by(var) %>% 
+    summarise(count = n()) %>% 
+    hchart(type = chart_type, hcaes(x = var, y = count))
+}
+```
+
+Now let's try to use this function:
+
+```{r}
+chart_homeworld(starwars, "Tatooine", "eye_color", "column")
+```
+
+```{r}
+chart_homeworld(starwars, "Tatooine", eye_color, "column")
+```
+
+### why doesn't this function work?
+
+Because we're using `dplyr`!!!
+
+`dplyr` uses a type of non-standard evaluation called **data-masking** to allow you use variable names as if they were in your environment. So instead of having to specify a column like `filter(starwars, starwars$planet == "Tatooine")` we can do `filter(starwars, planet == "Tatooine")`.
+
+This is something that we have to take into consideration when writing our function. We need to **embrace** -- wrap in double curly braces -- our new argument to tell `dplyr` that we're passing a variable name to the `group_by` function, not an actual variable called `var`.
+
+```{r fix_chart_function}
+chart_homeworld <- function(data, planet, var, chart_type = c("bar", "column")) {
+  
+  match.arg(chart_type)
+  
+  # highcharter acts a bit strangely with embracing. quick fix is to use opposite
+  # function of ensym()
+  
+  data %>%
+    filter(homeworld == planet) %>%
+    group_by({{ var }}) %>%
+    summarise(count = n()) %>%
+    hchart(type = chart_type, hcaes(x = !!rlang::ensym(var), y = count))
+}
+```
+
+Now our function is doing what we want it too
+
+```{r}
+chart_homeworld(starwars, "Tatooine", var = eye_color, "column")
+```
+
+You can read more about data-masking and other useful things to now when writing functions that use the `tidyverse` on this '[programming with dplyr vignette](https://dplyr.tidyverse.org/articles/programming.html).
