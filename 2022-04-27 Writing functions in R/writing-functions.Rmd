@@ -47,7 +47,7 @@ characters with a species of `NA` are shown with an entry of 3 because of a quir
 
 ## Coruscant
 
-```{r tatooine_analysis}
+```{r Coruscant_analysis}
 dplyr::starwars %>% 
   filter(homeworld == "Coruscant") %>%
   group_by(eye_color) %>% 
@@ -100,7 +100,7 @@ chart_homeworld <- function(data, planet, chart_type = c("bar", "column")) {
 
 What happens if we try to use `chart_homeworld` to create a line chart?
 
-```{r}
+```{r, eval=FALSE}
 chart_homeworld(starwars, "Tatooine", "line")
 ```
 
@@ -125,11 +125,11 @@ chart_homeworld <- function(data, planet, var, chart_type = c("bar", "column")) 
 
 Now let's try to use this function:
 
-```{r}
+```{r, eval=FALSE}
 chart_homeworld(starwars, "Tatooine", "eye_color", "column")
 ```
 
-```{r}
+```{r, eval=FALSE}
 chart_homeworld(starwars, "Tatooine", eye_color, "column")
 ```
 
