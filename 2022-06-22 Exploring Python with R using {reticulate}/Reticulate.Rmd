@@ -6,7 +6,9 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
+library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 ## Reticulate
@@ -17,17 +19,21 @@ We are going to do simple machine learning
 
 ## Python configuration 
 
-we need to create conda environment and install few packages.
+we need to create conda environment and install few packages. `conda_list()` function retuns an R `data.frame`, with  
+ returns an R data.frame, with name giving the name of the associated environment, and python giving the path to the Python binary associated with that environment.
 
 ```{r check conda list}
 
 conda_list()
 
-env <- "r-coffe-coding"
+```
 
-conda_create(env)
+
+
+```{r create my own conda environment}
 
 ```
+
 
  
 
