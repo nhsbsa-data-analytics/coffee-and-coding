@@ -1,0 +1,33 @@
+---
+title: "Binary classification with R and Python"
+author: "Kayoung Goffe"
+date: "04/05/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reticulate
+
+The {reticulate} package integrates Python with R. 
+We are going to do simple machine learning 
+
+
+## Python configuration 
+
+we need to create conda environment and install few packages.
+
+```{r check conda list}
+
+conda_list()
+
+env <- "r-coffe-coding"
+
+conda_create(env)
+
+```
+
+ 
+

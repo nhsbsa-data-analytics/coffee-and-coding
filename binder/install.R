@@ -40,7 +40,8 @@ install.packages(
     "tidytext",
     "tidyverse",
     "tm",
-    "wordcloud2"
+    "wordcloud2",
+    "reticulate"
   )
 )
 

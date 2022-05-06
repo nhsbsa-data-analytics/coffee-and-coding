@@ -1,0 +1,66 @@
+---
+title: "Presentation title"
+subtitle: "Presentation subtitle"
+author: "Author Name"
+institute: "NHS Organisation"
+date: "Presentation Date"
+output:
+  xaringan::moon_reader:
+    css: 
+      - default
+      - css/nhsr.css
+      - css/nhsr-fonts.css
+    lib_dir: libs
+    seal: false
+    nature:
+      highlightStyle: googlecode
+      highlightLines: true
+      highlightLanguage: ["r"]
+      countIncrementalSlides: false
+      ratio: "16:9"
+    includes:
+      after_body: [css/insert-logo.html]
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+library(tidyverse)
+library(NHSRtheme)
+# set default options
+opts_chunk$set(echo = FALSE,
+               fig.width = 7.252,
+               fig.height = 4,
+               dpi = 300)
+```
+
+class: title-slide, left, bottom
+
+# `r rmarkdown::metadata$title`
+----
+### `r rmarkdown::metadata$author`
+### `r rmarkdown::metadata$date`
+
+---
+name: reticulate
+class: top,left
+
+# What is {reticulate}?
+
+The `{reticulate}` package provides a comprehensive set of tools for interoperability between Python and R. 
+
+If your preferred choice of language is R and you are ready to make a jump to learn Python or vice versa. 
+
+[Reticulate](https://rstudio.github.io/reticulate/)
+
+
+---
+
+# Plan of today's session
+
+--
+
+* Python version configuration: create conda environment
+
+--
+
+* 
