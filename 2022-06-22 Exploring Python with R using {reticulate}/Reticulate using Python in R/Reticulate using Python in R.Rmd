@@ -52,20 +52,24 @@ If your preferred choice of language is R and you are ready to make a jump to le
 
 Link to [Reticulate](https://rstudio.github.io/reticulate/) package.
 
-Link to [Reticulate cheatsheet](https://ugoproto.github.io/ugo_r_doc/pdf/reticulate.pdf)
+Link to [Reticulate cheatsheet](https://ugoproto.github.io/ugo_r_doc/pdf/reticulate.pdf).
+
 ---
+
 
 # Plan of today's session
 
 --
 
-* {mlbench} R library to pull data and run binary classification using R & Python using R markdown!
+* Load {mlbench} R library to pull diabetes data and run classification using Python in the R markdown!
 
 --
 
-* Setting up python environment by creating conda environment {conda_create(yourenv)}
+* Setting up python environment by creating conda environment `conda_create(yourenv)`
 
-  * Other ways of setting using {use_virtualenv()}, {mini_conda()}
+  * Other ways of setting the Python environment using {`use_virtualenv()`, `mini_conda()`}
+  
+  * The `{reticulate}` package includes functions for creating Python environments(either virtualenvs or conda envs) and installing packages within them
 
 --
 
@@ -77,5 +81,9 @@ Link to [Reticulate cheatsheet](https://ugoproto.github.io/ugo_r_doc/pdf/reticul
 
 --
 
-* Creating models
+* Creating logistic regression models to solve binary classification problem
 
+  * We will load {data(PimaIndiansDiabetes)}
+  
+  * Use Python library `{scikit-learn}` to create binary classification model
+   
