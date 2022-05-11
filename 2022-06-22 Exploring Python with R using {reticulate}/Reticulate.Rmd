@@ -14,25 +14,67 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Reticulate
 
 The {reticulate} package integrates Python with R. 
-We are going to do simple machine learning 
+We are going to run simple machine learning (binary classification) 
 
 
 ## Python configuration 
 
-we need to create conda environment and install few packages. `conda_list()` function retuns an R `data.frame`, with  
- returns an R data.frame, with name giving the name of the associated environment, and python giving the path to the Python binary associated with that environment.
+we need to create conda environment and install few packages. `conda_list()` function returns an R `data.frame`, with  
+name giving the name of the associated environment, and Python giving the path to the Python binary associated with that environment.
 
 ```{r check conda list}
 
 conda_list()
 
 ```
+Why do we create our own conda environment? 
 
+Sometimes you want to have very specific version of Python or related libraries for your project. From my limited experience working on MSc Machine Learning project, I have encountered the breaking changes error. (For example, Python version was not compatible with tensorflow library). The environment consists of a certain Python version and relevant packages.If you share your work with the environment, it will not cause breaking change error problem. 
+
+Let's create our own conda environment using `conda_create(cc_env)` (it can)
 
 
 ```{r create my own conda environment}
 
+# define our environment name
+cc_env <- "coffee_coding_reticulate"
+
+# create conda environment
+conda_create(cc_env)
+
+# check the conda environment
+conda_list()
 ```
+Now we added new environment. We will use this environment and let's install python packages. 
+
+```{r install python libraries}
+
+# indicate that we want to use the environment we have just created
+use_condaenv("coffee_coding_reticulate")
+
+# install few most commonly used python packages; pandas, numpy, 
+conda_install("coffee_coding_reticulate", "pandas")
+conda_install("coffee_coding_reticulate", "numpy")
+conda_install("coffee_coding_reticulate", "seaborn")
+conda_install("coffee_coding_reticulate", "scikit-learn")
+
+```
+You can use `py_install()` function as well. It will require to install miniconda in your system. 
+
+So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import python libraries in our R environment.
+
+```{r using python in R importing libraries}
+
+
+```
+
+
+
+
+
+
+
+
 
 
  
