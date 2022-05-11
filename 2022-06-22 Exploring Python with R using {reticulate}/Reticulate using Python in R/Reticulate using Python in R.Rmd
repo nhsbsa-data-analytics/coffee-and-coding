@@ -50,8 +50,7 @@ The `{reticulate}` package provides a comprehensive set of tools for interoperab
 
 If your preferred choice of language is R and you are ready to make a jump to learn Python or vice versa. 
 
-[Reticulate](https://rstudio.github.io/reticulate/)
-
+Link to [Reticulate](https://rstudio.github.io/reticulate/) package.
 
 ---
 
@@ -59,8 +58,23 @@ If your preferred choice of language is R and you are ready to make a jump to le
 
 --
 
-* Python version configuration: create conda environment
+* {mlbench} R library to pull data and run binary classification using R & Python using R markdown!
 
 --
 
-* 
+* Setting up python environment by creating conda environment {conda_create(yourenv)}
+
+  * Other ways of setting using {use_virtualenv()}, {mini_conda()}
+
+--
+
+* Install Python packages 
+
+--
+
+* Importing Python packages into R environment
+
+--
+
+* Creating models
+
