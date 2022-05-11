@@ -1,8 +1,6 @@
 # Checkpoint files from interactive notebooks
 .ipynb_checkpoints
-
 # Powerpoint presentations (upload .pdf into the repo instead)
 *.pptx
 .Rproj.user
-
 .Rhistory
