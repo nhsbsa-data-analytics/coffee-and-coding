@@ -59,7 +59,8 @@ An EPD dataset for one month is several hundred MBs. The selection we are using 
 - Has been converted from to CSV to Excel format, for the purposes of today's session 
 
 ```{r, echo=FALSE}
-data = openxlsx::read.xlsx(xlsxFile = "C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/ODP_EPD_SUBSET_202202.xlsx", sheet = 1)
+#data = openxlsx::read.xlsx(xlsxFile = "C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/ODP_EPD_SUBSET_202202.xlsx", sheet = 1)
+data = openxlsx::read.xlsx(xlsxFile = "ODP_EPD_SUBSET_202202.xlsx", sheet = 1)
 ```
 
 ## Format of the Session
@@ -68,7 +69,7 @@ We will process and transform the loaded dataset in 4 different ways.
 Each of these will demonstrate the use of data processing and transformation functions.
 The four processed and transformed datasets will then be collated into a single Excel file and saved.
 
-# Dataset 1 -------------------------------------------------------------------
+# Dataset 1 --------------------------------------------------------------------
 
 ## Dataset 1.1: Viewing the Data
 
@@ -98,21 +99,21 @@ data %>%
  
 ## Dataset 1.3: Aggregating the Data
 
-We will now use group_by() to aggregate the data.
+We will now use *group_by()* to aggregate the data.
 We will aggregate by CCG and BNF Description (each of which has a corresponding BNF Code).
 The number of distinct categories within each of these fields will determine the size of the resulting dataframe.
 
-Note, the select() function is used to (unsurprisingly) select which columns you want.
+Note, the *select()* function is used to (unsurprisingly) select which columns you want.
 
-To aggregate by CCG and BNF Code, we include these in the group_by(), then decide what function to use within the summarise().
-For example, this could be min(), max(), sum(), or such like.
-Finally, we must remember to ungroup() the data, otherwise this may affect later calculations.
+To aggregate by CCG and BNF Code, we include these in the *group_by()*, then decide what function to use within the *summarise()*.
+For example, this could be *min()*, *max()*, *sum()*, or such like.
+Finally, we must remember to *ungroup()* the data, otherwise this may affect later calculations.
 
 The following three function can therefore be seen as being used collectively:
 
-- group_by()
-- summarise()
-- ungroup()
+- *group_by()*
+- *summarise()*
+- *ungroup()*
 
 ```{r}
 mutated_data = data %>% 
@@ -136,8 +137,8 @@ mutated_data = data %>%
 
 ## Dataset 1.4: Creating new Columns
 
-The most common way to creating a new column, or edit an existing column, is by using mutate().
-Within mutate(), you specify your new coluumn name, plus how you want this column to be created.
+The most common way to creating a new column, or edit an existing column, is by using *mutate()*.
+Within *mutate()*, you specify your new column name, plus how you want this column to be created.
 If the specified name is that of an existing column, this will merely overwrite this column.
 
 We will create 5 new columns through the following methods:
@@ -177,7 +178,7 @@ mutated_data = data %>%
 ## Dataset 1.5: Editing Existing Columns
 
 We can now edit existing columns, through a column 'mutating itself'.
-We will round the Avg Item Cost and replace the "CCG" characters of the CCG column with an empty space.
+We will round the Avg Item Cost and replace the 'CCG' characters of the CCG column with an empty space.
 We can then also trim the CCG column of any white-space, as we have just done some string editing. 
 
 ```{r}
@@ -214,7 +215,7 @@ mutated_data = data %>%
 
 You can select/drop columns in two ways.  
 By specifying which ones you want to keep.  
-We can sometimes use the everything() function to help with this. 
+We can sometimes use the *everything()* function to help with this (rather than typing out lots of column names). 
 Or specifying which ones you want to drop.
 
 ```{r}
@@ -255,7 +256,7 @@ mutated_data = data %>%
 
 If you want, you can perform all of the mutates within a single function, to simplify the code.
 Don't worry about this too much if you are still learning about how R works.
-We won't be doing this from here on in, so each mutate() step is more clearly visible. 
+We won't be doing this from here on in, so each *mutate()* step is more clearly visible. 
 
 ```{r}
 mutated_data = data %>% 
@@ -295,15 +296,15 @@ mutated_data = data %>%
 gc()
 ```
 
-## Dataset 2 -------------------------------------------------------------------
+# Dataset 2 --------------------------------------------------------------------
 
 ## Dataset 2.1: Create a Chapter Variables and Turn into Numeric
 
-We will first sellect and rename the columns we need, then ccreate a chapter variable.
+We will first select and rename the columns we need, then create a chapter variable.
 After that, we will change this from a character (or varchar) to integer.
 We can only filter a column numerically, if it is an integer (or numeric) data type.
 
-Also, it is possible to select and rename at the same time if you want, through renaming inside a select().
+Also, it is possible to select and rename at the same time if you want, through renaming inside a *select()*.
 
 ```{r}
 data %>%
@@ -321,17 +322,17 @@ data %>%
 
 ## Dataset 2.2: Both Character and Numeric Filters
 
-We can use filter() to filter a dataset.
-Here is a summary of often used filter commands:
+We can use *filter()* to filter a dataset.
+Here is a summary of often used commands used inside the *filter()* function.:
 
-1. == - equals
-2. != - does not equal
-3. <= - less than or equal to
-4. >= - greater than or equal to
+1. '==' is equals
+2. '!=' is does not equal
+3. '<=' is less than or equal to
+4. '>=' is greater than or equal to
 
 Here, we are filtering so we only keep chapters 1-10.
 We are filtering 'out' practices labelled as being 'UNIDENTIFIED DOCTORS'.
-Also, using grepl(), we are filtering CCG that contain the word 'TYNESIDE'.
+Also, using *grepl()*, we are filtering CCG that contain the word 'TYNESIDE'.
 
 ```{r}
 pivot_long_data = data %>%
@@ -354,9 +355,9 @@ pivot_long_data = data %>%
 
 ## Dataset 2.3: Using ifelse and mutate to create a new column
 
-An 'ifelse' command does one of two things, depending on what condition is specified.
+An *ifelse()* command does one of two things, depending on what condition is specified.
 Here, any record from chapter 1,2,3,4 or 5 will be described as '1-5' (in a new column).
-While any record from chapter 6,7,8,9 or 10 will be described as '6-10' (in the same enw column).
+While any record from chapter 6,7,8,9 or 10 will be described as '6-10' (in the same new column).
 
 ```{r}
 pivot_long_data = data %>%
@@ -381,9 +382,8 @@ pivot_long_data = data %>%
 
 ## Dataset 2.4: Group by new column
 
-We can group_by() this new column.
-This new column only has 2 values (rather than 10 values).
-Note, you can summarise() more than one column within a group().
+We can now *group_by()* this new column (with 2 categories) that we have just created.
+Note, you can *summarise()* more than one column within a *group_by()*.
 
 ```{r}
 pivot_long_data = data %>%
@@ -416,10 +416,10 @@ pivot_long_data = data %>%
 
 ## Dataset 2.5: Pivot data 'long'
 
-We can pivot multiple columns into a single column using pivot_long() from `tidyr`.
+We can pivot multiple columns into a single column using *pivot_long()* from `tidyr`.
 We will pivot Items and NIC into a single column.
 This will double the number of rows that we have, whilst changing the column format.
-You need to specify which columns to 'collapse', how you want the new resultant columns named.
+You need to specify which columns to 'collapse', and how you want the new columns named.
 
 ```{r}
 pivot_long_data = data %>%
@@ -454,7 +454,7 @@ pivot_long_data = data %>%
 
 ## Dataset 2.6: Format Text Appearance
 
-Finally, we can use str_to_title() from `stringr` to format the appearance of some cells.
+Finally, we can use *str_to_title()* from `stringr` to format the appearance of some cells.
 
 ```{r}
 pivot_long_data = data %>%
@@ -492,7 +492,8 @@ pivot_long_data = data %>%
 
 ## Dataset 2.7: Replace single string instance
 
-If we wanted, we could then replace every instance of 'Ccg' for 'CCG'if we wanted, using gsub().
+We can now replace every instance of 'Ccg' for 'CCG', using *gsub()*.  
+*gsub()* is very useful function for replacing every instance of text with something else (or even an empty space). 
 
 ```{r}
 pivot_long_data = data %>%
@@ -532,13 +533,11 @@ pivot_long_data = data %>%
 gc()
 ```
 
-
-
-## Dataset 3 -------------------------------------------------------------------
+# Dataset 3 --------------------------------------------------------------------
 
 ## Dataset 3.1: Rename and summarise data
 
-First we will rename columns and then sum() items by CCG and Practice.
+First we will rename columns and then *sum()* items by CCG and Practice.
 
 ```{r}
 case_when_data = data %>% 
@@ -556,10 +555,11 @@ case_when_data = data %>%
 
 ## Dataset 3.2: Creating a new column using case_when()
 
-Previously we used ifelse() and mutate() to create a new column.
-An ifelse() creates 2 categories or outputs.
-A case_when() can create as many categories as you want.
-It is quite simple, even if the syntax appears odd at first.
+Previously we used *ifelse()* and *mutate()* to create a new column.
+An *ifelse()* creates 2 categories or outputs.
+
+A *case_when()* can create as many categories as you want.
+In practice it is simple to use, even if the syntax appears complex at first.
 
 ```{r}
 case_when_data = data %>% 
@@ -586,11 +586,11 @@ case_when_data = data %>%
 ## Dataset 3.3: Re-aggregate data by new column
 
 Next, count the number of 'low volume', 'medium volume' and 'high volume' practices per CCG.
-Note, this requires count(), rather than sum().
-This is becuase:
+Note, this requires *count()*, rather than *sum()*.
+This is because:
 
-- sum() is used with numerical values
-- count() is used with categories (such as character values).
+- *sum()* is used with numerical values
+- *count()* is used with categories (such as character values).
 
 ```{r}
 case_when_data = data %>% 
@@ -622,9 +622,12 @@ case_when_data = data %>%
 
 The Item Volume column is ordered alphabetically.
 We want to specify the order differently.
+
 First, we need to turn this into a 'factor' (categorical variable).
+To do this, we use the *factor()* function within a *mutate()*.
+
 We can then specify the 'levels' of the factor.
-If we use arrange(), it will then be presented as we want.
+If we use *arrange()*, it will then be presented as we want.
 
 ```{r}
 case_when_data = data %>% 
@@ -661,8 +664,8 @@ gc()
 
 ## Dataset 4.1: Rename columns and aggregate data
 
-We will sum() items, by CCG, Practice and BNF Chapter.
-You don't need to select columns if you summarise() the data, as this determines which columns are retained.
+We will *sum()* items, by CCG, Practice and BNF Chapter.
+You don't need to select columns if you *summarise()* the data, as this determines which columns are retained.
 
 ```{r}
 pivot_wide_data = data %>% 
@@ -682,7 +685,7 @@ pivot_wide_data = data %>%
 ## Dataset 4.2: Complete zero value entries
 
 We might want to know which Practice-Chapter combinations have zero items.
-We can use complete() to do this.
+We can use *complete()* to do this.
 This makes explicit every Practice-Chapter combination.
 
 We do *not* want every CCG-Practice-Chapter combination.
@@ -707,11 +710,11 @@ pivot_wide_data = data %>%
 
 ## Dataset 4.3: Fill in CCG values
 
-We only wanted to complete() Practice-Chapter combinations, and fill in the new values as zero.
-We need to filll in the missing CCG values that resulted from this.
-We can use fill() to do this.
+We only wanted to *complete()* Practice-Chapter combinations, and fill in the new values as zero.  
+However, we now need to fill in the missing CCG values that resulted from completing these Practice-Chapter combinations.
+We can use *fill()* to do this.
 
-If we group_by() Practice, this will fill in a missing CCG value, with the next one that appears for that practice. 
+If we *group_by()* Practice, this will fill in a missing CCG value, with the next one that appears for that practice. 
 
 ```{r}
 pivot_wide_data = data %>% 
@@ -736,7 +739,7 @@ pivot_wide_data = data %>%
 
 ## Dataset 4.4: Fill 'up' remaining CCG values
 
-We can 'up', in addition to the default fill(), which goes 'down'.
+We can 'up', in addition to the default *fill()*, which goes 'down'.
 
 ```{r}
 pivot_wide_data = data %>% 
@@ -763,7 +766,7 @@ pivot_wide_data = data %>%
 
 ## Dataset 4.5: Pivot Wide
 
-We can use pivot_wide, so that each chapter is now a new column.
+We can use the *pivot_wide()* function, so that each chapter is now a new column.
 The new columns will be populated from values in the 'Items' column.
 
 ```{r}
@@ -801,7 +804,7 @@ Other packages allow you to finely format a worksheet's appearance (such as bold
 First we must combine all of the dataframes into a 'list'.
 A list is just a collection of objects, such as dataframes.
 We can then save this list as an Excel file.
-You must set a working directory, to tell R where you want the output to saved at.
+Usually, you would set a working directory, to tell R where you want the output to saved at.
 
 ```{r}
 list_of_datasets = list(
@@ -811,55 +814,55 @@ list_of_datasets = list(
   pivot_long_data
 )
 
-setwd("C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/")
+#setwd("C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/")
 write.xlsx(list_of_datasets, file = "COFFEE_AND_CODING_EXCEL_TO_R_PART_ONE.xlsx")
 ```
 
+# Summary and Next Steps -------------------------------------------------------
 
 ## Summary
 
-During this Coffee & Coding, we have learned about and used the following function:
+During this Coffee & Coding, we have learned about and used the following functions:
 
 Base R functions:
 
-- substr()
-- round()
-- ifelse()
-- gsub()
-- grepl()
-- as.integer()
-- factor()
-- paste0()
+- *substr()*
+- *round()*
+- *ifelse()*
+- *gsub()*
+- *grepl()*
+- *as.integer()*
+- *factor()*
+- *paste0()*
 
 Dplyr functions:
 
-- select()
-- rename()
-- filter()
-- arrange()
-- mutate()
-- group_by()
-- summarise()
-- count()
-- ungroup()
-- case_when()
+- *select()*
+- *rename()*
+- *filter()*
+- *arrange()*
+- *mutate()*
+- *group_by()*
+- *summarise()*
+- *count()*
+- *ungroup()*
+- *case_when()*
 
 Tidyr functions:
 
-- complete()
-- fill()
-- pivot_wider()
-- pivot_longer()
+- *complete()*
+- *fill()*
+- *pivot_wider()*
+- *pivot_longer()*
 
 Stringr functions:
 
-- str_to_title()
-
+- *str_to_title()*
 
 ## Next Steps
 
-Using R instead of Excel for some tasks, will take a bit of time initially, but in the long run will save you a *lot* of time.
-If you plan on doing, here are some recommended next steps:
+Using R instead of Excel for some tasks, will take a bit of time initially, but in the long run will save you a *lot* of time.  
+If you plan on doing so, here are some recommended next steps:
 
 1. First identify a repetitive task in Excel, for example that you on do on a weekly or monthly (or even daily) basis.
 
@@ -871,6 +874,6 @@ If you plan on doing, here are some recommended next steps:
 
 5. If you are still stuck, post a question here: https://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402chttps://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402c
 
-6. Get in touch at adnan.shroufi@nhs.net if you want something particular covered at the upcoming 'Excel -> R: Part Two' Coffee & Coding session.
+6. Get in touch with me at adnan.shroufi@nhs.net if you want something particular covered at the upcoming 'Excel -> R: Part Two' Coffee & Coding session.
 
-Thanks!
+### Thanks!
