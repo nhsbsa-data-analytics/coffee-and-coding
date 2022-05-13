@@ -1,0 +1,876 @@
+---
+title: "Excel -> R: Part One"
+author: "Adnan Shroufi"
+date: "10/05/2022"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(scipen = 999)
+```
+
+# Introduction -----------------------------------------------------------------
+
+## Introduction to Excel -> R: Part One
+
+Lots of people in the NHSBSA use Excel for various kinds of reporting and analysis.
+Excel is a great tool with lots of benefits, although has some limitations. These include:
+
+- Excel can be slow when working with large files
+- Going over the same steps in Excel every day/week/month to generate the same report/analysis is time consuming and repetitive.
+
+Using R can can overcome these issues for the following reasons:
+
+- R can work with large files far more easily and quickly
+- A single R script can do all of the time consuming and repetitive tasks for you
+
+## Load Packages
+
+Before we load in our data, we need to make sure have all the required packages installed.
+A 'package' is basically a collection of functions. You need to install a package first before you can use it.
+We can use `install.package("package_name")` to install a package.
+We then use `library(package_name)` to load the package.
+
+The two packages we are using mostly today are `dplyr` and `tidyr`.
+These two packages are often used for data transformation, processing and tidying. 
+
+```{r}
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("stringr")
+#install.packages("openxlsx)
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(openxlsx)
+```
+
+## Load Data
+
+The data we will be using today is a subset of the Open Data Portal (ODP) English Prescribing Data (EPD) data from February 2022.
+An EPD dataset for one month is several hundred MBs. The selection we are using today:
+
+- Only uses 9 out of the 26 fields recorded within the EPD dataset
+- Only looks at a selection of CCG within the North East Region
+- As a result has just over 1m rows, as opposed to ~17m rows
+- Has been converted from to CSV to Excel format, for the purposes of today's session 
+
+```{r, echo=FALSE}
+data = openxlsx::read.xlsx(xlsxFile = "C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/ODP_EPD_SUBSET_202202.xlsx", sheet = 1)
+```
+
+## Format of the Session
+
+We will process and transform the loaded dataset in 4 different ways.
+Each of these will demonstrate the use of data processing and transformation functions.
+The four processed and transformed datasets will then be collated into a single Excel file and saved.
+
+# Dataset 1 -------------------------------------------------------------------
+
+## Dataset 1.1: Viewing the Data
+
+We can view, filter and inspect the data we have just loaded by clicking on the dataframe name in the global environment.
+
+## Dataset 1.2: Renaming Variables
+
+We cannot manually rename variables in the data viewer, like you could in Excel.
+We have to use the rename function to do this.
+
+However, if a new column name has a space it needs to needs to be inside backward ticks.
+Or, the words within the column name need to be connected with an underscore.
+Purely for readability, and to demonstrate how to format data in R, will we use backward ticks to do this.
+
+```{r}
+data %>% 
+  # Rename columns
+  rename(
+    CCG = PCO_NAME,
+    `BNF Description` = BNF_DESCRIPTION,
+    `BNF Code` = BNF_CODE,
+    Quantity = QUANTITY,
+    Items = ITEMS
+  ) %>% 
+  select(CCG, `BNF Description`, `BNF Code`, Quantity, Items)
+```
+ 
+## Dataset 1.3: Aggregating the Data
+
+We will now use group_by() to aggregate the data.
+We will aggregate by CCG and BNF Description (each of which has a corresponding BNF Code).
+The number of distinct categories within each of these fields will determine the size of the resulting dataframe.
+
+Note, the select() function is used to (unsurprisingly) select which columns you want.
+
+To aggregate by CCG and BNF Code, we include these in the group_by(), then decide what function to use within the summarise().
+For example, this could be min(), max(), sum(), or such like.
+Finally, we must remember to ungroup() the data, otherwise this may affect later calculations.
+
+The following three function can therefore be seen as being used collectively:
+
+- group_by()
+- summarise()
+- ungroup()
+
+```{r}
+mutated_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    `BNF Description` = BNF_DESCRIPTION,
+    `BNF Code` = BNF_CODE,
+    Quantity = QUANTITY,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data
+  group_by(CCG, `BNF Description`, `BNF Code`) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC),
+    Quantity = sum(Quantity)
+    ) %>% 
+  ungroup()
+```
+
+## Dataset 1.4: Creating new Columns
+
+The most common way to creating a new column, or edit an existing column, is by using mutate().
+Within mutate(), you specify your new coluumn name, plus how you want this column to be created.
+If the specified name is that of an existing column, this will merely overwrite this column.
+
+We will create 5 new columns through the following methods:
+
+- Multipying columns
+- Dividing columns
+- Taking a substring of a column
+- Pasting (concatenating) 2 columns together
+- Having a static value as a column
+
+```{r}
+mutated_data = data %>% 
+  # Rename columns
+  rename(
+    CCG = PCO_NAME,
+    `BNF Description` = BNF_DESCRIPTION,
+    `BNF Code` = BNF_CODE,
+    Quantity = QUANTITY,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate data
+  group_by(CCG, `BNF Description`, `BNF Code`) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC),
+    Quantity = sum(Quantity)
+    ) %>% 
+  ungroup() %>% 
+  # Create new columns
+  mutate(`Items by Quantity` = Items * Quantity) %>% 
+  mutate(`Avg Item Cost` = NIC / Items) %>% 
+  mutate(Chapter = substr(`BNF Code`, 1, 2)) %>% 
+  mutate(`BNF Description plus Code` = paste0(`BNF Description`, " - ", `BNF Code`)) %>% 
+  mutate(`Year Month` = "Feb - 2020")
+```
+
+## Dataset 1.5: Editing Existing Columns
+
+We can now edit existing columns, through a column 'mutating itself'.
+We will round the Avg Item Cost and replace the "CCG" characters of the CCG column with an empty space.
+We can then also trim the CCG column of any white-space, as we have just done some string editing. 
+
+```{r}
+mutated_data = data %>% 
+  # Rename columns
+  rename(
+    CCG = PCO_NAME,
+    `BNF Description` = BNF_DESCRIPTION,
+    `BNF Code` = BNF_CODE,
+    Quantity = QUANTITY,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate data
+  group_by(CCG, `BNF Description`, `BNF Code`) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC),
+    Quantity = sum(Quantity)
+    ) %>% 
+  ungroup() %>% 
+  # Create new columns
+  mutate(`Items by Quantity` = Items * Quantity) %>% 
+  mutate(`Avg Item Cost` = NIC / Items) %>% 
+  mutate(Chapter = substr(`BNF Code`, 1, 2)) %>% 
+  mutate(`BNF Description plus Code` = paste0(`BNF Description`, " - ", `BNF Code`)) %>% 
+  mutate(`Year Month` = "Feb - 2020") %>% 
+  # Edit existing columns
+  mutate(CCG = gsub("CCG", "", CCG)) %>% 
+  mutate(CCG = trimws(CCG)) %>% 
+  mutate(`Avg Item Cost` = round(`Avg Item Cost`, 2))
+```
+
+## Dataset 1.6: Select and arrange columns
+
+You can select/drop columns in two ways.  
+By specifying which ones you want to keep.  
+We can sometimes use the everything() function to help with this. 
+Or specifying which ones you want to drop.
+
+```{r}
+mutated_data = data %>% 
+  # Rename columns
+  rename(
+    CCG = PCO_NAME,
+    `BNF Description` = BNF_DESCRIPTION,
+    `BNF Code` = BNF_CODE,
+    Quantity = QUANTITY,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate data
+  group_by(CCG, `BNF Description`, `BNF Code`) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC),
+    Quantity = sum(Quantity)
+    ) %>% 
+  ungroup() %>% 
+  # Create new columns
+  mutate(`Items by Quantity` = Items * Quantity) %>% 
+  mutate(`Avg Item Cost` = NIC / Items) %>% 
+  mutate(Chapter = substr(`BNF Code`, 1, 2)) %>% 
+  mutate(`BNF Description plus Code` = paste0(`BNF Description`, " - ", `BNF Code`)) %>% 
+  mutate(`Year Month` = "Feb - 2020") %>% 
+  # Edit existing columns
+  mutate(CCG = gsub("CCG", "", CCG)) %>% 
+  mutate(CCG = trimws(CCG)) %>% 
+  mutate(`Avg Item Cost` = round(`Avg Item Cost`, 2)) %>% 
+  # Select columns and arrange values
+  select(-c(`BNF Description`, `BNF Code`)) %>% 
+  select(`Year Month`, CCG, Chapter, `BNF Description plus Code`, everything()) %>% 
+  arrange(CCG, Chapter, `BNF Description plus Code`)
+```
+
+## Dataset 1.7: Combining Mutate Commands
+
+If you want, you can perform all of the mutates within a single function, to simplify the code.
+Don't worry about this too much if you are still learning about how R works.
+We won't be doing this from here on in, so each mutate() step is more clearly visible. 
+
+```{r}
+mutated_data = data %>% 
+  # Rename columns
+  rename(
+    CCG = PCO_NAME,
+    `BNF Description` = BNF_DESCRIPTION,
+    `BNF Code` = BNF_CODE,
+    Quantity = QUANTITY,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate data
+  group_by(CCG, `BNF Description`, `BNF Code`) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC),
+    Quantity = sum(Quantity)
+    ) %>% 
+  ungroup() %>% 
+  # Create new columns
+  mutate(
+    `Items by Quantity` = Items * Quantity,
+    `Avg Item Cost` = NIC / Items,
+    Chapter = substr(`BNF Code`, 1, 2),
+    `BNF Description plus Code` = paste0(`BNF Description`, " - ", `BNF Code`),
+    `Year Month` = "Feb - 2020",
+    # Edit existing columns
+    CCG = gsub("CCG", "", CCG),
+    CCG = trimws(CCG),
+    `Avg Item Cost` = round(`Avg Item Cost`, 2)
+    ) %>% 
+  # Select columns and arrange values
+  select(-c(`BNF Description`, `BNF Code`)) %>% 
+  select(`Year Month`, CCG, Chapter, `BNF Description plus Code`, everything()) %>% 
+  arrange(CCG, Chapter, `BNF Description plus Code`)
+
+gc()
+```
+
+## Dataset 2 -------------------------------------------------------------------
+
+## Dataset 2.1: Create a Chapter Variables and Turn into Numeric
+
+We will first sellect and rename the columns we need, then ccreate a chapter variable.
+After that, we will change this from a character (or varchar) to integer.
+We can only filter a column numerically, if it is an integer (or numeric) data type.
+
+Also, it is possible to select and rename at the same time if you want, through renaming inside a select().
+
+```{r}
+data %>%
+  # Rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter))
+```
+
+## Dataset 2.2: Both Character and Numeric Filters
+
+We can use filter() to filter a dataset.
+Here is a summary of often used filter commands:
+
+1. == - equals
+2. != - does not equal
+3. <= - less than or equal to
+4. >= - greater than or equal to
+
+Here, we are filtering so we only keep chapters 1-10.
+We are filtering 'out' practices labelled as being 'UNIDENTIFIED DOCTORS'.
+Also, using grepl(), we are filtering CCG that contain the word 'TYNESIDE'.
+
+```{r}
+pivot_long_data = data %>%
+  # Rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter)) %>% 
+  # Numeric filter
+  filter(Chapter <= 10) %>% 
+  # Character filter 
+  filter(grepl("TYNESIDE", CCG)) %>% 
+  filter(Practice != "UNIDENTIFIED DOCTORS")
+```
+
+## Dataset 2.3: Using ifelse and mutate to create a new column
+
+An 'ifelse' command does one of two things, depending on what condition is specified.
+Here, any record from chapter 1,2,3,4 or 5 will be described as '1-5' (in a new column).
+While any record from chapter 6,7,8,9 or 10 will be described as '6-10' (in the same enw column).
+
+```{r}
+pivot_long_data = data %>%
+  # Rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter)) %>% 
+  # Numeric filter
+  filter(Chapter <= 10) %>% 
+  # Character filter 
+  filter(grepl("TYNESIDE", CCG)) %>% 
+  filter(Practice != "UNIDENTIFIED DOCTORS") %>% 
+  # Using ifelse() and mutate()
+  mutate(Chapters = ifelse(Chapter <= 5, "1-5", "6-10"))
+```
+
+## Dataset 2.4: Group by new column
+
+We can group_by() this new column.
+This new column only has 2 values (rather than 10 values).
+Note, you can summarise() more than one column within a group().
+
+```{r}
+pivot_long_data = data %>%
+  # Select and rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS,
+    NIC
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter)) %>% 
+  # Numeric filter
+  filter(Chapter <= 10) %>% 
+  # Character filter 
+  filter(grepl("TYNESIDE", CCG)) %>% 
+  filter(Practice != "UNIDENTIFIED DOCTORS") %>% 
+  # Using ifelse() and mutate()
+  mutate(Chapters = ifelse(Chapter <= 5, "1-5", "6-10")) %>% 
+  # Group by new 'Chapters' column, to sum() items
+  group_by(CCG, Practice, Chapters) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC)
+    ) %>% 
+  ungroup()
+```
+
+## Dataset 2.5: Pivot data 'long'
+
+We can pivot multiple columns into a single column using pivot_long() from `tidyr`.
+We will pivot Items and NIC into a single column.
+This will double the number of rows that we have, whilst changing the column format.
+You need to specify which columns to 'collapse', how you want the new resultant columns named.
+
+```{r}
+pivot_long_data = data %>%
+  # Select and rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS,
+    NIC
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter)) %>% 
+  # Numeric filter
+  filter(Chapter <= 10) %>% 
+  # Character filter 
+  filter(grepl("TYNESIDE", CCG)) %>% 
+  filter(Practice != "UNIDENTIFIED DOCTORS") %>% 
+  # Using ifelse() and mutate()
+  mutate(Chapters = ifelse(Chapter <= 5, "1-5", "6-10")) %>% 
+  # Group by new 'Chapters' column, to sum() items
+  group_by(CCG, Practice, Chapters) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC)
+    ) %>% 
+  ungroup() %>% 
+  # Pivot 'long'
+  pivot_longer(cols = c("Items", "NIC"), names_to = "Metric", values_to = "Value")
+```
+
+## Dataset 2.6: Format Text Appearance
+
+Finally, we can use str_to_title() from `stringr` to format the appearance of some cells.
+
+```{r}
+pivot_long_data = data %>%
+  # Select and rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS,
+    NIC
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter)) %>% 
+  # Numeric filter
+  filter(Chapter <= 10) %>% 
+  # Character filter 
+  filter(grepl("TYNESIDE", CCG)) %>% 
+  filter(Practice != "UNIDENTIFIED DOCTORS") %>% 
+  # Using ifelse() and mutate()
+  mutate(Chapters = ifelse(Chapter <= 5, "1-5", "6-10")) %>% 
+  # Group by new 'Chapters' column, to sum() items
+  group_by(CCG, Practice, Chapters) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC)
+    ) %>% 
+  ungroup() %>% 
+  # Pivot 'long'
+  pivot_longer(cols = c("Items", "NIC"), names_to = "Metric", values_to = "Value") %>% 
+  # Format cell appearance
+  mutate(CCG = stringr::str_to_title(CCG)) %>% 
+  mutate(Practice = stringr::str_to_title(Practice))
+```
+
+## Dataset 2.7: Replace single string instance
+
+If we wanted, we could then replace every instance of 'Ccg' for 'CCG'if we wanted, using gsub().
+
+```{r}
+pivot_long_data = data %>%
+  # Select and rename data
+  select(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS,
+    NIC
+  ) %>% 
+  # Create a numeric Chapter variable
+  mutate(Chapter = substr(Chapter, 1, 2)) %>% 
+  mutate(Chapter = as.integer(Chapter)) %>% 
+  # Numeric filter
+  filter(Chapter <= 10) %>% 
+  # Character filter 
+  filter(grepl("TYNESIDE", CCG)) %>% 
+  filter(Practice != "UNIDENTIFIED DOCTORS") %>% 
+  # Using ifelse() and mutate()
+  mutate(Chapters = ifelse(Chapter <= 5, "1-5", "6-10")) %>% 
+  # Group by new 'Chapters' column, to sum() items
+  group_by(CCG, Practice, Chapters) %>% 
+  summarise(
+    Items = sum(Items),
+    NIC = sum(NIC)
+    ) %>% 
+  ungroup() %>% 
+  # Pivot 'long'
+  pivot_longer(cols = c("Items", "NIC"), names_to = "Metric", values_to = "Value") %>% 
+  # Format cell appearance
+  mutate(CCG = stringr::str_to_title(CCG)) %>% 
+  mutate(Practice = stringr::str_to_title(Practice)) %>% 
+  # Replace 'CCG' for 'Ccg'
+  mutate(CCG = gsub("Ccg", "CCG", CCG))
+
+gc()
+```
+
+
+
+## Dataset 3 -------------------------------------------------------------------
+
+## Dataset 3.1: Rename and summarise data
+
+First we will rename columns and then sum() items by CCG and Practice.
+
+```{r}
+case_when_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup()
+```
+
+## Dataset 3.2: Creating a new column using case_when()
+
+Previously we used ifelse() and mutate() to create a new column.
+An ifelse() creates 2 categories or outputs.
+A case_when() can create as many categories as you want.
+It is quite simple, even if the syntax appears odd at first.
+
+```{r}
+case_when_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Mutate Aggregated Data
+  mutate(
+    `Item Volume` = case_when(
+      Items < 10000 ~ "Low",
+      Items >= 10000 & Items <= 20000 ~ "Medium ",
+      Items > 20000 ~ "High"
+    )
+  )
+```
+
+## Dataset 3.3: Re-aggregate data by new column
+
+Next, count the number of 'low volume', 'medium volume' and 'high volume' practices per CCG.
+Note, this requires count(), rather than sum().
+This is becuase:
+
+- sum() is used with numerical values
+- count() is used with categories (such as character values).
+
+```{r}
+case_when_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Mutate Aggregated Data
+  mutate(
+    `Item Volume` = case_when(
+      Items < 10000 ~ "Low",
+      Items >= 10000 & Items <= 20000 ~ "Medium",
+      Items > 20000 ~ "High"
+    )
+  ) %>% 
+  # Aggregate Data for a Second time
+  group_by(CCG) %>% 
+  count(`Item Volume`, name = "Practice Count") %>% 
+  ungroup() 
+```
+
+## Dataset 3.4: Order new columna as a factor
+
+The Item Volume column is ordered alphabetically.
+We want to specify the order differently.
+First, we need to turn this into a 'factor' (categorical variable).
+We can then specify the 'levels' of the factor.
+If we use arrange(), it will then be presented as we want.
+
+```{r}
+case_when_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Mutate Aggregated Data
+  mutate(
+    `Item Volume` = case_when(
+      Items < 10000 ~ "Low",
+      Items >= 10000 & Items <= 20000 ~ "Medium",
+      Items > 20000 ~ "High"
+    )
+  ) %>% 
+  # Aggregate Data for a Second time
+  group_by(CCG) %>% 
+  count(`Item Volume`, name = "Practice Count") %>% 
+  ungroup() %>% 
+  # Turn Items to factor, order factor levels and arrange data
+  mutate(`Item Volume` = factor(`Item Volume`, levels = c("Low", "Medium", "High"))) %>% 
+  arrange(CCG, `Item Volume`)
+
+gc()
+```
+
+# Dataset 4 --------------------------------------------------------------------
+
+## Dataset 4.1: Rename columns and aggregate data
+
+We will sum() items, by CCG, Practice and BNF Chapter.
+You don't need to select columns if you summarise() the data, as this determines which columns are retained.
+
+```{r}
+pivot_wide_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice, Chapter) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup()
+```
+
+## Dataset 4.2: Complete zero value entries
+
+We might want to know which Practice-Chapter combinations have zero items.
+We can use complete() to do this.
+This makes explicit every Practice-Chapter combination.
+
+We do *not* want every CCG-Practice-Chapter combination.
+This is because a practice does not appear in every CCG (obviously).
+
+```{r}
+pivot_wide_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice, Chapter) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Complete Practice-Chapter combinations
+  complete(Practice, Chapter, fill = list(Items = 0))
+```
+
+## Dataset 4.3: Fill in CCG values
+
+We only wanted to complete() Practice-Chapter combinations, and fill in the new values as zero.
+We need to filll in the missing CCG values that resulted from this.
+We can use fill() to do this.
+
+If we group_by() Practice, this will fill in a missing CCG value, with the next one that appears for that practice. 
+
+```{r}
+pivot_wide_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice, Chapter) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Complete Practice-Chapter combinations
+  complete(Practice, Chapter, fill = list(Items = 0)) %>% 
+  # Now fill in the missing CCG values (due to using complete)
+  group_by(Practice) %>% 
+  fill(CCG) %>% 
+  ungroup()
+```
+
+## Dataset 4.4: Fill 'up' remaining CCG values
+
+We can 'up', in addition to the default fill(), which goes 'down'.
+
+```{r}
+pivot_wide_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice, Chapter) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Complete Practice-Chapter combinations
+  complete(Practice, Chapter, fill = list(Items = 0, NIC = 0, Quantity = 0)) %>% 
+  # Now fill in the missing CCG values (due to using complete)
+  group_by(Practice) %>% 
+  fill(CCG) %>% 
+  # Remember to fill 'up' as well
+  fill(CCG, .direction = "up") %>%  
+  ungroup()
+```
+
+## Dataset 4.5: Pivot Wide
+
+We can use pivot_wide, so that each chapter is now a new column.
+The new columns will be populated from values in the 'Items' column.
+
+```{r}
+pivot_wide_data = data %>% 
+  # Rename Columns
+  rename(
+    CCG = PCO_NAME,
+    Practice = PRACTICE_NAME,
+    Chapter = BNF_CHAPTER_PLUS_CODE,
+    Items = ITEMS
+  ) %>% 
+  # Aggregate Data 
+  group_by(CCG, Practice, Chapter) %>% 
+  summarise(Items = sum(Items)) %>% 
+  ungroup() %>% 
+  # Complete Practice-Chapter combinations
+  complete(Practice, Chapter, fill = list(Items = 0)) %>% 
+  # Now fill in the missing CCG values (due to using complete)
+  group_by(Practice) %>% 
+  fill(CCG) %>% 
+  # Remember to fill 'up' as well
+  fill(CCG, .direction = "up") %>%  
+  ungroup() %>% 
+  # Arrange the data and pivot Wide 
+  arrange(CCG, Practice, Chapter) %>% 
+  pivot_wider(names_from = "Chapter", values_from = "Items")
+```
+
+## Collate all datasets into a spreadsheet and save
+
+There are many R packages that let you read and write Excel files.
+The `openxlsx` package allows you to save multiple dataframes as a single worksheet easily.
+Other packages allow you to finely format a worksheet's appearance (such as bold text and cell shading etc).
+
+First we must combine all of the dataframes into a 'list'.
+A list is just a collection of objects, such as dataframes.
+We can then save this list as an Excel file.
+You must set a working directory, to tell R where you want the output to saved at.
+
+```{r}
+list_of_datasets = list(
+  mutated_data,
+  pivot_wide_data,
+  case_when_data,
+  pivot_long_data
+)
+
+setwd("C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/")
+write.xlsx(list_of_datasets, file = "COFFEE_AND_CODING_EXCEL_TO_R_PART_ONE.xlsx")
+```
+
+
+## Summary
+
+During this Coffee & Coding, we have learned about and used the following function:
+
+Base R functions:
+
+- substr()
+- round()
+- ifelse()
+- gsub()
+- grepl()
+- as.integer()
+- factor()
+- paste0()
+
+Dplyr functions:
+
+- select()
+- rename()
+- filter()
+- arrange()
+- mutate()
+- group_by()
+- summarise()
+- count()
+- ungroup()
+- case_when()
+
+Tidyr functions:
+
+- complete()
+- fill()
+- pivot_wider()
+- pivot_longer()
+
+Stringr functions:
+
+- str_to_title()
+
+
+## Next Steps
+
+Using R instead of Excel for some tasks, will take a bit of time initially, but in the long run will save you a *lot* of time.
+If you plan on doing, here are some recommended next steps:
+
+1. First identify a repetitive task in Excel, for example that you on do on a weekly or monthly (or even daily) basis.
+
+2. Write down *all* of the steps that you do (e.g. even renaming columns), that gets you from start to finish.
+
+3. Then try convert each of steps into R code.
+
+4. If you get stuck, look at this cheatsheet: https://www.rstudio.com/resources/cheatsheets/
+
+5. If you are still stuck, post a question here: https://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402chttps://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402c
+
+6. Get in touch at adnan.shroufi@nhs.net if you want something particular covered at the upcoming 'Excel -> R: Part Two' Coffee & Coding session.
+
+Thanks!
