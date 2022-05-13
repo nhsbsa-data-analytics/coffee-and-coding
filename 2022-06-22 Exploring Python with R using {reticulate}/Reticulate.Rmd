@@ -59,7 +59,7 @@ conda_install("coffee_coding_reticulate", "seaborn")
 conda_install("coffee_coding_reticulate", "scikit-learn")
 
 ```
-You can use `py_install()` function as well. It will require to install miniconda in your system. 
+You can use `py_install()` function as well. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder. 
 
 So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import python libraries in our R environment.
 
