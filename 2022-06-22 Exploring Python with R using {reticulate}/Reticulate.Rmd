@@ -7,6 +7,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 library(reticulate)
+library(mlbench)
 knitr::opts_chunk$set(echo = TRUE)
 
 ```
@@ -64,10 +65,52 @@ You can use `py_install()` function as well. It will require to install minicond
 
 So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import python libraries in our R environment.
 
-If you have anaconda installed, you will be able to see the new environment in Anaconda. You can install Python libraries through Anaconda too.
+If you have anaconda installed, you will be able to see the new environment in Anaconda. You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed anaconda. 
 
-```{r using python in R importing libraries}
 
+```{r read diabetes data from mlbench}
+
+data(PimaIndiansDiabetes2)
+head(PimaIndiansDiabetes2)
+
+# Remove NA values and save as diabetes object
+diabetes <- na.omit(PimaIndiansDiabetes2)
+
+# splitting data into features and predicted variable
+
+X <- diabetes[,1:8]
+y <- data.frame(diabetes[,9]) %>% 
+  dplyr::mutate(outcome = ifelse(`diabetes...9.`=='neg',0,1)) %>% 
+  select(outcome)
+
+```
+
+Quick note on each variable:
+* Pregnant: Number of times pregnant
+* Glucose: Plasma glucose concentration (glucose tolerance test)
+* Pressure: Diastolic blood pressure (mm Hg)
+* Triceps: Skinfold thickness (mm)
+* Insulin: 2-Hr serum insulin (mu U/ml)
+* Mass: Body mass index (weight in Kg/ (height in m)² )
+* Pedigree: Diabetes pedigree function
+* Age: Age (years)
+
+### Casting R object to Python using {r_to_py()}
+
+You can try various ways of using R & Python together! I will show two different ways. First, we will pass R to Python object using `{r_to_py()}`. In this way, we can use Python libraries.
+
+
+```{r import Python libraries}
+
+# Python essential numpy, pandas are imported
+numpy <- import('numpy')
+pandas <- import('pandas')
+
+# scikit-learn libraries
+skl_preprocessing <- import("sklearn.preprocessing")
+skl_model_selection <- import("sklearn.model_selection")
+skl_linear_model <- import("sklearn.linear_model")
+skl_metrics <- import("sklearn.metrics")
 
 ```
 
