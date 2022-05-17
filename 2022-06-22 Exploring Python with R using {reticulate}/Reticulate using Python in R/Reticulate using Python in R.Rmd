@@ -26,6 +26,7 @@ output:
 library(knitr)
 library(tidyverse)
 library(NHSRtheme)
+library(emo)
 # set default options
 opts_chunk$set(echo = FALSE,
                fig.width = 7.252,
@@ -55,13 +56,14 @@ Link to [Reticulate](https://rstudio.github.io/reticulate/) package.
 Link to [Reticulate cheatsheet](https://ugoproto.github.io/ugo_r_doc/pdf/reticulate.pdf).
 
 ---
-
+name:overview
+class:top,left
 
 # Plan of today's session
 
 --
 
-* Load {mlbench} R library to pull diabetes data and run classification using Python in the R markdown!
+* Load {mlbench} R library to pull diabetes data and run one of classic binary classification using Python in the R markdown!
 
 --
 
@@ -86,4 +88,20 @@ Link to [Reticulate cheatsheet](https://ugoproto.github.io/ugo_r_doc/pdf/reticul
   * We will load {data(PimaIndiansDiabetes)}
   
   * Use Python library `{scikit-learn}` to create binary classification model
-   
+
+---
+name:end
+class:top,left
+
+# Check out few blogs
+
+* I referenced NHSR webinar and Rstudio blog. 
+
+
+* Link to [NHSR webinar](https://nhsrcommunity.com/learn-r/workshops/r-and-python-a-happy-union-with-reticulate/). If you haven't done it yet, please check out NHSR community too! `r emo::ji("+1")`
+
+* Link to [Rstudio blog](https://rviews.rstudio.com/2019/03/18/the-reticulate-package-solves-the-hardest-problem-in-data-science-people/)
+
+Thanks for joining me today! Happy coding! `r emo::ji("smile")`
+
+
