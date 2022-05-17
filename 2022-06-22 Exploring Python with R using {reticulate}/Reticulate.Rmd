@@ -1,0 +1,129 @@
+---
+title: "Binary classification with R and Python"
+author: "Kayoung Goffe"
+date: "04/05/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+library(mlbench)
+library(magrittr)
+library(dplyr)
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Reticulate
+
+The {reticulate} package integrates Python with R. 
+We are going to run simple machine learning (binary classification) 
+
+
+## Python configuration 
+
+we need to create conda environment and install few packages. `conda_list()` function returns an R `data.frame`, with  
+name giving the name of the associated environment, and Python giving the path to the Python binary associated with that environment.
+
+```{r check conda list}
+
+conda_list()
+
+```
+Why do we create our own conda environment? 
+
+Sometimes you want to have very specific version of Python or related libraries for your project. From my limited experience working on MSc Machine Learning project, I have encountered the breaking changes error. (For example, Python version was not compatible with tensorflow library). The environment consists of a certain Python version and relevant packages.If you share your work with the environment, it will not cause breaking change error problem. 
+
+Let's create our own conda environment using `conda_create(cc_env)` (it can)
+
+
+```{r create my own conda environment}
+
+# define our environment name
+cc_env <- "coffee_coding_reticulate"
+
+# create conda environment
+conda_create(cc_env)
+
+# check the conda environment
+conda_list()
+# We can see that new environment has been created.
+```
+Now we added new environment. We will use this environment and let's install python packages. 
+
+```{r install python libraries to new environment}
+
+# indicate that we want to use the environment we have just created
+use_condaenv("coffee_coding_reticulate")
+
+# install few most commonly used python packages; pandas, numpy, 
+conda_install("coffee_coding_reticulate", "pandas")
+conda_install("coffee_coding_reticulate", "numpy")
+conda_install("coffee_coding_reticulate", "seaborn")
+conda_install("coffee_coding_reticulate", "scikit-learn")
+
+```
+You can use `py_install()` function as well. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder. 
+
+So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import python libraries in our R environment.
+
+If you have anaconda installed, you will be able to see the new environment in Anaconda. You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed anaconda. 
+
+
+```{r read diabetes data from mlbench}
+
+data(PimaIndiansDiabetes2)
+head(PimaIndiansDiabetes2)
+
+# Remove NA values and save as diabetes object
+diabetes <- na.omit(PimaIndiansDiabetes2)
+
+# splitting data into features and predicted variable
+
+X <- diabetes[,1:8]
+y <- data.frame(diabetes[,9]) %>% 
+  dplyr::mutate(outcome = ifelse(`diabetes...9.`=='neg',0,1)) %>% 
+  select(outcome)
+
+```
+
+Quick note on each variable:
+* Pregnant: Number of times pregnant
+* Glucose: Plasma glucose concentration (glucose tolerance test)
+* Pressure: Diastolic blood pressure (mm Hg)
+* Triceps: Skinfold thickness (mm)
+* Insulin: 2-Hr serum insulin (mu U/ml)
+* Mass: Body mass index (weight in Kg/ (height in m)² )
+* Pedigree: Diabetes pedigree function
+* Age: Age (years)
+
+### Casting R object to Python using {r_to_py()}
+
+You can try various ways of using R & Python together! I will show two different ways. First, we will pass R to Python object using `{r_to_py()}`. In this way, we can use Python libraries.
+
+
+```{r import Python libraries}
+
+# Python essential numpy, pandas are imported
+numpy <- import('numpy')
+pandas <- import('pandas')
+
+# scikit-learn libraries
+skl_preprocessing <- import("sklearn.preprocessing")
+skl_model_selection <- import("sklearn.model_selection")
+skl_linear_model <- import("sklearn.linear_model")
+skl_metrics <- import("sklearn.metrics")
+
+```
+
+
+
+
+
+
+
+
+
+
+ 
+
