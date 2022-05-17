@@ -18,3 +18,6 @@ Finally, after your session if you have used `.ipynb` notebooks then create anot
 - Submit a pull request and merge it once approved by at least one of the previous hosts
 
 Note: If you are using `.ipynb` notebooks then the easiest way to create new content is by using [conda](https://conda.io/projects/conda/en/latest/index.html) to create an environment using `environment.yml` and then launch JupyterLab.
+
+Note: If you encounter error showing : Git Clone "Filename too long" Error in Windows, you might want to use gitbash with below command:
+*git clone "https://github.com/nhsbsa-data-analytics/coffee-and-coding.git" -c core.longpaths=true*
