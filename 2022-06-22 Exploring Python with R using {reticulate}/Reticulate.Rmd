@@ -52,27 +52,29 @@ conda_create(cc_env)
 conda_list()
 # We can see that new environment has been created.
 ```
-Now we added new environment. We will use this environment and let's install python packages. 
+Now we added new environment. Let's install python packages in our coffee and coding environment. 
 
 ```{r install python libraries to new environment}
 
 # indicate that we want to use the environment we have just created
 use_condaenv("coffee_coding_reticulate")
 
-# install few most commonly used python packages; pandas, numpy, 
+# install few most commonly used python packages; pandas, numpy, seaborn (for visualisation), scikit-learn (popular machine learning library) 
 conda_install("coffee_coding_reticulate", "pandas")
 conda_install("coffee_coding_reticulate", "numpy")
 conda_install("coffee_coding_reticulate", "seaborn")
+conda_install("coffee_coding_reticulate", "matplotlib")
 conda_install("coffee_coding_reticulate", "scikit-learn")
 
 
 ```
-You can use `py_install()` function as well. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder. 
+You can use `py_install()` function as well if you prefer. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder.
 
-So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import python libraries in our R environment.
+So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import these newly installed Python libraries in our R environment.
 
-If you have anaconda installed, you will be able to see the new environment in Anaconda. You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed anaconda. 
+If you have anaconda installed, you will be able to see the new environment in Anaconda too. You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed Anaconda. 
 
+Next, let's read our data using R way.
 
 ```{r read diabetes data from mlbench}
 
@@ -83,8 +85,8 @@ head(PimaIndiansDiabetes2)
 diabetes <- na.omit(PimaIndiansDiabetes2)
 
 # splitting data into features and predicted variable
-
 X <- diabetes[,1:8]
+# make sure it has binary( 0 = neg, 1=pos) variable
 y <- data.frame(diabetes[,9]) %>% 
   dplyr::mutate(outcome = ifelse(`diabetes...9.`=='neg',0,1)) %>% 
   select(outcome)
@@ -103,16 +105,19 @@ Quick note on each variable:
 
 ### Casting R object to Python using {r_to_py()}
 
-You can try various ways of using R & Python together! I will show two different ways. First, we will pass R to Python object using `{r_to_py()}`. In this way, we can use Python libraries.
+You can try various ways of using R & Python together! I will show two different ways. First, we will **pass R to Python object** using **`{r_to_py()}`**. In this way, we can use Python libraries.
 
 
 ```{r import Python libraries}
 
 # Python essential numpy, pandas are imported
-numpy <- import('numpy')
-pandas <- import('pandas')
+numpy <- import("numpy")
+pandas <- import("pandas")
+sns <- import("seaborn")
+plt <- import("matplotlib.pyplot")
 
 # scikit-learn libraries
+# They look different from ususal python way.. 
 skl_preprocessing <- import("sklearn.preprocessing")
 skl_model_selection <- import("sklearn.model_selection")
 skl_linear_model <- import("sklearn.linear_model")
@@ -120,7 +125,40 @@ skl_metrics <- import("sklearn.metrics")
 
 ```
 
+We now import Python libraries in R. To use these libraries, let's cast R object to Python.
 
+```{r cast R to Python}
+
+py_diabetes <- r_to_py(diabetes)
+
+# check first few rows and try pandas function to see whether it returns correct information.
+py_diabetes$head()
+py_diabetes$dtypes
+py_diabetes$describe() # R summary(diabetes)
+# check the length of pandas data frame
+py_len(py_diabetes)
+
+```
+We can see that we can easily cast R object to Python. Let's do some binary classification using scikit-learn library. We will do following steps:
+* Cast X (independent) and y (dependent) to Python object
+* Scaling the independent features using `sklearn.preprocessing StandardScaler()` & `fit_transform()`
+  * Data standardisation is the process of rescaling the attributes so that they have means as 0 and variance as 1.
+  * So it will rescale all the features to a common scale without distorting the differences in the range of the values
+  [Further reading](https://towardsdatascience.com/what-and-why-behind-fit-transform-vs-transform-in-scikit-learn-78f915cf96fe)
+
+```{r split training and test dataset}
+
+py_y = r_to_py(y)
+py_X = r_to_py(X)
+
+scaler = skl_preprocessing$StandardScaler()
+scaler$fit(py_X)
+py_X = scaler$fit_transform(py_X)
+
+# let's quick look whether it did transform the data
+# As you can see it now transformed as numpy array
+py_X[1:10]
+```
 
 
 
