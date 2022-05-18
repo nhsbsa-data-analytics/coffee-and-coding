@@ -21,3 +21,5 @@ Note: If you are using `.ipynb` notebooks then the easiest way to create new con
 
 Note: If you encounter error showing : Git Clone "Filename too long" Error in Windows, you might want to use gitbash with below command:
 *git clone "https://github.com/nhsbsa-data-analytics/coffee-and-coding.git" -c core.longpaths=true*
+
+When you announce your sesion, comment on *level of difficulty* so that audience will know in advance. 
