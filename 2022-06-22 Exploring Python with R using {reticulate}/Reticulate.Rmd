@@ -17,12 +17,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Reticulate
 
 The {reticulate} package integrates Python with R. 
-We are going to run simple machine learning (binary classification) 
+Today we will run simple machine learning for the binary classification.Binary classification is one of supervised learning method. 
 
 
 ## Python configuration 
 
-we need to create conda environment and install few packages. `conda_list()` function returns an R `data.frame`, with  
+We need to create conda environment and install few packages. `conda_list()` function returns an R `data.frame`, with  
 name giving the name of the associated environment, and Python giving the path to the Python binary associated with that environment.
 
 ```{r check conda list}
@@ -32,9 +32,12 @@ conda_list()
 ```
 Why do we create our own conda environment? 
 
-Sometimes you want to have very specific version of Python or related libraries for your project. From my limited experience working on MSc Machine Learning project, I have encountered the breaking changes error. (For example, Python version was not compatible with tensorflow library). The environment consists of a certain Python version and relevant packages.If you share your work with the environment, it will not cause breaking change error problem. 
+Sometimes you want to have very specific version of Python or related libraries for your project. From my limited experience working on MSc Machine Learning project, I encountered the breaking changes error. For example, Python version was not compatible with tensorflow library.
 
-Let's create our own conda environment using `conda_create(cc_env)` (it can)
+The environment consists of a certain Python version and relevant packages. It is particularly useful if you want to share your code with other colleagues. (similar reason why some people prefer to use `renv`). Further reading can be found [here:](https://towardsdatascience.com/why-you-should-use-a-virtual-environment-for-every-python-project-c17dab3b0fd0)
+
+
+So, let's create our own conda environment using `conda_create(cc_env)` 
 
 
 ```{r create my own conda environment}
@@ -61,6 +64,7 @@ conda_install("coffee_coding_reticulate", "pandas")
 conda_install("coffee_coding_reticulate", "numpy")
 conda_install("coffee_coding_reticulate", "seaborn")
 conda_install("coffee_coding_reticulate", "scikit-learn")
+
 
 ```
 You can use `py_install()` function as well. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder. 
