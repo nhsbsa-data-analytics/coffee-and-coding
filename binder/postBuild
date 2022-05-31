@@ -2,6 +2,6 @@
 
 set -ex
 
-jupyter labextension install jupyterlab-spreadsheet --no-build
+#jupyter labextension install jupyterlab-spreadsheet --no-build
 
 jupyter lab build

@@ -1,7 +1,6 @@
 channels:
   - defaults
   - conda-forge
-  - nodefaults
 
 dependencies:
   - requests=2.26.0
