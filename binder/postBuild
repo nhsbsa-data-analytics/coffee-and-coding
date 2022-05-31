@@ -1,9 +1,12 @@
-#!/bin/bash
+# #!/bin/bash
+# 
+# set -ex
+# 
+# jupyter labextension install jupyterlab-spreadsheet --no-build
+# 
+# jupyter lab build
 
-set -ex
 
-#jupyter labextension install jupyterlab-spreadsheet --no-build
-
-jupyter lab build --dev-build=False --minimize=False
-
-#jupyter lab build
+jupyter contrib nbextension install --user
+jupyter nbextension enable --py widgetsnbextension
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38 --minimize=False
