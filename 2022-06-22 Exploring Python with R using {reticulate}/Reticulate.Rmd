@@ -1,7 +1,7 @@
 ---
 title: "Binary classification with R and Python"
 author: "Kayoung Goffe"
-date: "04/05/2022"
+date: "22/06/2022"
 output: pdf_document
 ---
 
@@ -16,8 +16,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Reticulate
 
-The {reticulate} package integrates Python with R. 
-Today we will run a simple machine learning for the binary classification. Binary classification is one of supervised learning method. 
+The {reticulate} package integrates Python with R.
+
+Today we will run binary classification. Binary classification is the task of classifying the elements of a set into two groups.[source](https://en.wikipedia.org/wiki/Binary_classification)
+
+Classification is a supervised learning as we are going to build a statistical model to allow us to predict outputs based on the input (predictor variables).
+
+We will predict the onset of diabetes in Pima Indians given medical details. 
 
 
 ## Python configuration 
@@ -32,9 +37,9 @@ conda_list()
 ```
 Why do we create our own conda environment? 
 
-Sometimes you want to have very specific version of Python or related libraries for your project. From my limited experience working on MSc Machine Learning project, I encountered the breaking changes error. For example, Python version was not compatible with tensorflow library.
+Sometimes you need to have a specific version of Python or related libraries for your project. From my limited experience working on a MSc Machine Learning project, I encountered error and it was really frustrating. For example, Python version was not compatible with tensorflow library.It took rather long time to figure that out and had to install correct version of package for the Python version I had.
 
-The environment consists of a certain Python version and relevant packages. It is particularly useful if you want to share your code with other colleagues. (similar reason why some people prefer to use `renv`). Further reading can be found [here:](https://towardsdatascience.com/why-you-should-use-a-virtual-environment-for-every-python-project-c17dab3b0fd0)
+The environment consists of a certain Python version and relevant packages. Also, it is particularly useful if you want to share your code with other colleagues. (similar reason why some people prefer to use `renv` in R). Further reading can be found [here:](https://towardsdatascience.com/why-you-should-use-a-virtual-environment-for-every-python-project-c17dab3b0fd0)
 
 
 So, let's create our own conda environment using `conda_create(cc_env)` 
@@ -70,9 +75,9 @@ conda_install("coffee_coding_reticulate", "scikit-learn")
 ```
 You can use `py_install()` function as well if you prefer. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder.
 
-So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed four Python packages. Let's import these newly installed Python libraries in our R environment.
+So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed five Python packages. Let's import these newly installed Python libraries in our R environment.
 
-If you have anaconda installed, you will be able to see the new environment in Anaconda too. You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed Anaconda. 
+NOTE: If you have anaconda installed on your machine, you will be able to see the new environment in Anaconda too (as we just created in conda!). You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed Anaconda. 
 
 Next, let's read our data using R way.
 
@@ -100,6 +105,8 @@ y <- diabetes_scaled %>%
 
 ```
 
+we have loaded data, for the convinience we just removed all NA values.You can try impute if you wish. 
+
 Quick note on each variable:
 * Pregnant: Number of times pregnant
 * Glucose: Plasma glucose concentration (glucose tolerance test)
@@ -119,9 +126,7 @@ You can try various ways of using R & Python together! We will **pass R to Pytho
 
 # Python essential numpy, pandas are imported
 numpy <- import("numpy")
-pandas <- import("pandas")
-sns <- import("seaborn")
-plt <- import("matplotlib.pyplot")
+# pandas <- import("pandas")
 
 # scikit-learn libraries
 # They look different from ususal python way.. 
@@ -155,7 +160,7 @@ We can see that we can easily cast R object to Python. We are going to run binar
 ```{r split training and test dataset}
 
 
-test_train <- skl_model_selection$train_test_split(x,y,test_size = 0.2)
+test_train <- skl_model_selection$train_test_split(x, y, test_size = 0.2)
 
 py_x_train <- r_to_py(test_train[[1]])
 py_x_test <- r_to_py(test_train[[2]])
@@ -168,10 +173,45 @@ py_x_train$head() # it is python pandas object now
 ```{r model}
 logit_model <- skl_linear_model$LogisticRegression()
 logit_model$fit(py_x_train, py_y_train$values$ravel())
+
 logit_prediction <- logit_model$predict(py_x_test)
 
 # generating accuracy score
 logit_score <- skl_metrics$accuracy_score(py_y_test, logit_prediction)
+
+paste0("Accuracy: ",sprintf("%0.2f%%",logit_score*100))
+
+```
+
+You could try using cross validation rather than split to train and test dataset just once. Why you want to this? Above sample dataset, we only evaluated the model once. However, how can we be certain that that random split was the best one? (How can we be certain to obtain accuracy of 81% by change?)
+
+To fix some of this issues, we can use k-fold cross validation.  
+
+Diagram to show you what we are trying to do cross-validation.
+[here](https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation)
+
+Let's add that logic!
+
+```{r}
+
+py_x <- r_to_py(x)
+py_y <- r_to_py(y)
+
+logit_model_cv <- skl_linear_model$LogisticRegression()
+
+logit_model_cv$fit(py_x,py_y$values$ravel())
+
+scores <- skl_model_selection$cross_val_score(
+  logit_model,py_x,py_y$values$ravel(), cv = as.integer(10))
+
+
+paste0(sprintf("%0.1f%%",mean(scores)*100), " accuracy with a standard deviation of ", sprintf("%0.2f", sd(scores)))
+
+```
+
+Our first model without cross-validation accracy result looks good so let's carry on initial training/test split dataset.
+
+```{r}
 
 logit_report <- skl_metrics$classification_report(py_y_test, logit_prediction,output_dict=TRUE)
 
@@ -185,25 +225,96 @@ df |> tibble::rownames_to_column() |>
     !rowname, names_to = "col1", values_to = "col2") |> 
   tidyr::pivot_wider(
     names_from = "rowname", values_from = "col2"
-  )
-  
+  ) |> 
+  mutate_if(is.numeric, round, 2)
+
+# We can check AUC-ROC value
+# good explanation of it: https://towardsdatascience.com/understanding-auc-roc-curve-68b2303cc9c5
 
 
+skl_metrics$roc_auc_score(py_y_test, logit_prediction)
 
 ```
-plot using python package 
+Hosmer & Lemeshow(2013) applied logistic paper suggests...
 
-```{r}
+So, what area under the ROC curve describes good discrimination? Unfortunately there is no "magic" number, only general guidelines. In general, we use the following rule of thumb:
 
-```
+0.5 = This suggests no discrimination, so we might as well flip a coin.
 
-using python in chunk
+0.5-0.7 = We consider this poor discrimination, not much better than a coin toss.
+
+0.7-0.8 = Acceptable discrimination
+
+0.8-0.9= Excellent discrimination
+
+> 0.9 = Outstanding discrimination
+
+Our result shows acceptable discrimination of diabetes diseases. However, you could try improve further!
+
+Recap so far...
+
+* Read Pima indian diabetes dataset
+* Standardise predictor variables
+* Split train and test dataset (20:80 split) 
+  * We also tried to run k-fold cross validation too
+* Run logistic regression model
+* Check accuracy (we achieved 81% and AOC-ROC value was 75% - resonably happy discrimation of two classes)
+
+
+Now, we can try all of these using Python. As you notice, if we want to use Python code we can use **```{python}** instead of **```{r}** in the code chunk.
+
 ```{python }
+
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve, accuracy_score, classification_report, plot_confusion_matrix
+from sklearn.model_selection import train_test_split, cross_validate, cross_val_score
+
+# Once we are in the Python REPL (Read-Eval-Print-Loop): computer environment where user inputs are read 
+# and evaluated, and then the results are returned to the user.
+
+diabetes = r.diabetes
+
+diabetes.dtypes # shows that it is a Python object now (dtype = object)
+diabetes.head()
+
+# Ned to recode diabetes column 0 = neg , 1= pos
+diabetes['diabetes'] = np.where(diabetes['diabetes'] == 'neg',0,1)
+
+X = diabetes.loc[:, diabetes.columns != 'diabetes']
+y = diabetes['diabetes']
+
+# Split to train and test dataset
+X_train, X_test, y_train, y_test = train_test_split(X,y,random_state = 0, test_size = 0.2)
+
+
+# Standardise feature by removing the mean and scaling to unit variance
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.fit_transform(X_test)
+
+# Run logistic regression 
+
+model = LogisticRegression()
+model.fit(X_train, y_train.values.ravel())
+
+y_predicted = model.predict(X_test)
+
+# generating accuracy score
+logit_score =  accuracy_score(y_test, y_predicted)
+
+print("Accuracy score: ", "{:.1f}".format(logit_score*100),"%")
+
+# classification report
+
+print(classification_report(y_test, y_predicted))
+
+# Plot confusion matrix for binary classes
 
 ```
-
-
 
 
 
