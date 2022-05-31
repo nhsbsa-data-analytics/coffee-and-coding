@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Reticulate
 
 The {reticulate} package integrates Python with R. 
-Today we will run simple machine learning for the binary classification.Binary classification is one of supervised learning method. 
+Today we will run a simple machine learning for the binary classification. Binary classification is one of supervised learning method. 
 
 
 ## Python configuration 
@@ -85,11 +85,18 @@ head(PimaIndiansDiabetes2)
 diabetes <- na.omit(PimaIndiansDiabetes2)
 
 # splitting data into features and predicted variable
-X <- diabetes[,1:8]
+# We will standardise the predictor variables 
+x <- scale(diabetes[,1:8])
 # make sure it has binary( 0 = neg, 1=pos) variable
-y <- data.frame(diabetes[,9]) %>% 
-  dplyr::mutate(outcome = ifelse(`diabetes...9.`=='neg',0,1)) %>% 
-  select(outcome)
+y <- ifelse(diabetes[,9]=='neg',0,1)
+
+# combine to create data frame and split them for 
+diabetes_scaled <- data.frame(x,y)
+
+x <- diabetes_scaled %>% 
+  select(-y)
+y <- diabetes_scaled %>% 
+  select(y)
 
 ```
 
@@ -105,7 +112,7 @@ Quick note on each variable:
 
 ### Casting R object to Python using {r_to_py()}
 
-You can try various ways of using R & Python together! I will show two different ways. First, we will **pass R to Python object** using **`{r_to_py()}`**. In this way, we can use Python libraries.
+You can try various ways of using R & Python together! We will **pass R to Python object** using **`{r_to_py()}`**. In this way, we can use Python libraries.
 
 
 ```{r import Python libraries}
@@ -129,7 +136,7 @@ We now import Python libraries in R. To use these libraries, let's cast R object
 
 ```{r cast R to Python}
 
-py_diabetes <- r_to_py(diabetes)
+py_diabetes <- r_to_py(diabetes_scaled)
 
 # check first few rows and try pandas function to see whether it returns correct information.
 py_diabetes$head()
@@ -139,26 +146,63 @@ py_diabetes$describe() # R summary(diabetes)
 py_len(py_diabetes)
 
 ```
-We can see that we can easily cast R object to Python. Let's do some binary classification using scikit-learn library. We will do following steps:
-* Cast X (independent) and y (dependent) to Python object
-* Scaling the independent features using `sklearn.preprocessing StandardScaler()` & `fit_transform()`
-  * Data standardisation is the process of rescaling the attributes so that they have means as 0 and variance as 1.
-  * So it will rescale all the features to a common scale without distorting the differences in the range of the values
-  [Further reading](https://towardsdatascience.com/what-and-why-behind-fit-transform-vs-transform-in-scikit-learn-78f915cf96fe)
+We can see that we can easily cast R object to Python. We are going to run binary classification using `scikit-learn` library. We will do following steps:
+* Cast x (independent) and y (dependent) to Python object
+* Split train and test dataset
+* Run logistic regression
+
 
 ```{r split training and test dataset}
 
-py_y = r_to_py(y)
-py_X = r_to_py(X)
 
-scaler = skl_preprocessing$StandardScaler()
-scaler$fit(py_X)
-py_X = scaler$fit_transform(py_X)
+test_train <- skl_model_selection$train_test_split(x,y,test_size = 0.2)
 
-# let's quick look whether it did transform the data
-# As you can see it now transformed as numpy array
-py_X[1:10]
+py_x_train <- r_to_py(test_train[[1]])
+py_x_test <- r_to_py(test_train[[2]])
+py_y_train <- r_to_py(test_train[[3]])
+py_y_test <- r_to_py(test_train[[4]])
+
+py_x_train$head() # it is python pandas object now
+
 ```
+```{r model}
+logit_model <- skl_linear_model$LogisticRegression()
+logit_model$fit(py_x_train, py_y_train$values$ravel())
+logit_prediction <- logit_model$predict(py_x_test)
+
+# generating accuracy score
+logit_score <- skl_metrics$accuracy_score(py_y_test, logit_prediction)
+
+logit_report <- skl_metrics$classification_report(py_y_test, logit_prediction,output_dict=TRUE)
+
+logit_report # need to figure out to create better one 
+
+df <- pandas$DataFrame(logit_report)
+
+# python table not show nicely so transpose 
+df |> tibble::rownames_to_column() |> 
+  tidyr::pivot_longer(
+    !rowname, names_to = "col1", values_to = "col2") |> 
+  tidyr::pivot_wider(
+    names_from = "rowname", values_from = "col2"
+  )
+  
+
+
+
+```
+plot using python package 
+
+```{r}
+
+```
+
+using python in chunk
+```{python }
+import numpy as np
+
+```
+
 
 
 
