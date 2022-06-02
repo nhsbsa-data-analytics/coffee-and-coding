@@ -105,7 +105,7 @@ y <- diabetes_scaled %>%
 
 ```
 
-we have loaded data, for the convinience we just removed all NA values.You can try impute if you wish. 
+we have loaded data, for the convenience we just removed all NA values.You can try impute if you wish. 
 
 Quick note on each variable:
 * Pregnant: Number of times pregnant
@@ -126,7 +126,7 @@ You can try various ways of using R & Python together! We will **pass R to Pytho
 
 # Python essential numpy, pandas are imported
 numpy <- import("numpy")
-# pandas <- import("pandas")
+pandas <- import("pandas")
 
 # scikit-learn libraries
 # They look different from ususal python way.. 
@@ -315,6 +315,7 @@ print(classification_report(y_test, y_predicted))
 # Plot confusion matrix for binary classes
 
 ```
+
 
 
 

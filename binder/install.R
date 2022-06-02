@@ -51,7 +51,8 @@ install.packages(
     "dplyr",
     "reticulate",
     "mlbench",
-    "magrittr"
+    "magrittr",
+    "tidyr"
   )
 )
 
