@@ -27,9 +27,11 @@ Our next session is organised for 23rd March and we are actively looking for vol
 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------| 
+| 2022-09-21            | Adnan Shroufi    | Excel to R: Part two                                                                    | 
+| 2022-08-17            | Nikki Dodds      | Beginners R (Title TBC)                                                                    | 
 | 2022-07-20            |                  |                                                                     | 
-| 2022-06-22            | Kayoung Goffe    | Exploring Python with R using `{reticulate}`                        |
-| 2022-05-25 *          | Adnan Shroufi    | Excel to R: Part one                                                |
+| 2022-06-22 *          | Kayoung Goffe    | Exploring Python with R using `{reticulate}`                        |
+| 2022-05-25            | Adnan Shroufi    | Excel to R: Part one                                                |
 | 2022-04-27            | Matthew Wilson   | Writing functions in R                                              |
 | 2022-03-23            | Mark McPherson   | Updating Shiny dashboards from Excel via mongoDB                    |
 | 2022-02-23            | Adam Ivison      | Extracting data from images using Python and the cloud              |
