@@ -270,7 +270,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_curve, accuracy_score, classification_report, plot_confusion_matrix
+from sklearn.metrics import roc_curve, accuracy_score,confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split, cross_validate, cross_val_score
 
 # Once we are in the Python REPL (Read-Eval-Print-Loop): computer environment where user inputs are read 
