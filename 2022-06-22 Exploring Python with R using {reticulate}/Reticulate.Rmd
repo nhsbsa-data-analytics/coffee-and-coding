@@ -71,7 +71,6 @@ conda_install("coffee_coding_reticulate", "seaborn")
 conda_install("coffee_coding_reticulate", "matplotlib")
 conda_install("coffee_coding_reticulate", "scikit-learn")
 
-
 ```
 You can use `py_install()` function as well if you prefer. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder.
 
@@ -190,6 +189,8 @@ To fix some of this issues, we can use k-fold cross validation.
 Diagram to show you what we are trying to do cross-validation.
 [here](https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation)
 
+You can also try gradient descent (Stochastic Gradient Descent (SGD) is a simple yet very efficient approach to fitting linear classifiers and regressors under convex loss functions such as (linear) Support Vector Machines and Logistic Regression.)[here](https://scikit-learn.org/stable/modules/sgd.html)
+
 Let's add that logic!
 
 ```{r}
@@ -230,6 +231,7 @@ df |> tibble::rownames_to_column() |>
 
 # We can check AUC-ROC value
 # good explanation of it: https://towardsdatascience.com/understanding-auc-roc-curve-68b2303cc9c5
+# The closer an ROC curve is to the upper left corner, the more efficient is the test
 
 
 skl_metrics$roc_auc_score(py_y_test, logit_prediction)
@@ -290,6 +292,10 @@ y = diabetes['diabetes']
 # Split to train and test dataset
 X_train, X_test, y_train, y_test = train_test_split(X,y,random_state = 0, test_size = 0.2)
 
+X_train.shape
+X_test.shape
+y_train.shape
+y_test.shape
 
 # Standardise feature by removing the mean and scaling to unit variance
 scaler = StandardScaler()
