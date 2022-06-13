@@ -20,15 +20,14 @@ The {reticulate} package integrates Python with R.
 
 Today we will run binary classification. Binary classification is the task of classifying the elements of a set into two groups.[source](https://en.wikipedia.org/wiki/Binary_classification)
 
-Classification is a supervised learning as we are going to build a statistical model to allow us to predict outputs based on the input (predictor variables).
+Classification is a *supervised learning*. We are going to build a statistical model to allow us to predict outputs based on the input (predictor variables).
 
 We will predict the onset of diabetes in Pima Indians given medical details. 
 
 
 ## Python configuration 
 
-We need to create conda environment and install few packages. `conda_list()` function returns an R `data.frame`, with  
-name giving the name of the associated environment, and Python giving the path to the Python binary associated with that environment.
+We need to create conda environment and install few libraries. `conda_list()` function returns an R `data.frame`, with name giving the name of the associated environment, and Python giving the path to the Python binary associated with that environment.
 
 ```{r check conda list}
 
@@ -37,7 +36,7 @@ conda_list()
 ```
 Why do we create our own conda environment? 
 
-Sometimes you need to have a specific version of Python or related libraries for your project. From my limited experience working on a MSc Machine Learning project, I encountered error and it was really frustrating. For example, Python version was not compatible with tensorflow library.It took rather long time to figure that out and had to install correct version of package for the Python version I had.
+Sometimes you need to have a specific version of Python or related libraries for your project.
 
 The environment consists of a certain Python version and relevant packages. Also, it is particularly useful if you want to share your code with other colleagues. (similar reason why some people prefer to use `renv` in R). Further reading can be found [here:](https://towardsdatascience.com/why-you-should-use-a-virtual-environment-for-every-python-project-c17dab3b0fd0)
 
@@ -74,7 +73,7 @@ conda_install("coffee_coding_reticulate", "scikit-learn")
 ```
 You can use `py_install()` function as well if you prefer. It will require to install miniconda in your system. We are not using it today as we don't want to install while using binder.
 
-So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed five Python packages. Let's import these newly installed Python libraries in our R environment.
+So far we have 1) created our own environment called 'coffee_coding_reticulate' and in that environment, we have installed five Python libraries. Let's import these newly installed Python libraries in our R environment.
 
 NOTE: If you have anaconda installed on your machine, you will be able to see the new environment in Anaconda too (as we just created in conda!). You can install Python libraries through Anaconda if you want. I will show you on my local machine as I have installed Anaconda. 
 
@@ -128,7 +127,7 @@ numpy <- import("numpy")
 pandas <- import("pandas")
 
 # scikit-learn libraries
-# They look different from ususal python way.. 
+# They look different from usual python way.. 
 skl_preprocessing <- import("sklearn.preprocessing")
 skl_model_selection <- import("sklearn.model_selection")
 skl_linear_model <- import("sklearn.linear_model")
@@ -182,7 +181,7 @@ paste0("Accuracy: ",sprintf("%0.2f%%",logit_score*100))
 
 ```
 
-You could try using cross validation rather than split to train and test dataset just once. Why you want to this? Above sample dataset, we only evaluated the model once. However, how can we be certain that that random split was the best one? (How can we be certain to obtain accuracy of 81% by change?)
+You could try using cross validation rather than split to train and test dataset just once. Why you want to this? Above sample dataset, we only evaluated the model once. However, how can we be certain that that random split was the best one? (How can we be certain to obtain accuracy of `r sprintf("%0.1f%%",logit_score*100)` by change?)
 
 To fix some of this issues, we can use k-fold cross validation.  
 
@@ -191,7 +190,7 @@ Diagram to show you what we are trying to do cross-validation.
 
 You can also try gradient descent (Stochastic Gradient Descent (SGD) is a simple yet very efficient approach to fitting linear classifiers and regressors under convex loss functions such as (linear) Support Vector Machines and Logistic Regression.)[here](https://scikit-learn.org/stable/modules/sgd.html)
 
-Let's add that logic!
+Let's add cross validation logic!
 
 ```{r}
 
@@ -200,17 +199,17 @@ py_y <- r_to_py(y)
 
 logit_model_cv <- skl_linear_model$LogisticRegression()
 
-logit_model_cv$fit(py_x,py_y$values$ravel())
+logit_model_cv$fit(py_x, py_y$values$ravel())
 
 scores <- skl_model_selection$cross_val_score(
-  logit_model,py_x,py_y$values$ravel(), cv = as.integer(10))
+  logit_model, py_x, py_y$values$ravel(), cv = as.integer(10))
 
 
 paste0(sprintf("%0.1f%%",mean(scores)*100), " accuracy with a standard deviation of ", sprintf("%0.2f", sd(scores)))
 
 ```
 
-Our first model without cross-validation accracy result looks good so let's carry on initial training/test split dataset.
+Our first model without cross-validation accuracy result looks good so let's carry on initial training/test split dataset.
 
 ```{r}
 
@@ -255,12 +254,12 @@ Our result shows acceptable discrimination of diabetes diseases. However, you co
 
 Recap so far...
 
-* Read Pima indian diabetes dataset
+* Read Pima Indian diabetes dataset
 * Standardise predictor variables
 * Split train and test dataset (20:80 split) 
   * We also tried to run k-fold cross validation too
 * Run logistic regression model
-* Check accuracy (we achieved 81% and AOC-ROC value was 75% - resonably happy discrimation of two classes)
+* Check accuracy (we achieved 81% and AOC-ROC value was 75% - reasonably happy discrimination of two classes)
 
 
 Now, we can try all of these using Python. As you notice, if we want to use Python code we can use **```{python}** instead of **```{r}** in the code chunk.
