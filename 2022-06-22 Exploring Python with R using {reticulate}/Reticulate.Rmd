@@ -332,6 +332,8 @@ plt.ylabel('Actuals', fontsize=18)
 plt.title('Confusion Matrix', fontsize=18)
 plt.show()
 
+# code from https://vitalflux.com/python-draw-confusion-matrix-matplotlib/
+
 ```
 
 Accuracy = (TP + TN) / (TP + TN + FP + FN) = (48+14)/(48 + 14+ 6 + 11) and they return same value from `accuracy_score` function in the above code. 
