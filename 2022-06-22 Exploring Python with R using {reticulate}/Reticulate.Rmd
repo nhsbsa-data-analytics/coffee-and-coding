@@ -271,7 +271,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_curve, accuracy_score,confusion_matrix, classification_report
+from sklearn.metrics import roc_curve, accuracy_score,confusion_matrix, classification_report, RocCurveDisplay
 from sklearn.model_selection import train_test_split, cross_validate, cross_val_score
 
 # Once we are in the Python REPL (Read-Eval-Print-Loop): computer environment where user inputs are read 
@@ -307,6 +307,8 @@ model = LogisticRegression()
 model.fit(X_train, y_train.values.ravel())
 
 y_predicted = model.predict(X_test)
+y_proba = model.predict_proba(X_test)
+
 
 # generating accuracy score
 logit_score =  accuracy_score(y_test, y_predicted)
@@ -320,6 +322,7 @@ print(classification_report(y_test, y_predicted))
 conf_matrix = confusion_matrix(y_true=y_test, y_pred=y_predicted)
 
 # Plot confusion matrix for binary classes
+# code from https://vitalflux.com/python-draw-confusion-matrix-matplotlib/
 fig, ax = plt.subplots(figsize=(7.5, 7.5))
 ax.matshow(conf_matrix, cmap=plt.cm.Blues, alpha=0.3)
 for i in range(conf_matrix.shape[0]):
@@ -331,7 +334,27 @@ plt.ylabel('Actuals', fontsize=18)
 plt.title('Confusion Matrix', fontsize=18)
 plt.show()
 
-# code from https://vitalflux.com/python-draw-confusion-matrix-matplotlib/
+# Creating Receiver Operating Characteristic (ROC) curve
+# The intent of ROC curve is to show how well the model works for every possible threshold, as a relation to TPR vs FPR. 
+# NOTE: TPR = TP / (TP + FN) : sensitivity
+# Sensitivity is the metric that evaluates a model's ability to predict true positives of each available category
+# FPR = 1 - TN (TN + FP) : 1 - specificity
+# Specificity is the metric that evalulates a model's ability to predict true negative of each available category.
+# How to evaluate: Area Under Curve (AUC)
+# The perfect ROC curve would have an area of 1. (As closer model's ROC AUC is from 1, the better it is in 
+# separating classes and making better predictions)
+
+def plot_sklearn_roc_curve(y_real, y_pred):
+    fpr, tpr, _ = roc_curve(y_real, y_pred)
+    roc_display = RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
+    roc_display.figure_.set_size_inches(5,5)
+    plt.plot([0, 1], [0, 1], color = 'g')
+    plt.show()
+    
+# Plots the ROC curve using the sklearn methods - Good plot
+plot_sklearn_roc_curve(y_test, y_proba[:, 1])
+
+
 
 ```
 
