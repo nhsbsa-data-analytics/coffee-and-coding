@@ -40,19 +40,22 @@
 #     "tidytext",
 #     "tidyverse",
 #     "tm",
-#     "wordcloud2"
-#   )
-# )
+#     "wordcloud2",
+#     "reticulate",
+#     "mlbench"
+#    )
+#  )
 
 install.packages(
   c(
     "dplyr",
-    "tidyr",
-    "stringr",
-    "openxlsx"
+    "reticulate",
+    "mlbench",
+    "magrittr",
+    "tidyr"
   )
 )
 
 # Use devtools to install packages not on CRAN, e.g. from Github
-install.packages("devtools")
-devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
+# install.packages("devtools")
+# devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
