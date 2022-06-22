@@ -27,7 +27,8 @@ Our next session is organised for 23rd March and we are actively looking for vol
 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------| 
-| 2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
+| 2022-11-23            | Mark McPherson   | RDP: Reproducible Dashboard Pipeline 
+  2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
 | 2022-09-21            | Adnan Shroufi    | Excel to R: Part two                                                | 
 | 2022-08-17            | Nikki Dodds      | Beginners R (Title TBC)                                             | 
 | 2022-07-20            |                  |                                                                     | 
