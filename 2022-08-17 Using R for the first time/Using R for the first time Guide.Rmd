@@ -29,6 +29,7 @@ body, td {
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 # What is R and R studio?
@@ -64,7 +65,9 @@ Packages for R can be installed from the CRAN package repository in two ways.Thi
 
 ```{Packages}
 install.packages("tidyverse")
+
 ```
+
 ## Using a package
 Once installed you need to use the library function to install the package you want to use on your script.
 
@@ -75,6 +78,7 @@ If you are using more than one package the you need to load them all at the star
 ``` {Load Package}
 library(tidyverse)
 ```
+
 ## Getting help with a package
 Within a package there are functions which are “self contained” modules of code that accomplish a specific task. Functions usually take in some sort of data structure (value, vector, dataframe etc.), process it, and return a result. 
 For each package in R there is documentation produced which provides information on the different function it contains and gives examples of how to use the function. These can be accessed in two main ways. 
@@ -83,27 +87,31 @@ For each package in R there is documentation produced which provides information
 
 ![dplyr help screen.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/dplyr help screen.png)
 
-![group_by screen.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Group_by.png)
-
 
 * Using the help function (The example code for this is below). This will bring up the same documentation screen as above. Then you can select the function you want help with.
 
 ```{Help function}
 help(package="dplyr")
 ```
+
 # Working directory
 The working directory is just a file path on your computer that sets the default location of any files you read into R, or save out of R.
 
+## Get working directory
 You can see what the current working directory of R is by using the following code
 
 ```{getwd}
 getwd()
 ```
-You can set the working directory to a specific folder on your computer, so for example a project folder where you may have data saved that you would like to upload in to R. To do this you would use the following code. NOTE - the slashes in the directory path are forwards and not backwards as they would be when you copy a file path from your computer. 
+
+## Set working directory
+
+You can set the working directory to a specific folder on your computer, so for example a project folder where you may have data saved that you would like to upload in to R. To do this you would use the following code. this sets my working directory to a folder called R saved in my user folder on my C drive (work files and any sensitive information should not be saved on your C drive, this is for example purposes only)  NOTE - the slashes in the directory path are forwards and not backwards as they would be when you copy a file path from your computer. 
 
 ```{set working directory}
 setwd("C:/Users/nidod/R")
 ```
+
 # Loading Data into R
 You can load many data formats in to R this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
 
@@ -113,6 +121,7 @@ R has an inbuilt function to read in csv files see code below.If you have set yo
 ```{read csv from WD}
 first_table <- read_csv("Mydata.csv")
 ```
+
 If the data you want to load is in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in a CSV called Mydata2 and it was saved in a folder called CSVS in your person folder and you wanted to call it second_table then you would use the following code. Both the file path and the name of the CSV need to be included in the "". REMEMBER that the slashes in the file path should be forwards and not backwards. 
 
 ```{read CSV from different location}
@@ -127,28 +136,124 @@ Once your data has loaded you will see it in the environment window in the top r
 ## Load an excel file
 To load an excel file you need to use a package called readXl. If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
 
-```{read excel from WD}
+```{ read excel from WD}
 
 thrid_table <- read_excel("Mydata3.xlsx")
 ```
+
 Again as above if the excel spreadsheet is saved in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in an excel spreadsheet called Mydata4 and it was saved in a folder called excel in your person folder and you wanted to call it fourth_table then you would use the following code. 
 
-```{read excel from different location}
+```{ read excel from different location}
 fourth_table <- read_excel("C:/Users/nidod/EXCEL/Mydata4.xlsx")
 ```
 
 # Simple anaylsis in R 
-For this section we are going to use one of the data sets pre-built in R called mtcars but any of the following analysis could be done on data sets you have loaded yourself. To load the data we use the following code
+For this section we are going to use one of the data sets pre-built in R called mtcars but any of the following analysis could be done on data sets you have loaded yourself. To load the data we use the following code. The functions used in the section are from the dyplr package that we installed via the tidyverse pacakage
 
-```{r}
+```{r create data set}
 mtcars <- mtcars
 ```
 
-## count rows
-There is a function in R to count rows. This will put the number of rows in the console in the bottom left side of the screen.
+## Sum up a column
+
+If you want to get a sum of a column you can use the summaries function in the dplyr.The following code will give you a data output item with the sum of all of the cylinders of the 32 cars in the mtcar data set. in this example we are creating a data object called num_cyl to keep a record of the value. We also need to use a pipe to then use the summaries function the pipe is |>. The key board short cut to create the pipe symbol is Ctrl+Shift+M
+
+```{r sum total number of cylinders}
+num_cyl <- mtcars %>% 
+  summarise(sum(cyl))
+```
+## Filter rows
+
+If you want to filter rows from the table, for example you only want to look at cars with 4 cylinders the following code can be used. A double = is used for an exact match. 
+
+```{r only cars with 4 cylinders}
+Cylinders4 <- mtcars %>% 
+filter(cyl == 4)
+```
+
+If you want to filter on more than one column the following code can be used For example we want cars with 4 cylinders that get more than 30 mpg
+
+```{r cylinders and mpg}
+
+Cylinders4_mpgn <- mtcars %>% 
+filter(cyl == 4 & mpg >30)
+
+```
+
+## Grouping data
+
+If you want to count the number of cars by the number of cylinders they have then you can use the following code. in the group_by you need to add the column name that you want to group by so in this example the number of cylinders (cyl), then we used the summarise function to count the number of cars,in the brackets you add the name you want the column to be and the = n() is used to count the numbers of rows that has each number of cylinders.  
+
+```{r group by}
+Num_cars = mtcars %>% 
+  group_by(cyl) %>% 
+  summarise(number_of_cars = n())
+ 
+
+
+```
+
+# Drawing a graph
+
+We will use the ggplot package to draw a bar chart to show the number of cars by the number of cylinders they have. 
+
+```{r ggplot graph}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
+  geom_bar(stat="identity")
+```
+
+We can see the scale for the cylinders is continuous and not specific to the 3 cylinder sizes we have in our data. To correct these we need to change the data type of this data field to a factor. This can be done using the mutate function.
 
 ```{r}
-nrow(mtcars)
+Num_cars <- Num_cars %>% 
+ mutate(cyl= as.factor(cyl))
 ```
-## Count columns
 
+If you then repolt the graph the scale of the x axis is now correct
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
+  geom_bar(stat="identity")
+```
+
+## Change the colour of the bars
+
+If you want to change the colour of your bars you can specify the colour this example is for blue
+
+```{r}
+
+
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
+  geom_bar(stat="identity", fill="steelblue")
+```
+
+If you want your bars to be different colours you can use the fill option in the code and it will use a default set. 
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
+  geom_bar(stat="identity")
+```
+
+## Adding a title to the Graph
+
+You can give your graph a title by using ggtitle
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
+  geom_bar(stat="identity")+
+ggtitle("Number of cars by number of Cylinders")
+```
+
+## Add axis labels
+
+You can also change the axis labels using xlab and ylab 
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
+  geom_bar(stat="identity")+
+ggtitle("Number of cars by number of Cylinders") +
+  xlab("Number of Cylinders") +
+  ylab("Number of cars")
+```
+
+# Useful resources
