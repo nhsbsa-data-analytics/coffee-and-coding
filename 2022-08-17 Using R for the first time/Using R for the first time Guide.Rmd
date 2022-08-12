@@ -60,7 +60,7 @@ Packages for R can be installed from the CRAN package repository in two ways.Thi
 
 ![Installing the tidyverse package.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Package screen.png)
  
- * Using the install.packages function. The example code for this is below.  The example below is to install a package called Tidyverse which is a collection of packages that includes some of the most common ones used by the DALL team including dplyr and ggplot
+ * Using the install.packages function. The example code for this is below.  The example below is to install a package called Tidyverse which is a collection of packages that includes some of the most common ones used by the DALL team including dplyr and ggplot. To run  the code you can copy and past this into a new R script and. To run a line of code in R you press control and return key on the line of code you want to run or at the end of a block of code if it is over more than one line.
 
 ```{Packages}
 install.packages("tidyverse")
@@ -108,17 +108,21 @@ setwd("C:/Users/nidod/R")
 You can load many data formats in to R this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
 
 ## Load a CSV
-R has an inbuilt function to read in csv files see code below.If you have set your working directory to the folder your data is saved in then you can use the following code and just add the name of the CSV file in brackets. When you load the data in you need to give the dataframe you are creating in R a name So if for example you wanted to import a csv file called MyData and call the table in R first_table then you would use the following code. In the code you put the name you want to call the table in r first followed by <-
+R has an inbuilt function to read in csv files see code below.If you have set your working directory to the folder your data is saved in then you can use the following code and just add the name of the CSV file in brackets. When you load the data in you need to give the dataframe you are creating in R a name So if for example you wanted to import a csv file called MyData and call the table first_table then you would use the following code. In the code you put the name you want to call the table in R first followed by <-
 
 ```{read csv from WD}
 first_table <- read_csv("Mydata.csv")
 ```
-If the data you want to load is in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in a CSV called Mydata2 and it was saved in a folder called CSVS in your person folder and you wanted to call it second_table then you would use the following code. Both the file path and the name of the CSV need to be included in the ""
+If the data you want to load is in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in a CSV called Mydata2 and it was saved in a folder called CSVS in your person folder and you wanted to call it second_table then you would use the following code. Both the file path and the name of the CSV need to be included in the "". REMEMBER that the slashes in the file path should be forwards and not backwards. 
 
 ```{read CSV from different location}
 
 second_table <- read_csv("C:/Users/nidod/CSVS/Mydata2.csv")
 ```
+
+Once your data has loaded you will see it in the environment window in the top right of your screen. This tells you how many rows the table has (obs) and how many columns (variables).If you click on the name of the table you can then view the table.
+
+![Environment screen.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/first_table.png)
 
 ## Load an excel file
 To load an excel file you need to use a package called readXl. If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
@@ -132,4 +136,19 @@ Again as above if the excel spreadsheet is saved in a different location to your
 ```{read excel from different location}
 fourth_table <- read_excel("C:/Users/nidod/EXCEL/Mydata4.xlsx")
 ```
+
+# Simple anaylsis in R 
+For this section we are going to use one of the data sets pre-built in R called mtcars but any of the following analysis could be done on data sets you have loaded yourself. To load the data we use the following code
+
+```{r}
+mtcars <- mtcars
+```
+
+## count rows
+There is a function in R to count rows. This will put the number of rows in the console in the bottom left side of the screen.
+
+```{r}
+nrow(mtcars)
+```
+## Count columns
 
