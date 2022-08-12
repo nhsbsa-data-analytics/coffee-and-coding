@@ -91,4 +91,45 @@ For each package in R there is documentation produced which provides information
 ```{Help function}
 help(package="dplyr")
 ```
+# Working directory
+The working directory is just a file path on your computer that sets the default location of any files you read into R, or save out of R.
+
+You can see what the current working directory of R is by using the following code
+
+```{getwd}
+getwd()
+```
+You can set the working directory to a specific folder on your computer, so for example a project folder where you may have data saved that you would like to upload in to R. To do this you would use the following code. NOTE - the slashes in the directory path are forwards and not backwards as they would be when you copy a file path from your computer. 
+
+```{set working directory}
+setwd("C:/Users/nidod/R")
+```
+# Loading Data into R
+You can load many data formats in to R this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
+
+## Load a CSV
+R has an inbuilt function to read in csv files see code below.If you have set your working directory to the folder your data is saved in then you can use the following code and just add the name of the CSV file in brackets. When you load the data in you need to give the dataframe you are creating in R a name So if for example you wanted to import a csv file called MyData and call the table in R first_table then you would use the following code. In the code you put the name you want to call the table in r first followed by <-
+
+```{read csv from WD}
+first_table <- read_csv("Mydata.csv")
+```
+If the data you want to load is in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in a CSV called Mydata2 and it was saved in a folder called CSVS in your person folder and you wanted to call it second_table then you would use the following code. Both the file path and the name of the CSV need to be included in the ""
+
+```{read CSV from different location}
+
+second_table <- read_csv("C:/Users/nidod/CSVS/Mydata2.csv")
+```
+
+## Load an excel file
+To load an excel file you need to use a package called readXl. If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
+
+```{read excel from WD}
+
+thrid_table <- read_excel("Mydata3.xlsx")
+```
+Again as above if the excel spreadsheet is saved in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in an excel spreadsheet called Mydata4 and it was saved in a folder called excel in your person folder and you wanted to call it fourth_table then you would use the following code. 
+
+```{read excel from different location}
+fourth_table <- read_excel("C:/Users/nidod/EXCEL/Mydata4.xlsx")
+```
 
