@@ -1,0 +1,79 @@
+---
+title: |
+  ![](BSA_report_header.jpg){width=100%}  
+    
+  Guide to Using R for the first time
+author: "Nikki Dodds"
+date: "2022-08-12"
+
+output: 
+  html_document:
+    css: "style/style.css"
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 16px;
+   font-family: sans-serif;
+}
+</style>
+<html lang="en">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# What is R and R studio?
+
+R and RStudio are two distinctly different applications that serve different purposes.
+
+* R is the software that performs the actual instructions. Without R installed on your computer or server, you would not be able to run any commands.
+
+* RStudio is a software that provides an interface to R. It’s sometimes referred to as an Integrated Development Environment (IDE). Its purpose is to provide bells and whistles that can improve your experience with the R software.
+
+# Where do I download R and R studio?
+If you need R and R studio on your work laptop you will need to raise a service request. To download on a personal latop the following links can be used. 
+
+* Download R - https://cran.r-project.org/bin/windows/base/
+
+* Download RStudio - https://www.rstudio.com/products/rstudio/download
+
+# Packages
+
+## What are packages? 
+Packages are collections of R functions, data, and compiled code in a well-defined format, created to add specific functionality. There are 10,000+ user contributed packages and growing.
+
+## How to install a package
+Packages for R can be installed from the CRAN package repository in two ways. 
+
+* Using the Packages tab in the lower right hand side of the screen. You can click on the Install option and then in the packages box type in the package you want to load.  
+
+* Using the install.packages function. The example code for this is below. This function will download the source code from CRAN and install the package (and any dependencies) locally on your computer. The example below is to install a package called Tidyverse
+
+![Installing the tidyverse package.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Package screen.png)
+ 
+
+```{Packages}
+install.packages("tidyverse")
+```
+## Using a package
+Once installed you need to use the library function to install the package you want to use on your script.
+
+If you are using more than one package the you need to load them all at the start of your script each one should have library and then the package name in brackets 
+
+
+
+``` {Load Package}
+library(tidyverse)
+```
+## Getting help with a package
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
