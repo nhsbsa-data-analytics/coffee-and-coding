@@ -36,16 +36,22 @@
 ## mtcars <- mtcars
 
 
-##6.1 count rows
-## nrow(mtcars)
+##6.1 Sum up a column
+##num_cyl <- mtcars %>% 
+##  summarise(sum(cyl))
 
-##6.2 count columns
-## ncol(mtcars)
+##6.2 Filter rows
+## Cylinders4 <- mtcars %>% 
+## filter(cyl == 4)
 
-filter(mtcars, cyl == 4 & mpg > 30)
-Cylinders4_mpg <- mtcars %>% 
-  filter(cyl == "4" & mpg >"30")
+## 6.3 Filer using more than one field
+##Cylinders4_mpgn <- mtcars %>% 
+##filter(cyl == "4" & mpg >"30")
 
-Merc_cars <- mtcars %>% 
-  filter( %like% "%merc%")
+## 6.4 Grouping data
+## Num_cars = mtcars %>% 
+## group_by(cyl) %>% 
+## summarise(number_of_cars = n())
+
+
 
