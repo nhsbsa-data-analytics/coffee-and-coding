@@ -269,7 +269,14 @@ ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
   geom_bar(stat="identity")+
 ggtitle("Number of cars by number of Cylinders") +
   xlab("Number of Cylinders") +
-  ylab("Number of cars")
+  ylab("Number of Cars")
 ```
 
 # Useful resources
+
+https://www.rstudio.com/resources/cheatsheets/
+
+https://stackoverflow.com/
+
+https://www.datacamp.com/courses/free-introduction-to-r
+
