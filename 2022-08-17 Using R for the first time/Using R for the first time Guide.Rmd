@@ -53,15 +53,15 @@ If you need R and R studio on your work laptop you will need to raise a service 
 Packages are collections of R functions, data, and compiled code in a well-defined format, created to add specific functionality. There are 10,000+ user contributed packages and growing.
 
 ## How to install a package
-Packages for R can be installed from the CRAN package repository in two ways.This function will download the source code from CRAN and install the package (and any dependencies) locally on your computer. Depending on where R is installed you may need to reload a package each time you open R. You can set up a specific library for your packages to be installed so they wouldn't need to be installed each time. I won't be covering that in this course, but can provide details on how this can be done.  
+Packages for R can be installed from the CRAN package repository in two ways. Depending on where R is installed you may need to reload a package each time you open R. You can set up a specific library for your packages to be installed so they wouldn't need to be installed each time. This won't be covered in this course, but we can provide details on how to do this.  
 
-* Using the Packages tab in the lower right hand side of the screen. You can click on the Install option and then in the packages box type in the package you want to load.  
+* Using the Packages tab in the lower right hand side of the screen. You can click on the Install option and then in the packages box type in the package you want to load and then click the install button. In this example we are loading the tidyverse package.   
 
 
 
 ![Installing the tidyverse package.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Package screen.png)
  
- * Using the install.packages function. The example code for this is below.  The example below is to install a package called Tidyverse which is a collection of packages that includes some of the most common ones used by the DALL team including dplyr and ggplot. To run  the code you can copy and past this into a new R script and. To run a line of code in R you press control and return key on the line of code you want to run or at the end of a block of code if it is over more than one line.
+ * Using the install.packages function. The example code for this is below.  The example below is to install a package called Tidyverse which is a collection of packages that includes some of the most common ones used by the DALL team including dplyr and ggplot. To run  the code you can copy and past this into a new R script and. To run a line of code in R you press control and the return key on the line of code you want to run or at the end of a block of code if it is over more than one line.
 
 ```{Packages}
 install.packages("tidyverse")
