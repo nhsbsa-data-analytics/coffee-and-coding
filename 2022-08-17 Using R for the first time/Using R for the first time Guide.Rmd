@@ -47,6 +47,20 @@ If you need R and R studio on your work laptop you will need to raise a service 
 
 * Download RStudio - https://www.rstudio.com/products/rstudio/download
 
+# Getting started
+
+When you first open R studio you will need to open a new script, this can be done by clicking on File in the top left hand corner and then New File then R script. (There are other file types you can choose such as R Markdown, which we won't be covering in this session.) You will get a blank script screen which looks like this. 
+
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/New Script.png)
+
+The top left hand box is the script where you can write you code. The console in the bottom left corner can be used to test and run some simple commands. 
+
+For example it you type 2+2 next the blue > it will return the answer 4, anything you type in the console at the bottom won't be saved when you close the script. 
+
+R has many in built functions you can use to perform specific tasks but additional packages are available that can make these tasks easier to perform or allow additional functionality compared to the base R functions. 
+
+In the script you can write notes to go with your code it you add ## in front of any text it will make it as a note. 
+
 # Packages
 
 ## What are packages? 
@@ -59,7 +73,7 @@ Packages for R can be installed from the CRAN package repository in two ways. De
 
 
 
-![Installing the tidyverse package.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Package screen.png)
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/Package screen.png)
  
  * Using the install.packages function. The example code for this is below.  The example below is to install a package called Tidyverse which is a collection of packages that includes some of the most common ones used by the DALL team including dplyr and ggplot. To run  the code you can copy and past this into a new R script and. To run a line of code in R you press control and the return key on the line of code you want to run or at the end of a block of code if it is over more than one line.
 
@@ -80,12 +94,14 @@ library(tidyverse)
 ```
 
 ## Getting help with a package
+
 Within a package there are functions which are “self contained” modules of code that accomplish a specific task. Functions usually take in some sort of data structure (value, vector, dataframe etc.), process it, and return a result. 
 For each package in R there is documentation produced which provides information on the different function it contains and gives examples of how to use the function. These can be accessed in two main ways. 
 
 * From the packages menu on the right hand side of the screen click on the name of the package and it will bring up the help screen with a list of the functions available. You can then click on the function you want help with and it will bring up a page which has a description of the function, an example of how to use it and an explanation of any additional arguments you can use with in the function. in the Example belo at the bottom it will also usually include some further examples 
 
-![dplyr help screen.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/dplyr help screen.png)
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/dplyr help screen.png)
+
 
 
 * Using the help function (The example code for this is below). This will bring up the same documentation screen as above. Then you can select the function you want help with.
@@ -113,6 +129,7 @@ setwd("C:/Users/nidod/R")
 ```
 
 # Loading Data into R
+
 You can load many data formats in to R this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
 
 ## Load a CSV
@@ -125,25 +142,24 @@ first_table <- read_csv("Mydata.csv")
 If the data you want to load is in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in a CSV called Mydata2 and it was saved in a folder called CSVS in your person folder and you wanted to call it second_table then you would use the following code. Both the file path and the name of the CSV need to be included in the "". REMEMBER that the slashes in the file path should be forwards and not backwards. 
 
 ```{read CSV from different location}
-
 second_table <- read_csv("C:/Users/nidod/CSVS/Mydata2.csv")
 ```
 
 Once your data has loaded you will see it in the environment window in the top right of your screen. This tells you how many rows the table has (obs) and how many columns (variables).If you click on the name of the table you can then view the table.
 
-![Environment screen.](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/first_table.png)
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/first_table.png)
 
 ## Load an excel file
+
 To load an excel file you need to use a package called readXl. If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
 
-```{ read excel from WD}
-
+```{read excel from WD}
 thrid_table <- read_excel("Mydata3.xlsx")
 ```
 
 Again as above if the excel spreadsheet is saved in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in an excel spreadsheet called Mydata4 and it was saved in a folder called excel in your person folder and you wanted to call it fourth_table then you would use the following code. 
 
-```{ read excel from different location}
+```{read excel from different location}
 fourth_table <- read_excel("C:/Users/nidod/EXCEL/Mydata4.xlsx")
 ```
 
