@@ -127,7 +127,7 @@ help(package="dplyr")
 ```
 
 # Working directory
-The working directory is just a file path on your computer that sets the default location of any files you read into R, or save out of R.
+The working directory is the file path for the directory you are working in on your computer. This is the location R will look in for any files you are trying to read in. It is also where R will store any outpit you save. Note: you can specify the file path when loading/saving if the working directory is not what you want/need.
 
 ## Get working directory
 You can see what the current working directory of R is by using the following code
@@ -146,10 +146,10 @@ setwd("C:/Users/Cypher/R")
 
 # Loading Data into R
 
-You can load many data formats in to R this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
+You can load many data formats in to R, this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
 
 ## Load a CSV
-R has an inbuilt function to read in csv files see code below.If you have set your working directory to the folder your data is saved in then you can use the following code and just add the name of the CSV file in brackets. When you load the data in you need to give the dataframe you are creating in R a name So if for example you wanted to import a csv file called MyData and call the table first_table then you would use the following code. In the code you put the name you want to call the table in R first followed by <-
+R has an inbuilt function to read in csv files (see code below).If you have set your working directory to the folder your data is saved in then you can use the following code and just add the name of the CSV file in the brackets. When you load the data in you need to give the dataframe you are creating in R a name So if for example you wanted to import a csv file called MyData and call the table first_table then you would use the following code. In the code you put the name you want to call the table in R first followed by <-
 
 ```{read csv from WD}
 first_table <- read_csv("Mydata.csv")
@@ -161,13 +161,13 @@ If the data you want to load is in a different location to your working director
 second_table <- read_csv("C:/Users/cypher/CSVS/Mydata2.csv")
 ```
 
-Once your data has loaded you will see it in the environment window in the top right of your screen. This tells you how many rows the table has (obs) and how many columns (variables).If you click on the name of the table you can then view the table.
+Once your data has been loaded you will see it in the environment window in the top right of your screen. This tells you how many rows the table has (obs short for observations) and how many columns (variables).If you click on the name of the table you can then view the table.
 
 ![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/first_table.png)
 
 ## Load an excel file
 
-To load an excel file you need to use a package called readXl. If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
+To load an excel file you can use a package called readXl (there are alternative packages for this also available). If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
 
 ```{read excel from WD}
 thrid_table <- read_excel("Mydata3.xlsx")
@@ -189,7 +189,7 @@ mtcars <- mtcars
 
 ## Sum up a column
 
-If you want to get a sum of a column you can use the summaries function in the dplyr.The following code will give you a data output item with the sum of all of the cylinders of the 32 cars in the mtcar data set. In this example we are creating a data object called num_cyl to keep a record of the value. We also need to use a pipe to then use the summaries function the pipe is %>%. The key board short cut to create the pipe symbol is Ctrl+Shift+M
+If you want to get a sum of a column you can use the summaries function in the dplyr.The following code will give you a data output item with the sum of all of the cylinders of the 32 cars in the mtcar data set. In this example we are creating a data object called num_cyl to keep a record of the value. We also need to use a pipe to then use the summaries function, the pipe is %>% (or you might also see it written as  !>). The key board short cut to create the pipe symbol is Ctrl+Shift+M.
 
 ```{r sum total number of cylinders}
 num_cyl <- mtcars %>% 
@@ -205,7 +205,7 @@ Cylinders4 <- mtcars %>%
 filter(cyl == 4)
 ```
 
-If you want to filter on more than one column the following code can be used For example we want cars with 4 cylinders that get more than 30 mpg
+If you want to filter on more than one column, for example it we want cars with 4 cylinders that get more than 30 mpg then the following code can be used.
 
 ```{r cylinders and mpg}
 
@@ -229,7 +229,7 @@ Num_cars = mtcars %>%
 
 # Drawing a graph
 
-We will use the ggplot package to draw a bar chart to show the number of cars by the number of cylinders they have. The geom_bar is used to draw a bar chart, if you wanted to draw a line graph instead this would be set to geom_line. This session just covers the very basics of drawing a graph, at the end of the document there is a link to a cheat sheet which contains example code and details of other options and parameters you can change and include in graphs.  
+We will use the ggplot2 package to draw a bar chart to show the number of cars by the number of cylinders they have. The geom_bar is used to draw a bar chart, if you wanted to draw a line graph instead this would be set to geom_line. This session just covers the very basics of drawing a graph, at the end of the document there is a link to a cheat sheet which contains example code and details of other options and parameters you can change and include in graphs.  
 
 ```{r ggplot graph}
 ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
@@ -252,7 +252,7 @@ ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
 
 ## Change the colour of the bars
 
-If you want to change the colour of your bars you can specify the colour this example is for steelblue. Buy using the fill function you can manually select the colour. You can view the colour palette available for ggplot here. https://r-graph-gallery.com/ggplot2-color.html
+If you want to change the colour of your bars you can specify the colour this example is for steelblue. Buy using the fill function you can manually select the colour. You can view the colour palettes available for ggplot2 here. https://r-graph-gallery.com/ggplot2-color.html
 
 ```{r}
 
@@ -261,7 +261,7 @@ ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
   geom_bar(stat="identity", fill="steelblue")
 ```
 
-If you want your bars to be different colours you can use the fill option in the code and it will use a default set. There are also different colour palettes available abd you can create your own colour themes.   
+If you want your bars to be different colours you can use the fill option in the code and it will use a default set. There are also different colour palettes available and you can create your own colour themes.   
 
 ```{r}
 ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
