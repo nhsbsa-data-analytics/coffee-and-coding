@@ -19,7 +19,7 @@
 
 
 # 5.2 Set Working directory
-# setwd()
+# setwd("C:/Users/Cypher/R")
 
 
 
