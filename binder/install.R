@@ -49,10 +49,7 @@
 install.packages(
   c(
     "dplyr",
-    "reticulate",
-    "mlbench",
-    "magrittr",
-    "tidyr"
+    "ggplot2"
   )
 )
 

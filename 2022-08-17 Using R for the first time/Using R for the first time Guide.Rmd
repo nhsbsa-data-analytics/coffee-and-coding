@@ -1,0 +1,300 @@
+---
+title: |
+  ![](BSA_report_header.jpg){width=100%}  
+    
+  Guide to Using R for the first time
+author: "Nikki Dodds"
+date: "2022-08-12"
+
+output: 
+  html_document:
+    css: "style/style.css"
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 16px;
+   font-family: sans-serif;
+}
+</style>
+<html lang="en">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# What is R and R studio?
+
+R and RStudio are two distinctly different applications that serve different purposes.
+
+* R is the software that performs the actual instructions. Without R installed on your computer or server, you would not be able to run any commands.
+
+* RStudio is a software that provides an interface to R. It’s sometimes referred to as an Integrated Development Environment (IDE). Its purpose is to provide bells and whistles that can improve your experience with the R software.
+
+# Where do I download R and R studio?
+If you need R and R studio on your work laptop you will need to raise a service request. To download on a personal latop the following links can be used. 
+
+* Download R - https://cran.r-project.org/bin/windows/base/
+
+* Download RStudio - https://www.rstudio.com/products/rstudio/download
+
+# Getting started
+
+## Opening a new script
+
+When you first open R studio you will need to open a new script, this can be done by clicking on File in the top left hand corner and then New File then R script. (There are other file types you can choose such as R Markdown, which we won't be covering in this session.) You will get a blank script screen which looks like this. 
+
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/New Script.png)
+
+The top left hand box is the script where you can write you code. The console in the bottom left corner can be used to test and run some simple commands. 
+
+For example if you type 2+2 next to the blue > then press return it will return the answer 4.  Anything you type in the console at the bottom won't be saved when you close the script. 
+
+R has many in built functions you can use to perform specific tasks but additional packages are available that can make these tasks easier to perform or allow additional functionality compared to the base R functions. 
+
+In the script you can write notes to go with your code it you add # in front of any text it will make it as a note. 
+
+## Saving a script
+
+You can save the script you are working on by clicking on file and save as, you can then give the file a name and select the folder you want to save it in. 
+
+If you want to open a script you have worked on recently in file  there is an option to open recent files and it will give you a list of the recent scripts you have worked on. 
+
+Also you can use the Files option on the lower right hand side of the screen where you can navigate to the folder you have saved your script in.
+
+# Packages
+
+## What are packages? 
+Packages are collections of R functions, data, and compiled code in a well-defined format, created to add specific functionality. There are 10,000+ user contributed packages and growing.
+
+## How to install a package
+Packages for R can be installed from the CRAN package repository in two ways. Depending on where R is installed you may need to reload a package each time you open R. You can set up a personal library for your packages to be installed in to so they wouldn't need to be installed each time. This won't be covered in this session, but we can provide details on how to do this.  
+
+* Using the Packages tab in the lower right hand side of the screen. You can click on the install option and then in the packages box type in the package you want to install and then click the install button. In this example we are installing the tidyverse package.   
+
+
+
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/Package screen.png)
+ 
+ * Using the install.packages function. The example code for this is below.  The example below is to install a package called Tidyverse which is a collection of packages that includes some of the most common ones used by the DALL team including dplyr and ggplot2. To run  the code you can copy and paste this into a new R script. To run a line of code in a script you press control and the return key on the line of code you want to run or at the end of a block of code if it is over more than one line.
+
+```{Packages}
+install.packages("tidyverse")
+
+```
+
+## Using a package
+Once installed you need to use the library function to install the package you want to use on your script. the code below is to load the tidyverse package
+
+```{Load Package}
+library(tidyverse)
+```
+
+
+If you are using more than one package then you need to load them all at the start of your script. Each one should have library and then the package name in brackets. This example show if you want to load in both ggplots and dyplr.
+
+
+
+``` {Load muiltiplt Package}
+library(ggplot2)
+library(dplyr)
+```
+
+## Getting help with a package
+
+Within a package there are functions which are “self contained” modules of code that accomplish a specific task. Functions usually take in some sort of data structure (value, vector, dataframe etc.), process it, and return a result. 
+For each package in R there is documentation produced which provides information on the different functions it contains and gives examples of how to use the function. These can be accessed in two main ways. 
+
+* From the packages menu on the right hand side of the screen click on the name of the package and it will bring up the help screen with a list of the functions available. You can then click on the function you want help with and it will bring up a page which has a description of the function, an example of how to use it and an explanation of any additional arguments you can use with in the function.  
+
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/dplyr help screen.png)
+
+
+
+* Using the help function (The example code for this is below). This will bring up the same documentation screen as above. Then you can select the function you want help with.
+
+```{Help function}
+help(package="dplyr")
+```
+
+# Working directory
+The working directory is the file path for the directory you are working in on your computer. This is the location R will look in for any files you are trying to read in. It is also where R will store any outpit you save. Note: you can specify the file path when loading/saving if the working directory is not what you want/need.
+
+## Get working directory
+You can see what the current working directory of R is by using the following code
+
+```{getwd}
+getwd()
+```
+
+## Set working directory
+
+You can set the working directory to a specific folder on your computer, so for example a project folder where you may have data saved that you would like to upload in to R. To do this you would use the following code. This sets my working directory to a folder called R saved in my user folder on my C drive, You need to replace cypher in the code with your own cypher. (Work files and any sensitive information should not be saved on your C drive, this is for example purposes only)  NOTE - the slashes in the directory path are forwards and not backwards as they would be when you copy a file path from your computer. 
+
+```{set working directory}
+setwd("C:/Users/Cypher/R")
+```
+
+# Loading Data into R
+
+You can load many data formats in to R, this session will cover reading in CSV and Excel files as these are the two most common file types you might want to load. 
+
+## Load a CSV
+R has an inbuilt function to read in csv files (see code below).If you have set your working directory to the folder your data is saved in then you can use the following code and just add the name of the CSV file in the brackets. When you load the data in you need to give the dataframe you are creating in R a name So if for example you wanted to import a csv file called MyData and call the table first_table then you would use the following code. In the code you put the name you want to call the table in R first followed by <-
+
+```{read csv from WD}
+first_table <- read_csv("Mydata.csv")
+```
+
+If the data you want to load is in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in a CSV called Mydata2 and it was saved in a folder called CSVS in your person folder and you wanted to call it second_table then you would use the following code. Both the file path and the name of the CSV need to be included in the "". REMEMBER that the slashes in the file path should be forwards and not backwards. 
+
+```{read CSV from different location}
+second_table <- read_csv("C:/Users/cypher/CSVS/Mydata2.csv")
+```
+
+Once your data has been loaded you will see it in the environment window in the top right of your screen. This tells you how many rows the table has (obs short for observations) and how many columns (variables).If you click on the name of the table you can then view the table.
+
+![](C:/Users/nidod/Documents/GitHub/coffee-and-coding/2022-08-17 Using R for the first time/Images/first_table.png)
+
+## Load an excel file
+
+To load an excel file you can use a package called readXl (there are alternative packages for this also available). If you have installed tidyverse, this is one of the packages included. As above if you have set your working directory to the folder your excel spreadsheet is saved in then you just need to include the name of the excel file in the brackets. For example if you want to import Mydata3 and call it third_table then you would use the following code
+
+```{read excel from WD}
+thrid_table <- read_excel("Mydata3.xlsx")
+```
+
+Again as above if the excel spreadsheet is saved in a different location to your working directory then you would need to add the file path to where the data is saved to load the data in. For example you wanted to load in an excel spreadsheet called Mydata4 and it was saved in a folder called excel in your person folder and you wanted to call it fourth_table then you would use the following code. 
+
+```{read excel from different location}
+fourth_table <- read_excel("C:/Users/Cypher/EXCEL/Mydata4.xlsx")
+```
+
+# Simple anaylsis in R 
+
+For this section we are going to use one of the data sets pre-built in R called mtcars but any of the following analysis could be done on data sets you have loaded yourself. To load the data we use the following code. The functions used in the section are from the dyplr package that we installed via the tidyverse package
+
+```{r create data set}
+mtcars <- mtcars
+```
+
+## Sum up a column
+
+If you want to get a sum of a column you can use the summaries function in the dplyr.The following code will give you a data output item with the sum of all of the cylinders of the 32 cars in the mtcar data set. In this example we are creating a data object called num_cyl to keep a record of the value. We also need to use a pipe to then use the summaries function, the pipe is %>% (or you might also see it written as  !>). The key board short cut to create the pipe symbol is Ctrl+Shift+M.
+
+```{r sum total number of cylinders}
+num_cyl <- mtcars %>% 
+  summarise(sum(cyl))
+```
+
+## Filter rows
+
+If you want to filter rows from the table, for example you only want to look at cars with 4 cylinders the following code can be used. A double = is used for an exact match. 
+
+```{r only cars with 4 cylinders}
+Cylinders4 <- mtcars %>% 
+filter(cyl == 4)
+```
+
+If you want to filter on more than one column, for example it we want cars with 4 cylinders that get more than 30 mpg then the following code can be used.
+
+```{r cylinders and mpg}
+
+Cylinders4_mpgn <- mtcars %>% 
+filter(cyl == 4 & mpg >30)
+
+```
+
+## Grouping data
+
+If you want to count the number of cars by the number of cylinders they have then you can use the following code. In the group_by you need to add the column name that you want to group by so in this example the number of cylinders (cyl), then we used the summarise function to count the number of cars,in the brackets you add the name you want the column to be and the = n() is used to count the numbers of rows that has each number of cylinders.  
+
+```{r group by}
+Num_cars = mtcars %>% 
+  group_by(cyl) %>% 
+  summarise(number_of_cars = n())
+ 
+
+
+```
+
+# Drawing a graph
+
+We will use the ggplot2 package to draw a bar chart to show the number of cars by the number of cylinders they have. The geom_bar is used to draw a bar chart, if you wanted to draw a line graph instead this would be set to geom_line. This session just covers the very basics of drawing a graph, at the end of the document there is a link to a cheat sheet which contains example code and details of other options and parameters you can change and include in graphs.  
+
+```{r ggplot graph}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
+  geom_bar(stat="identity")
+```
+
+We can see the scale for the cylinders is continuous and not specific to the 3 cylinder sizes we have in our data. This happens when you want to plot a number on the x axis, to correct these we need to change the data type of this data field to a factor, so that it is recognizes it as an individual number. This can be done using the mutate function.
+
+```{r}
+Num_cars <- Num_cars %>% 
+ mutate(cyl= as.factor(cyl))
+```
+
+If you then replot the graph the scale of the x axis is now correct.
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
+  geom_bar(stat="identity")
+```
+
+## Change the colour of the bars
+
+If you want to change the colour of your bars you can specify the colour this example is for steelblue. Buy using the fill function you can manually select the colour. You can view the colour palettes available for ggplot2 here. https://r-graph-gallery.com/ggplot2-color.html
+
+```{r}
+
+
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars)) +
+  geom_bar(stat="identity", fill="steelblue")
+```
+
+If you want your bars to be different colours you can use the fill option in the code and it will use a default set. There are also different colour palettes available and you can create your own colour themes.   
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
+  geom_bar(stat="identity")
+```
+
+## Adding a title to the Graph
+
+You can give your graph a title by using ggtitle. You can change the location and size of the title but we won't be covering that in this session. 
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
+  geom_bar(stat="identity")+
+ggtitle("Number of cars by number of Cylinders")
+```
+
+## Add axis labels
+
+You can also change the axis labels using xlab and ylab 
+
+```{r}
+ggplot(data=Num_cars, aes(x= cyl, y= number_of_cars, fill = cyl)) +
+  geom_bar(stat="identity")+
+ggtitle("Number of cars by number of Cylinders") +
+  xlab("Number of Cylinders") +
+  ylab("Number of Cars")
+```
+
+# Useful resources
+
+https://www.rstudio.com/resources/cheatsheets/
+
+https://stackoverflow.com/
+
+https://www.datacamp.com/courses/free-introduction-to-r
+
