@@ -23,7 +23,7 @@
 
 
 # 5.2 Set Working directory
-# Code:
+# Code (in this example change Cypher to your login Cypher):
 # setwd("C:/Users/Cypher/R")
 
 
@@ -34,7 +34,8 @@
 
 
 
-# 6.1 Load CSV, from a different directory
+# 6.1 Load CSV, from a different directory. In this example the file is saved in a folder called CSVS
+#(again you would need to change Cypher to your Cypher )
 # Code:
 # second_table <- read_csv("C:/Users/cypher/CSVS/Mydata2.csv")
 
