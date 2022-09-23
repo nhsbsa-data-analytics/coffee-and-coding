@@ -501,14 +501,44 @@ data_edit = data_edit %>%
   filter(status == "DISPATCHED")
 
 # Inspect new columns
-head(data_edit %>% select(status, sla_days, in_sla))
+head(data_edit %>% select(start_date, end_date, status, sla_days, in_sla))
 ```
 
+## Clean R Environment
 
+We can remove the 'data_coalesce' object, as it has oer 1m rows and we're not using it.
+rm() can remove an object and then gc() can then 'clear' some memory after this removal. 
+If you are using R locally and have limited memory this is useful. 
+
+```{r}
 # Remove object and clean
 rm(data, data_coalesce)
 gc()
+```
 
+## Calculate the Number of Cards Issued In and Out of SLA
+
+We use use group_by(), summarise() and ungroup() to now aggregate the data.
+
+```{r}
+# Format final data
+output = data_edit %>% 
+  mutate(type = "GHIC") %>% 
+  group_by(type, dispatch_month, in_sla) %>% 
+  summarise(count_by_sla = n()) %>% 
+  ungroup()
+
+# Inspect the data
+output
+```
+
+## Calculate the Proportion of Cards Issued In and Out of SLA
+
+We can now change these figures to a proportion.
+First we need to sum the figures in the 'count_by_sla' column, we can then use the percent() function {scales} to generate some proportions.
+Finally, str_to_title() within {stringr} can then format the column names slightly, before we save the output as an Excel file.
+
+```{r}
 # Format final data
 output = data_edit %>% 
   mutate(type = "GHIC") %>% 
@@ -517,17 +547,23 @@ output = data_edit %>%
   ungroup() %>% 
   mutate(total = sum(count_by_sla)) %>% 
   mutate(percent = scales::percent(count_by_sla / total, accuracy = 0.00001)) %>% 
-  rename_all(.funs = stringr::str_to_title) %>% 
-  mutate(Dispatch_month = paste0(
-    lubridate::month(Dispatch_month, label = T), " - ", lubridate::year(Dispatch_month)
-  ))
+  rename_all(.funs = stringr::str_to_title)
 
-# Inspect final data
+# Inspect the data
 output
+```
 
-# Check directory
-getwd()
+# Saving the Output ------------------------------------------------------------
 
+We are now ready to save the output.
+There is a simple way to do and a more involved way to do this.
+This depends how much formatting we want to do in R before saving the data as an Excel file.
+
+## Simple Output
+
+The simple way is to create a list with each object we want as a page within then our Excel, then simply save it.
+
+```{r}
 # Format output
 excel_sheets = list(
   output,
@@ -536,7 +572,24 @@ excel_sheets = list(
 
 # Save simple output
 openxlsx::write.xlsx(excel_sheets, file = "SIMPLE_OUTPUT.xlsx")
+```
 
+## Formattted Output
+
+It takes a bit of work, but you can format your data prior to saving it as an excel file.
+If your report or analysis is a one-off, then it wouldn't be worth the effort.
+If your output is weekly, then it would be worth the effort.
+You can even do conditional formatting and such like in R.
+In this instance we will just the following things:
+
+- Sheet names
+- Font
+- font size
+- Header font and background
+- Cell borders
+- Column widths per column per sheet
+
+```{r}
 # Create formatted output
 wb = createWorkbook()
 
@@ -565,63 +618,90 @@ setColWidths(wb, sheet = 2, cols = 1, widths = 10)
 
 # Save formatted data
 saveWorkbook(wb, "FORMATTED_OUTPUT.xlsx", overwrite = T)
-
-#-------------------------------------------------------------------------------
-
-# Funtions used
-
-# - lubridate::today()
-# - lubridate::month()
-# - lubridate::year()
-# - lubridate::floor_date()
-
-# - dplyr::select()
-# - dplyr::mutate()
-# - dplyr::case_when()
-# - dplyr::filter()
-# - dplyr::group_by()
-# - dplyr::summmarise()
-# - dplyr::ungroup()
-# - dplyr::coalesce()
-# - dplyr::rename()
-# - dplyr::rename_all()
-# - dplyr::bind_rows()
-
-# - openxlsx::write.xlsx()
-# - openxlsx::createWorkbook()
-# - openxlsx::addWorksheet()
-# - openxlsx::modifyBaseFont()
-# - openxlsx::createStyle()
-# - openxlsx::writeData()
-# - openxlsx::setColWidths()
-# - openxlsx::saveWorkbook()
-
-# - stringr::stringr_to_title()
-
-# - jsonlite::read_json()
-
-# - scales::percent()
-
-# - readr::read_csv()
-
-# - janitor::clean_names()
-
-# - bizdays::bizdays()
-# - bizdays::create.calendar()
-
-# - str()
-# - setdiff()
-# - rm()
-# - gc()
-# - table()
-# - sum()
-# - paste0()
-# - ifelse()
-# - as.Date()
-# - list()
-# - getwd()
-
-#-------------------------------------------------------------------------------
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Review -----------------------------------------------------------------------
+
+## Functions used
+
+Here is a list of all the packages and functions used in this session
+
+{dplyr}
+
+- dplyr::select()
+- dplyr::mutate()
+- dplyr::case_when()
+- dplyr::filter()
+- dplyr::group_by()
+- dplyr::summmarise()
+- dplyr::ungroup()
+- dplyr::coalesce()
+- dplyr::rename()
+- dplyr::rename_all()
+- dplyr::bind_rows()
+
+{openxlsx}
+
+- openxlsx::write.xlsx()
+- openxlsx::createWorkbook()
+- openxlsx::addWorksheet()
+- openxlsx::modifyBaseFont()
+- openxlsx::createStyle()
+- openxlsx::writeData()
+- openxlsx::setColWidths()
+- openxlsx::saveWorkbook()
+
+{lubridate}
+
+- lubridate::today()
+- lubridate::month()
+- lubridate::year()
+- lubridate::floor_date()
+
+Others
+
+- bizdays::bizdays()
+- bizdays::create.calendar()
+- stringr::stringr_to_title()
+- jsonlite::read_json()
+- scales::percent()
+- readr::read_csv()
+- janitor::clean_names()
+
+Base R
+
+- str()
+- setdiff()
+- rm()
+- gc()
+- table()
+- sum()
+- paste0()
+- ifelse()
+- as.Date()
+- list()
+- getwd()
+
+## Next Steps
+
+Using R instead of Excel for some tasks, will take a bit of time initially, but in the long run will save you a *lot* of time.  
+If you plan on doing so, here are some recommended next steps:
+
+1. First identify a repetitive task in Excel, for example that you on do on a weekly or monthly (or even daily) basis.
+
+2. Write down *all* of the steps that you do (e.g. even renaming columns), that gets you from start to finish.
+
+3. Then try convert each of steps into R code.
+
+4. If you get stuck, look at this cheatsheet: https://www.rstudio.com/resources/cheatsheets/
+
+5. If you are still stuck, post a question here: https://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402chttps://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402c
+
+6. Get in touch with me at adnan.shroufi@nhs.net if you want something particular covered at the upcoming 'Excel -> R: Part Three' Coffee & Coding session.
+
+## Case Study of moving from Excel to R
+
+Today's session showed a real world exmaple of a process in Excel being changed to an R script.
+We will now hear from Robbie Glendinning about his experience of doing so, in terms of how much time it has saved him and what the difficulties were.
+
+### Thanks!
