@@ -1,0 +1,405 @@
+---
+title: 'Excel to R: Part Two'
+author: "Adnan Shroufi"
+date: "2022-09-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(scipen = 999)
+```
+
+# Introduction -----------------------------------------------------------------
+
+## Introduction to Excel -> R: Part One
+
+This is a follow-up to the first Excel to R C&C session.
+That session focused mostly on using the {dplyr} and {tidyr} packages, for data processing tasks like those you'd do in Excel.
+As mentioned in the first session, while Excel is the appropriate tool for some tasks, it does have some limitations, which include:
+
+- Excel can be slow when working with large files
+- Going over the same steps in Excel every day/week/month to generate the same report/analysis is time consuming and repetitive.
+
+Using R can can overcome these issues for the following reasons:
+
+- R can work with large files far more easily and quickly
+- A single R script can do all of the time consuming and repetitive tasks for you
+
+## Session Format
+
+This session will look at a real example of an excel workflow that has been turned into an R script.
+The uses various time and date fields in order to generate some 
+
+## Load Packages
+
+Before we load in our data, we need to make sure have all the required packages installed.
+A 'package' is basically a collection of functions. You need to install a package first before you can use it.
+We can use `install.package("package_name")` to install a package.
+We then use `library(package_name)` to load the package.
+
+There are 2 packages we'll be using quite a lot.
+Those are {dplyr} and {lubridate}, for data processing and working with dates.
+The other six packages will be used infrequently.
+
+```{r, echo=FALSE}
+# Frequently used libraries 
+library(dplyr)
+library(lubridate)
+
+# Infrequently used libraries 
+library(openxlsx)
+library(bizdays)
+library(readr)
+library(scales)
+library(jsonlite)
+library(janitor)
+library(stringr)
+```
+
+## Working with dates in R
+
+Many typical reporting tasks in Excel use date fields.
+Numerical or character formatted columns can be converted to a date format in R.
+Once in a date format, we can then easily do all sorts of date-related calculations.
+
+First we will load in some dummy dates with some unformatted dates.
+We will also use the str() function to check the 'structure' of this data, i.e. what data types the columns are.
+Each columns is a character (chr).
+
+```{r, echo=FALSE}
+# Load in dummy dates data
+dummy_dates = read.csv("dummy_dates.csv")
+
+# Check structure of the initial data
+str(dummy_dates)
+```
+
+## Format each date field accordingly
+
+We can change a character to a date using as.Date() within a mutate().
+mutate() either creates a new column or overwrites an existing column.
+The only difficulty here is specifying the format.
+The format depends on how the character has been spelt.
+
+We have to tell R whether to look for a '/', '-', or '.' between the date elements.
+We then have to tell it what position the year (Y), month (m) and (d) come.
+
+```{r, echo=FALSE}
+dummy_dates = dummy_dates %>% 
+  mutate(date_one = as.Date(date_one, format = "%d/%m/%Y")) %>% 
+  mutate(date_two = as.Date(date_two, format = "%d.%m.%Y")) %>% 
+  mutate(date_three = as.Date(date_three, format = "%Y-%d-%m")) %>% 
+  mutate(date_four = as.Date(date_four, format = "%d/%m/%Y"))
+
+# Re-check structure of the now processed data
+str(dummy_dates)
+```
+
+## Some very simple examples of date field calculations
+
+Once in a date format, various calculations can be easily done.
+Note, if your analysis needs 
+
+```{r, echo=FALSE}
+dummy_dates %>% 
+  mutate(
+    diff = date_one - date_two,
+    day = lubridate::day(date_one),
+    month = lubridate::month(date_one),
+    year = lubridate::year(date_one)
+  )
+```
+
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+# Define file path so don't need to repeat it
+file_path = "C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/Excel to R/Wait_Times_GHIC_MAR_2022_ZIP.csv"
+
+# check structure of data if loaded with base-R
+str(read.csv(file_path))
+
+# Check structure of data if loaded with 'readr'
+str(readr::read_csv(file_path))
+
+# Have a look at some rows of the data 
+head(data)
+
+# Create report date
+report_date <- as.Date(lubridate::today())
+
+# Process data
+data_edit = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox) %>% 
+  # change all posixct to date format
+  mutate(application_date = as.Date(application_date)) %>% 
+  mutate(issued_date = as.Date(issued_date)) %>% 
+  mutate(expired_date = as.Date(expired_date)) %>% 
+  mutate(rejected_date = as.Date(rejected_date)) %>% 
+  # Create a 'start date' field 
+  mutate(
+    start_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(reissue_request_date) ~ reissue_request_date,
+      !is.na(issued_date) ~ issued_date,
+      T ~ as.Date("3099-12-31")
+    )
+  ) %>% 
+  # Create a 'end date' field
+  mutate(
+    end_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(dispatched_date) ~ dispatched_date,
+      T ~ report_date
+    )
+  ) %>% 
+  # Create a 'status' field
+  mutate(
+    status = case_when(
+      start_date == "3099-12-31" ~ "MISSING START DATE",
+      !is.na(rejected_date) ~ "REJECTED",
+      !is.na(dispatched_date) ~ "DISPATCHED",
+      !is.na(submitted_date) ~ "SUBMITTED",
+      !is.na(issued_date) ~ "ISSUED",
+      !is.na(reissue_request_date) ~ "REREQUEST",
+      T ~ "ERROR"
+    )
+  ) %>% 
+  # Create a 'dispatch month' field
+  mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
+
+# Newly edited data
+data_coalesce = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox) %>% 
+  # change all posixct to date format
+  mutate(application_date = as.Date(application_date)) %>% 
+  mutate(issued_date = as.Date(issued_date)) %>% 
+  mutate(expired_date = as.Date(expired_date)) %>% 
+  mutate(rejected_date = as.Date(rejected_date)) %>% 
+  # Create a 'start date' and 'end date' field 
+  mutate(start_date = coalesce(rejected_date, reissue_request_date, issued_date, as.Date("3099-12-31"))) %>% 
+  mutate(end_date = coalesce(rejected_date, dispatched_date, report_date)) %>% 
+  # Create a 'status' field
+  mutate(
+    status = case_when(
+      start_date == "3099-12-31" ~ "MISSING START DATE",
+      !is.na(rejected_date) ~ "REJECTED",
+      !is.na(dispatched_date) ~ "DISPATCHED",
+      !is.na(submitted_date) ~ "SUBMITTED",
+      !is.na(issued_date) ~ "ISSUED",
+      !is.na(reissue_request_date) ~ "REREQUEST",
+      T ~ "ERROR"
+    )
+  ) %>% 
+  # Create a 'dispatch month' field
+  mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
+
+# check if outputs are the same
+setdiff(data_edit, data_coalesce)
+
+# Retrieve and format json data
+dates = jsonlite::read_json("https://www.gov.uk/bank-holidays.json")
+
+# convert date info to dataframe with a single column
+holiday_dates = dates$`england-and-wales`$events %>% 
+  bind_rows() %>% 
+  select(date) %>% 
+  rename(Date = date) %>% 
+  as.data.frame() %>% 
+  mutate(Date = as.Date(Date))
+
+# Check data type of dates
+str(holiday_dates)
+
+#Working with bizdays to calculate time
+my_calendar = bizdays::create.calendar(
+  name = "WorkCal",
+  holidays = holiday_dates$Date,
+  weekdays = c("saturday", "sunday"),
+  start.date = as.Date("2020-01-01"),
+  end.date = as.Date("2023-12-31")
+  )
+
+# check holidays within the calendar
+my_calendar$holidays
+
+# Final data
+data_edit = data_edit %>% 
+  mutate(sla_days = bizdays::bizdays(start_date, end_date, my_calendar)) %>% 
+  mutate(in_sla = ifelse(sla_days <= 10, "Yes", "No")) %>% 
+  filter(status == "DISPATCHED")
+
+# Table
+table(data_edit$status)
+table(data_coalesce$status)
+
+# Remove object and clean
+rm(data, data_coalesce)
+gc()
+
+# Format final data
+output = data_edit %>% 
+  mutate(type = "GHIC") %>% 
+  group_by(type, dispatch_month, in_sla) %>% 
+  summarise(count_by_sla = n()) %>% 
+  ungroup() %>% 
+  mutate(total = sum(count_by_sla)) %>% 
+  mutate(percent = scales::percent(count_by_sla / total, accuracy = 0.00001)) %>% 
+  rename_all(.funs = stringr::str_to_title) %>% 
+  mutate(Dispatch_month = paste0(
+    lubridate::month(Dispatch_month, label = T), " - ", lubridate::year(Dispatch_month)
+  ))
+
+# Inspect final data
+output
+
+# Check directory
+getwd()
+
+# Format output
+excel_sheets = list(
+  output,
+  holiday_dates
+)
+
+# Save simple output
+openxlsx::write.xlsx(excel_sheets, file = "SIMPLE_OUTPUT.xlsx")
+
+# Create formatted output
+wb = createWorkbook()
+
+# Define sheet names
+addWorksheet(wb, "March Output")
+addWorksheet(wb, "Holiday Dates")
+
+# Modify base font for cells
+modifyBaseFont(wb, fontSize = 10, fontName = "Arial")
+
+# Create manual header style
+header_style <- createStyle(
+  textDecoration = "BOLD", 
+  fontColour = "white", 
+  fgFill = "#4F81BD",
+  border = c("top", "bottom", "left", "right")
+)
+
+# Write data to sheets and apply style and specify borders
+writeData(wb, "March Output", output, headerStyle = header_style, borders = "columns")
+writeData(wb, "Holiday Dates", holiday_dates, headerStyle = header_style, borders = "columns")
+
+# Define column widths
+setColWidths(wb, sheet = 1, cols = 1:6, widths = c(10, 18, 10, 15, 10, 10))
+setColWidths(wb, sheet = 2, cols = 1, widths = 10)
+
+# Save formatted data
+saveWorkbook(wb, "FORMATTED_OUTPUT.xlsx", overwrite = T)
+
+#-------------------------------------------------------------------------------
+
+# Funtions used
+
+# - lubridate::today()
+# - lubridate::month()
+# - lubridate::year()
+# - lubridate::floor_date()
+
+# - dplyr::select()
+# - dplyr::mutate()
+# - dplyr::case_when()
+# - dplyr::filter()
+# - dplyr::group_by()
+# - dplyr::summmarise()
+# - dplyr::ungroup()
+# - dplyr::coalesce()
+# - dplyr::rename()
+# - dplyr::rename_all()
+# - dplyr::bind_rows()
+
+# - openxlsx::write.xlsx()
+# - openxlsx::createWorkbook()
+# - openxlsx::addWorksheet()
+# - openxlsx::modifyBaseFont()
+# - openxlsx::createStyle()
+# - openxlsx::writeData()
+# - openxlsx::setColWidths()
+# - openxlsx::saveWorkbook()
+
+# - stringr::stringr_to_title()
+
+# - jsonlite::read_json()
+
+# - scales::percent()
+
+# - readr::read_csv()
+
+# - janitor::clean_names()
+
+# - bizdays::bizdays()
+# - bizdays::create.calendar()
+
+# - str()
+# - setdiff()
+# - rm()
+# - gc()
+# - table()
+# - sum()
+# - paste0()
+# - ifelse()
+# - as.Date()
+# - list()
+# - getwd()
+
+#-------------------------------------------------------------------------------
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
