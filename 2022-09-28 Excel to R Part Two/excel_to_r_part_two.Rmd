@@ -99,7 +99,7 @@ str(dummy_dates)
 ## Some very simple examples of date field calculations
 
 Once in a date format, various calculations can be easily done.
-Note, if your analysis needs 
+Here are just a small selection.
 
 ```{r, echo=FALSE}
 dummy_dates %>% 
@@ -108,63 +108,225 @@ dummy_dates %>%
     day = lubridate::day(date_one),
     month = lubridate::month(date_one),
     year = lubridate::year(date_one)
+  ) %>% 
+  select(-c(date_three, date_four))
+```
+
+## Further Information on {lubridate}
+
+An entire C&C could easily be devoted to just dates and datetime in R.
+If you need an analysis in terms of hours and minutes rather than just days, you would need 'datetime' rather than 'date' fields.
+The {lubridate} package can deal with both dates and datetimes.
+The below {lubridate} cheat sheet demonstrates many of these. 
+
+```{r, echo=FALSE}
+browseURL("https://rawgit.com/rstudio/cheatsheets/main/lubridate.pdf")
+```
+
+# Case Study: GHIC Dispatch Waiting Times --------------------------------------
+
+## Background
+
+This analysis measures the rate dispatched Health Insurance Cards within a given. 
+Once an applicant has successfully applied for a GHIC, a card is ISSUED. 
+Cards are then bundled together several times a day and SUBMITTED to an external company to print. 
+That company then sends a file back to us to confirm the date it was DISPATCHED.
+The process could be summarised as: APPLIED -> ISSUED -> SUBMITTED -> DISPATCHED
+
+There is a KPI present for the SLA target on the number of working days elapsed between iISSUED and DISPATHED.
+10 days or less is within SLA, more that 10 days is out of SLA.
+
+## Loading the data
+
+We will be working with various fields that we want in a date format, in order to do date calculations.
+Rather than just load in our CSV file, we check how different CSV-loading functions load the data in.
+Loading data is using the most appropriate package can simplify a workflow.
+
+Base-R loads all of the date-related fields as a character.
+
+```{r, echo=FALSE}
+# check structure of data if loaded with base-R
+print(str(read.csv("Wait_Times_GHIC_MAR_2022_ZIP.csv")))
+```
+
+The {readr} package very conveniently parses some fields as date and some as datetime.
+
+```{r, echo=FALSE}
+# Check structure of data if loaded with 'readr'
+str(readr::read_csv("Wait_Times_GHIC_MAR_2022_ZIP.csv"))
+```
+
+Loading the data with {readr} gets us closer to what we want, so we will use this to load the data.
+We can then use head() to inspect the first several rows.
+We will also use the lubridate::day() function to generate todays date, which we need later on.
+
+```{r, echo=FALSE}
+# Define file path so don't need to repeat it
+data = readr::read_csv("Wait_Times_GHIC_MAR_2022_ZIP.csv")
+
+# Have a look at some rows of the data 
+head(data)
+
+# Create report date
+report_date <- as.Date(lubridate::today())
+```
+
+## Initial Basic Processing
+
+First we use janitor::clean_names() to simplify the column names.
+We will then name the 'submitted' ccolumn name for ease of refernce too.
+
+```{r, echo=FALSE}
+# Process data
+data_edit = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox)
+```
+
+## Change all Datetime Columns to Date data-type
+
+Conveniently, moving from datetime to date is very easy in R.
+We do not even need to specify the format, like we did in the introduction.
+We can then check the format of the enw ouptut.
+
+```{r, echo=FALSE}
+data_edit = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox) %>% 
+  # change all posixct to date format
+  mutate(application_date = as.Date(application_date)) %>% 
+  mutate(issued_date = as.Date(issued_date)) %>% 
+  mutate(expired_date = as.Date(expired_date)) %>% 
+  mutate(rejected_date = as.Date(rejected_date)) 
+
+# Check data
+str(data_edit)
+```
+
+## Creating New Columns
+
+We now need to do some calculations with the data.
+We want to generate a start_date column.
+Depending on th record, this is either the rejected_date, reissue_request_date or issued_date.
+If none of thse values are present we will generate a dummy date instead.
+
+```{r, echo=FALSE}
+# Process data
+data_edit = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox) %>% 
+  # change all posixct to date format
+  mutate(application_date = as.Date(application_date)) %>% 
+  mutate(issued_date = as.Date(issued_date)) %>% 
+  mutate(expired_date = as.Date(expired_date)) %>% 
+  mutate(rejected_date = as.Date(rejected_date)) %>% 
+  # Create a 'start date' field 
+  mutate(
+    start_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(reissue_request_date) ~ reissue_request_date,
+      !is.na(issued_date) ~ issued_date,
+      T ~ as.Date("3099-12-31")
+    )
   )
+
+# Check output and related columns
+head(data_edit %>% select(rejected_date, reissue_request_date, issued_date, start_date))
 ```
 
-
+## Creating a Similar Column for End-Date
 
 ```{r, echo=FALSE}
+# Process data
+data_edit = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox) %>% 
+  # change all posixct to date format
+  mutate(application_date = as.Date(application_date)) %>% 
+  mutate(issued_date = as.Date(issued_date)) %>% 
+  mutate(expired_date = as.Date(expired_date)) %>% 
+  mutate(rejected_date = as.Date(rejected_date)) %>% 
+  # Create a 'start date' field 
+  mutate(
+    start_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(reissue_request_date) ~ reissue_request_date,
+      !is.na(issued_date) ~ issued_date,
+      T ~ as.Date("3099-12-31")
+    )
+  ) %>% 
+  # Create a 'end date' field
+  mutate(
+    end_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(dispatched_date) ~ dispatched_date,
+      T ~ report_date
+    )
+  )
 
+# Check output and related columns
+head(data_edit %>% select(rejected_date, dispatched_date, end_date))
 ```
 
+## Creating a New Status Column from the Date Columns
 
 ```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
-```
-
-
-```{r, echo=FALSE}
-
+# Process data
+data_edit = data %>% 
+  # Clean names
+  janitor::clean_names() %>% 
+  # Rename one variable
+  rename(submitted_date = submitted_to_xerox) %>% 
+  # change all posixct to date format
+  mutate(application_date = as.Date(application_date)) %>% 
+  mutate(issued_date = as.Date(issued_date)) %>% 
+  mutate(expired_date = as.Date(expired_date)) %>% 
+  mutate(rejected_date = as.Date(rejected_date)) %>% 
+  # Create a 'start date' field 
+  mutate(
+    start_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(reissue_request_date) ~ reissue_request_date,
+      !is.na(issued_date) ~ issued_date,
+      T ~ as.Date("3099-12-31")
+    )
+  ) %>% 
+  # Create a 'end date' field
+  mutate(
+    end_date = case_when(
+      !is.na(rejected_date) ~ rejected_date,
+      !is.na(dispatched_date) ~ dispatched_date,
+      T ~ report_date
+    )
+  ) %>% 
+  # Create a 'status' field
+  mutate(
+    status = case_when(
+      start_date == "3099-12-31" ~ "MISSING START DATE",
+      !is.na(rejected_date) ~ "REJECTED",
+      !is.na(dispatched_date) ~ "DISPATCHED",
+      !is.na(submitted_date) ~ "SUBMITTED",
+      !is.na(issued_date) ~ "ISSUED",
+      !is.na(reissue_request_date) ~ "REREQUEST",
+      T ~ "ERROR"
+    )
+  ) %>% 
+  # Create a 'dispatch month' field
+  mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
 ```
 
 # Define file path so don't need to repeat it
 file_path = "C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/Excel to R/Wait_Times_GHIC_MAR_2022_ZIP.csv"
 
-# check structure of data if loaded with base-R
-str(read.csv(file_path))
 
-# Check structure of data if loaded with 'readr'
-str(readr::read_csv(file_path))
 
 # Have a look at some rows of the data 
 head(data)
@@ -172,7 +334,6 @@ head(data)
 # Create report date
 report_date <- as.Date(lubridate::today())
 
-# Process data
 data_edit = data %>% 
   # Clean names
   janitor::clean_names() %>% 
