@@ -242,6 +242,10 @@ head(data_edit %>% select(rejected_date, reissue_request_date, issued_date, star
 
 ## Creating a Similar Column for End-Date
 
+We now want to generate a end_date column.
+Depending on th record, this is either the rejected_date, reissue_request_date or issued_date.
+If none of thse values are present we will generate a dummy date instead.
+
 ```{r, echo=FALSE}
 # Process data
 data_edit = data %>% 
