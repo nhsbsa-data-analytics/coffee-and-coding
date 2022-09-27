@@ -53,6 +53,7 @@ The other six packages will be used infrequently.
 #install.packages("jsonlite")
 #install.packages("janitor")
 #install.packages("stringr")
+#install.packages("rstudioapi")
 
 # Frequently used libraries 
 library(dplyr)
@@ -66,6 +67,7 @@ library(scales)
 library(jsonlite)
 library(janitor)
 library(stringr)
+library(rstudioapi)
 ```
 
 ## Working with dates in R
@@ -184,7 +186,19 @@ We will also use the lubridate::day() function to generate todays date, which we
 ```{r, echo=FALSE}
 # Define file path so don't need to repeat it
 data = readr::read_csv("Wait_Times_GHIC_MAR_2022_ZIP.csv")
+```
 
+If you have the files locally, you can use selectFile() within {rstudioapi} to select the file you want to load manually.
+This can be useful if you are new to using R.
+
+```{r}
+# Alternatively load data using the rstudioapi package
+data = readr::read_csv(rstudioapi::selectFile())
+```
+
+With the data loaded by one of the above two methods, we can inspect the data.
+
+```{r}
 # Have a look at some rows of the data 
 head(data)
 
@@ -682,6 +696,7 @@ Others
 - scales::percent()
 - readr::read_csv()
 - janitor::clean_names()
+- rstudioapi::selectFile()
 
 Base R
 

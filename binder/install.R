@@ -49,19 +49,20 @@
 #    )
 #  )
 
-# install.packages(
-#   c(
-#     "dplyr",
-#     "lubridate",
-#     "openxlsx",
-#     "bizdays",
-#     "readr",
-#     "scales",
-#     "jsonlite",
-#     "janitor",
-#     "stringr"
-#   )
-# )
+install.packages(
+  c(
+    "dplyr",
+    "lubridate",
+    "openxlsx",
+    "bizdays",
+    "readr",
+    "scales",
+    "jsonlite",
+    "janitor",
+    "stringr",
+    "rstudioapi"
+  )
+)
 
 # Use devtools to install packages not on CRAN, e.g. from Github
 # install.packages("devtools")
