@@ -21,19 +21,19 @@ As mentioned in the first session, while Excel is the appropriate tool for some 
 - Excel can be slow when working with large files
 - Going over the same steps in Excel every day/week/month to generate the same report/analysis is time consuming and repetitive.
 
-Using R can can overcome these issues for the following reasons:
+Using R can can overcome these issues as:
 
 - R can work with large files far more easily and quickly
 - A single R script can do all of the time consuming and repetitive tasks for you
 
 ## Session Format
 
-This session will look at a real example of an excel workflow that has been turned into an R script.
-The uses various time and date fields in order to generate some 
+This session will look at a real example of an excel workflow turned into an R script.
+The script uses various time and date fields in order to generate an output.
 
 ## Load Packages
 
-Before we load in our data, we need to make sure have all the required packages installed.
+Before we load in our data, we need to make sure we have all the required packages installed.
 A 'package' is basically a collection of functions. You need to install a package first before you can use it.
 We can use `install.package("package_name")` to install a package.
 We then use `library(package_name)` to load the package.
@@ -43,6 +43,17 @@ Those are {dplyr} and {lubridate}, for data processing and working with dates.
 The other six packages will be used infrequently.
 
 ```{r, echo=FALSE}
+# Install new packages
+#install.packages("dplyr")
+#install.packages("lubridate")
+#install.packages("openxlsx")
+#install.packages("bizdays")
+#install.packages("readr")
+#install.packages("scales")
+#install.packages("jsonlite")
+#install.packages("janitor")
+#install.packages("stringr")
+
 # Frequently used libraries 
 library(dplyr)
 library(lubridate)
@@ -67,10 +78,14 @@ First we will load in some dummy dates with some unformatted dates.
 We will also use the str() function to check the 'structure' of this data, i.e. what data types the columns are.
 Each columns is a character (chr).
 
-```{r, echo=FALSE}
-# Load in dummy dates data
-dummy_dates = read.csv("dummy_dates.csv")
-
+```{r}
+# Generate dummy data
+dummy_dates = data.frame(
+  date_one = "25/12/2022",
+  date_two = "25.12.2022", 
+  date_three = "2022-25-12", 
+  date_four = "25/12/2022 17:37"
+)
 # Check structure of the initial data
 str(dummy_dates)
 ```
@@ -80,12 +95,14 @@ str(dummy_dates)
 We can change a character to a date using as.Date() within a mutate().
 mutate() either creates a new column or overwrites an existing column.
 The only difficulty here is specifying the format.
-The format depends on how the character has been spelt.
+The format depends on whether dots, hyphens or slashes have been used in the character-based date field.
 
 We have to tell R whether to look for a '/', '-', or '.' between the date elements.
 We then have to tell it what position the year (Y), month (m) and (d) come.
+Some '%' characters are used in addition to the above 2 points.
 
 ```{r, echo=FALSE}
+# Process dates with correct format
 dummy_dates = dummy_dates %>% 
   mutate(date_one = as.Date(date_one, format = "%d/%m/%Y")) %>% 
   mutate(date_two = as.Date(date_two, format = "%d.%m.%Y")) %>% 
@@ -99,22 +116,26 @@ str(dummy_dates)
 ## Some very simple examples of date field calculations
 
 Once in a date format, various calculations can be easily done.
+None of these calculations would work with a character field.
 Here are just a small selection.
 
 ```{r, echo=FALSE}
+# Experiment with multiple lubridate functions
 dummy_dates %>% 
   mutate(
     diff = date_one - date_two,
     day = lubridate::day(date_one),
     month = lubridate::month(date_one),
-    year = lubridate::year(date_one)
+    year = lubridate::year(date_one),
+    first_day_month = lubridate::floor_date(date_one, unit = "month"),
+    first_day_year = lubridate::floor_date(date_one, unit = "year")
   ) %>% 
   select(-c(date_three, date_four))
 ```
 
 ## Further Information on {lubridate}
 
-An entire C&C could easily be devoted to just dates and datetime in R.
+An entire C&C could easily be devoted to just dates and datetime in R (one indeed might in the future).
 If you need an analysis in terms of hours and minutes rather than just days, you would need 'datetime' rather than 'date' fields.
 The {lubridate} package can deal with both dates and datetimes.
 The below {lubridate} cheat sheet demonstrates many of these. 
@@ -127,20 +148,20 @@ browseURL("https://rawgit.com/rstudio/cheatsheets/main/lubridate.pdf")
 
 ## Background
 
-This analysis measures the rate dispatched Health Insurance Cards within a given. 
+This analysis measures the rate at which Health Insurance Cards are dispatched within a given time period.
 Once an applicant has successfully applied for a GHIC, a card is ISSUED. 
 Cards are then bundled together several times a day and SUBMITTED to an external company to print. 
 That company then sends a file back to us to confirm the date it was DISPATCHED.
 The process could be summarised as: APPLIED -> ISSUED -> SUBMITTED -> DISPATCHED
 
-There is a KPI present for the SLA target on the number of working days elapsed between iISSUED and DISPATHED.
+There is a KPI present for the SLA target on the number of working days elapsed between ISSUED and DISPATCHED.
 10 days or less is within SLA, more that 10 days is out of SLA.
 
 ## Loading the data
 
 We will be working with various fields that we want in a date format, in order to do date calculations.
 Rather than just load in our CSV file, we check how different CSV-loading functions load the data in.
-Loading data is using the most appropriate package can simplify a workflow.
+Loading data using the most appropriate package can simplify a workflow.
 
 Base-R loads all of the date-related fields as a character.
 
@@ -174,7 +195,7 @@ report_date <- as.Date(lubridate::today())
 ## Initial Basic Processing
 
 First we use janitor::clean_names() to simplify the column names.
-We will then name the 'submitted' ccolumn name for ease of refernce too.
+We will then name the 'submitted' column name for ease of reference too.
 
 ```{r, echo=FALSE}
 # Process data
@@ -189,7 +210,7 @@ data_edit = data %>%
 
 Conveniently, moving from datetime to date is very easy in R.
 We do not even need to specify the format, like we did in the introduction.
-We can then check the format of the enw ouptut.
+We can then check the format of the new ouptut.
 
 ```{r, echo=FALSE}
 data_edit = data %>% 
@@ -202,17 +223,39 @@ data_edit = data %>%
   mutate(issued_date = as.Date(issued_date)) %>% 
   mutate(expired_date = as.Date(expired_date)) %>% 
   mutate(rejected_date = as.Date(rejected_date)) 
-
 # Check data
 str(data_edit)
 ```
 
-## Creating New Columns
+## Creating New Columns with Case-Statements
 
 We now need to do some calculations with the data.
-We want to generate a start_date column.
-Depending on th record, this is either the rejected_date, reissue_request_date or issued_date.
-If none of thse values are present we will generate a dummy date instead.
+Below is a quick explanation as to how case statements work in R.
+The order of a case-statement is *very* important.
+This decides which values cannot be 'overwritten' by following conditions.
+
+```{r}
+# Create 2 similar case statements with different outputs
+data.frame(value = c(4,8,12,16,20)) %>% 
+  mutate(
+    case_one = case_when(
+      value <= 20 ~ "Less than 20",
+      value <= 10 ~ "Less than 10"
+    )
+  ) %>% 
+  mutate(
+    case_two = case_when(
+      value <= 10 ~ "Less than 10",
+      value <= 20 ~ "Less than 20"
+    )
+  )
+```
+
+## Create a Start Date Column
+
+We want to generate a start_date column, using a case-statement, now knowing how they operate.
+Depending on th record, this is either the rejected_date, reissue_request_date or issued_date (in that order).
+If none of these values are present we will generate a dummy date instead.
 
 ```{r, echo=FALSE}
 # Process data
@@ -235,16 +278,15 @@ data_edit = data %>%
       T ~ as.Date("3099-12-31")
     )
   )
-
 # Check output and related columns
 head(data_edit %>% select(rejected_date, reissue_request_date, issued_date, start_date))
 ```
 
-## Creating a Similar Column for End-Date
+## Create an End-Date Column
 
-We now want to generate a end_date column.
-Depending on th record, this is either the rejected_date, reissue_request_date or issued_date.
-If none of thse values are present we will generate a dummy date instead.
+We now want to generate an end_date column.
+Depending on the record, this is either the rejected_date or the dispatched_date.
+If none of thse values are present we will use todays date (report_date) instead, suggesting the process is ongoing.
 
 ```{r, echo=FALSE}
 # Process data
@@ -275,12 +317,24 @@ data_edit = data %>%
       T ~ report_date
     )
   )
-
 # Check output and related columns
 head(data_edit %>% select(rejected_date, dispatched_date, end_date))
 ```
 
-## Creating a New Status Column from the Date Columns
+## Creating a Status Column
+
+Finally for this section, we will create a status field, this field is generated from multiple conditions. Those conditions are:
+
+- If the default start_date is present, then classify the status as 'MISSING START DATE'
+- If the rejected_date is present, then classify the status as 'REJECTED'
+- If the dispatched_date is present, then classify the status as 'DISPATCHED'
+- If the submitted_date is present, then classify the status as 'SUBMITTED'
+- If the issued_date is present, then classify the status as 'ISSUED'
+- If the rerequest_date is present, then classify the status as 'REREQUEST'
+- If none of the above dates are present, then classify the status as 'ERROR'
+
+Remember, the case-statement 'prioritises' earlier conditions over later ones. 
+
 
 ```{r, echo=FALSE}
 # Process data
@@ -325,61 +379,36 @@ data_edit = data %>%
   ) %>% 
   # Create a 'dispatch month' field
   mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
+# Check output and related columns 
+head(data_edit %>% select(start_date, rejected_date, dispatched_date, submitted_date, issued_date, reissue_request_date, status, dispatch_month))
 ```
 
-# Define file path so don't need to repeat it
-file_path = "C:/Users/adnsh/OneDrive - NHS Business Services Authority/Desktop/Excel to R/Wait_Times_GHIC_MAR_2022_ZIP.csv"
+## Using the Coalesce function
 
+In this instance we can use coalesce() to find the most non-missing (NA) date across multiple fields in our data.
+We can also stipulate a value, if all the columns we are looking at only have NAs.
+coalesce() is simple, concise and useful in many reporting situations. 
 
-
-# Have a look at some rows of the data 
-head(data)
-
-# Create report date
-report_date <- as.Date(lubridate::today())
-
-data_edit = data %>% 
-  # Clean names
-  janitor::clean_names() %>% 
-  # Rename one variable
-  rename(submitted_date = submitted_to_xerox) %>% 
-  # change all posixct to date format
-  mutate(application_date = as.Date(application_date)) %>% 
-  mutate(issued_date = as.Date(issued_date)) %>% 
-  mutate(expired_date = as.Date(expired_date)) %>% 
-  mutate(rejected_date = as.Date(rejected_date)) %>% 
-  # Create a 'start date' field 
-  mutate(
-    start_date = case_when(
-      !is.na(rejected_date) ~ rejected_date,
-      !is.na(reissue_request_date) ~ reissue_request_date,
-      !is.na(issued_date) ~ issued_date,
-      T ~ as.Date("3099-12-31")
-    )
+```{r}
+# Some example coalesce calculations
+data.frame(
+  a = c(NA, NA, NA, NA, 5),
+  b = c(NA, NA, 90, 8, 9),
+  c = c(NA, 100, 67, 0, NA)
   ) %>% 
-  # Create a 'end date' field
   mutate(
-    end_date = case_when(
-      !is.na(rejected_date) ~ rejected_date,
-      !is.na(dispatched_date) ~ dispatched_date,
-      T ~ report_date
-    )
-  ) %>% 
-  # Create a 'status' field
-  mutate(
-    status = case_when(
-      start_date == "3099-12-31" ~ "MISSING START DATE",
-      !is.na(rejected_date) ~ "REJECTED",
-      !is.na(dispatched_date) ~ "DISPATCHED",
-      !is.na(submitted_date) ~ "SUBMITTED",
-      !is.na(issued_date) ~ "ISSUED",
-      !is.na(reissue_request_date) ~ "REREQUEST",
-      T ~ "ERROR"
-    )
-  ) %>% 
-  # Create a 'dispatch month' field
-  mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
+    coalesce_one = coalesce(a, b, c),
+    coalesce_two = coalesce(a, b, c, 999),
+    coalesce_three = coalesce(c, b, a)
+  )
+```
 
+## Replace 2 Case-Statements with Coalesce to Simplify Code
+
+We will now replace the first 2 case-statements with a simple coalesce function. 
+This simplifies the code a fair amount.
+
+```{r}
 # Newly edited data
 data_coalesce = data %>% 
   # Clean names
@@ -392,6 +421,7 @@ data_coalesce = data %>%
   mutate(expired_date = as.Date(expired_date)) %>% 
   mutate(rejected_date = as.Date(rejected_date)) %>% 
   # Create a 'start date' and 'end date' field 
+  # The two new coalesce functions
   mutate(start_date = coalesce(rejected_date, reissue_request_date, issued_date, as.Date("3099-12-31"))) %>% 
   mutate(end_date = coalesce(rejected_date, dispatched_date, report_date)) %>% 
   # Create a 'status' field
@@ -408,10 +438,39 @@ data_coalesce = data %>%
   ) %>% 
   # Create a 'dispatch month' field
   mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
+```
 
+## Compare Dataframes to Make Sure the Code is Running as Intended
+
+As we created a new dataframe above, we can now compare the 'coalesce output' with the previous output.
+setdiff() tells you which records across 2 dataframes differ.
+If the number of columns or rows differ across 2 dataframes then the function will naturally tell you this and not bother to compare records.
+This is a useful to check if 2 objects are identical.
+
+```{r}
 # check if outputs are the same
 setdiff(data_edit, data_coalesce)
+```
 
+# Working Days Calculations ----------------------------------------------------
+
+# Get a List of Holiday Dates
+
+We now want to calculate the number of working days between ISSUE and DISPATCH, to see if we are within or out of the 10 working day SLA time period.
+However, we need to take account of bank holidays in addition to weekends.
+So we need a list of bank holidays in the first instance.
+We can get them from the GOV.uk website in json format.
+Here is what the json format data looks like. 
+
+```{r}
+browseURL("https://www.gov.uk/bank-holidays.json")
+```
+
+We can download this json data using the jsonlite package and then extract the bits we are interested in, namely the England bank holiday dates.
+We use the '$' symbol to access different levels of the json, which has 'nested' lists within lists.
+After extracting the dates we want we can turn them into a single column dataframe and change the data into a date format.
+
+```{r}
 # Retrieve and format json data
 dates = jsonlite::read_json("https://www.gov.uk/bank-holidays.json")
 
@@ -425,7 +484,14 @@ holiday_dates = dates$`england-and-wales`$events %>%
 
 # Check data type of dates
 str(holiday_dates)
+```
 
+## Use {bizdays} to Calculate the Difference in Working Days
+
+We can use the {bizdays} package to calculate working day differences.
+First we need to calculate a 'calendar' object.
+
+```{r}
 #Working with bizdays to calculate time
 my_calendar = bizdays::create.calendar(
   name = "WorkCal",
@@ -437,21 +503,58 @@ my_calendar = bizdays::create.calendar(
 
 # check holidays within the calendar
 my_calendar$holidays
+```
 
+We can use the bizdays() within {bizdays} to calculate the working day difference.
+If this difference is 10 days or less, we are within the SLA.
+If the difference is more than 10 days, we are outside the SLA.
+
+```{r}
 # Final data
 data_edit = data_edit %>% 
   mutate(sla_days = bizdays::bizdays(start_date, end_date, my_calendar)) %>% 
   mutate(in_sla = ifelse(sla_days <= 10, "Yes", "No")) %>% 
   filter(status == "DISPATCHED")
 
-# Table
-table(data_edit$status)
-table(data_coalesce$status)
+# Inspect new columns
+head(data_edit %>% select(start_date, end_date, status, sla_days, in_sla))
+```
 
+## Clean R Environment
+
+We can remove the 'data_coalesce' object, as it has over 1m rows and we're not using it.
+rm() can remove an object and then gc() can then 'clear' some memory after this removal. 
+If you are using R locally and have limited memory this is useful. 
+
+```{r}
 # Remove object and clean
 rm(data, data_coalesce)
 gc()
+```
 
+## Calculate the Number of Cards Issued In and Out of SLA
+
+We can use group_by(), summarise() and ungroup() to now aggregate the data.
+
+```{r}
+# Format final data
+output = data_edit %>% 
+  mutate(type = "GHIC") %>% 
+  group_by(type, dispatch_month, in_sla) %>% 
+  summarise(count_by_sla = n()) %>% 
+  ungroup()
+
+# Inspect the data
+output
+```
+
+## Calculate the Proportion of Cards Issued In and Out of SLA
+
+We can now change these figures to a proportion.
+First we need to sum the figures in the 'count_by_sla' column, we can then use the percent() function within {scales} to generate some proportions.
+Finally, str_to_title() within {stringr} can then format the column names slightly, before we save the output as an Excel file.
+
+```{r}
 # Format final data
 output = data_edit %>% 
   mutate(type = "GHIC") %>% 
@@ -460,17 +563,23 @@ output = data_edit %>%
   ungroup() %>% 
   mutate(total = sum(count_by_sla)) %>% 
   mutate(percent = scales::percent(count_by_sla / total, accuracy = 0.00001)) %>% 
-  rename_all(.funs = stringr::str_to_title) %>% 
-  mutate(Dispatch_month = paste0(
-    lubridate::month(Dispatch_month, label = T), " - ", lubridate::year(Dispatch_month)
-  ))
+  rename_all(.funs = stringr::str_to_title)
 
-# Inspect final data
+# Inspect the data
 output
+```
 
-# Check directory
-getwd()
+# Saving the Output ------------------------------------------------------------
 
+We are now ready to save the output.
+There is a simple way to do and a more involved way to do this.
+This depends how much formatting we want to do in R before saving the data as an Excel file.
+
+## Simple Output
+
+The simple way is to create a list with each object we want as a page within then our Excel, then simply save it.
+
+```{r}
 # Format output
 excel_sheets = list(
   output,
@@ -479,7 +588,24 @@ excel_sheets = list(
 
 # Save simple output
 openxlsx::write.xlsx(excel_sheets, file = "SIMPLE_OUTPUT.xlsx")
+```
 
+## Formattted Output
+
+It takes a bit of work, but you can format your data prior to saving it as an excel file.
+If your report or analysis is a one-off, then it wouldn't be worth the effort.
+If your output is weekly, then it would be worth the effort.
+You can even do conditional formatting and such like in R.
+In this instance we will just the following things:
+
+- Sheet names
+- Font
+- font size
+- Header font and background
+- Cell borders
+- Column widths per column per sheet
+
+```{r}
 # Create formatted output
 wb = createWorkbook()
 
@@ -497,7 +623,6 @@ header_style <- createStyle(
   fgFill = "#4F81BD",
   border = c("top", "bottom", "left", "right")
 )
-
 # Write data to sheets and apply style and specify borders
 writeData(wb, "March Output", output, headerStyle = header_style, borders = "columns")
 writeData(wb, "Holiday Dates", holiday_dates, headerStyle = header_style, borders = "columns")
@@ -508,63 +633,90 @@ setColWidths(wb, sheet = 2, cols = 1, widths = 10)
 
 # Save formatted data
 saveWorkbook(wb, "FORMATTED_OUTPUT.xlsx", overwrite = T)
-
-#-------------------------------------------------------------------------------
-
-# Funtions used
-
-# - lubridate::today()
-# - lubridate::month()
-# - lubridate::year()
-# - lubridate::floor_date()
-
-# - dplyr::select()
-# - dplyr::mutate()
-# - dplyr::case_when()
-# - dplyr::filter()
-# - dplyr::group_by()
-# - dplyr::summmarise()
-# - dplyr::ungroup()
-# - dplyr::coalesce()
-# - dplyr::rename()
-# - dplyr::rename_all()
-# - dplyr::bind_rows()
-
-# - openxlsx::write.xlsx()
-# - openxlsx::createWorkbook()
-# - openxlsx::addWorksheet()
-# - openxlsx::modifyBaseFont()
-# - openxlsx::createStyle()
-# - openxlsx::writeData()
-# - openxlsx::setColWidths()
-# - openxlsx::saveWorkbook()
-
-# - stringr::stringr_to_title()
-
-# - jsonlite::read_json()
-
-# - scales::percent()
-
-# - readr::read_csv()
-
-# - janitor::clean_names()
-
-# - bizdays::bizdays()
-# - bizdays::create.calendar()
-
-# - str()
-# - setdiff()
-# - rm()
-# - gc()
-# - table()
-# - sum()
-# - paste0()
-# - ifelse()
-# - as.Date()
-# - list()
-# - getwd()
-
-#-------------------------------------------------------------------------------
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Review -----------------------------------------------------------------------
+
+## Functions used
+
+Here is a list of all the packages and functions used in this session
+
+{dplyr}
+
+- dplyr::select()
+- dplyr::mutate()
+- dplyr::case_when()
+- dplyr::filter()
+- dplyr::group_by()
+- dplyr::summmarise()
+- dplyr::ungroup()
+- dplyr::coalesce()
+- dplyr::rename()
+- dplyr::rename_all()
+- dplyr::bind_rows()
+
+{openxlsx}
+
+- openxlsx::write.xlsx()
+- openxlsx::createWorkbook()
+- openxlsx::addWorksheet()
+- openxlsx::modifyBaseFont()
+- openxlsx::createStyle()
+- openxlsx::writeData()
+- openxlsx::setColWidths()
+- openxlsx::saveWorkbook()
+
+{lubridate}
+
+- lubridate::today()
+- lubridate::month()
+- lubridate::year()
+- lubridate::floor_date()
+
+Others
+
+- bizdays::bizdays()
+- bizdays::create.calendar()
+- stringr::stringr_to_title()
+- jsonlite::read_json()
+- scales::percent()
+- readr::read_csv()
+- janitor::clean_names()
+
+Base R
+
+- str()
+- setdiff()
+- rm()
+- gc()
+- table()
+- sum()
+- paste0()
+- ifelse()
+- as.Date()
+- list()
+- getwd()
+
+## Next Steps
+
+Using R instead of Excel for some tasks, will take a bit of time initially, but in the long run will save you a *lot* of time.  
+If you plan on doing so, here are some recommended next steps:
+
+1. First identify a repetitive task in Excel, for example that you on do on a weekly or monthly (or even daily) basis.
+
+2. Write down *all* of the steps that you do (e.g. even renaming columns), that gets you from start to finish.
+
+3. Then try convert each of steps into R code.
+
+4. If you get stuck, look at this cheatsheet: https://www.rstudio.com/resources/cheatsheets/
+
+5. If you are still stuck, post a question here: https://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402chttps://teams.microsoft.com/l/channel/19%3a64ee34434208492bad218f7bfe9cd47b%40thread.tacv2/Analytics%2520Queries?groupId=ccfef765-332b-4b0c-b2b7-dabc1d8e9148&tenantId=cf6d0482-86b1-4f88-8c0c-3b4de4cb402c
+
+6. Get in touch with me at adnan.shroufi@nhs.net if you want something particular covered at the upcoming 'Excel -> R: Part Three' Coffee & Coding session.
+
+## Case Study of moving from Excel to R
+
+Today's session showed a real world exmaple of a process in Excel being changed to an R script.
+We will now hear from Robbie Glendinning about his experience of doing so, in terms of how much time it has saved him and what the difficulties were.
+
+### Thanks!
