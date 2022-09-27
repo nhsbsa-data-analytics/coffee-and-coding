@@ -1,5 +1,6 @@
 # install.packages(
 #   c(
+#     "bizdays",
 #     "chron",
 #     "config",
 #     "crul",
@@ -11,6 +12,7 @@
 #     "glue",
 #     "golem",
 #     "highcharter",
+#     "janitor",
 #     "jsonlite",
 #     "knitr",
 #     "leaflet",
@@ -24,6 +26,7 @@
 #     "pkgload",
 #     "qdapRegex",
 #     "RColorBrewer",
+#     "readr",
 #     "readxl",
 #     "reshape2",
 #     "rgdal",
@@ -49,7 +52,14 @@
 install.packages(
   c(
     "dplyr",
-    "ggplot2"
+    "lubridate",
+    "openxlsx",
+    "bizdays",
+    "readr",
+    "scales",
+    "jsonlite",
+    "janitor",
+    "stringr"
   )
 )
 
