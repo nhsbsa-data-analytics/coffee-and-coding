@@ -1,6 +1,6 @@
-#channels:
-#  - defaults
-#  - conda-forge
+channels:
+  - defaults
+  - conda-forge
 
 #dependencies:
 #  - requests=2.26.0
