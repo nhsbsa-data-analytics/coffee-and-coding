@@ -21,19 +21,19 @@ As mentioned in the first session, while Excel is the appropriate tool for some 
 - Excel can be slow when working with large files
 - Going over the same steps in Excel every day/week/month to generate the same report/analysis is time consuming and repetitive.
 
-Using R can can overcome these issues for the following reasons:
+Using R can can overcome these issues as:
 
 - R can work with large files far more easily and quickly
 - A single R script can do all of the time consuming and repetitive tasks for you
 
 ## Session Format
 
-This session will look at a real example of an excel workflow that has been turned into an R script.
-The uses various time and date fields in order to generate some 
+This session will look at a real example of an excel workflow turned into an R script.
+The script uses various time and date fields in order to generate an output.
 
 ## Load Packages
 
-Before we load in our data, we need to make sure have all the required packages installed.
+Before we load in our data, we need to make sure we have all the required packages installed.
 A 'package' is basically a collection of functions. You need to install a package first before you can use it.
 We can use `install.package("package_name")` to install a package.
 We then use `library(package_name)` to load the package.
@@ -43,6 +43,17 @@ Those are {dplyr} and {lubridate}, for data processing and working with dates.
 The other six packages will be used infrequently.
 
 ```{r, echo=FALSE}
+# Install new packages
+#install.packages("dplyr")
+#install.packages("lubridate")
+#install.packages("openxlsx")
+#install.packages("bizdays")
+#install.packages("readr")
+#install.packages("scales")
+#install.packages("jsonlite")
+#install.packages("janitor")
+#install.packages("stringr")
+
 # Frequently used libraries 
 library(dplyr)
 library(lubridate)
@@ -67,9 +78,14 @@ First we will load in some dummy dates with some unformatted dates.
 We will also use the str() function to check the 'structure' of this data, i.e. what data types the columns are.
 Each columns is a character (chr).
 
-```{r, echo=FALSE}
-# Load in dummy dates data
-dummy_dates = read.csv("dummy_dates.csv")
+```{r}
+# Generate dummy data
+dummy_dates = data.frame(
+  date_one = "25/12/2022",
+  date_two = "25.12.2022", 
+  date_three = "2022-25-12", 
+  date_four = "25/12/2022 17:37"
+)
 
 # Check structure of the initial data
 str(dummy_dates)
@@ -80,10 +96,11 @@ str(dummy_dates)
 We can change a character to a date using as.Date() within a mutate().
 mutate() either creates a new column or overwrites an existing column.
 The only difficulty here is specifying the format.
-The format depends on how the character has been spelt.
+The format depends on whether dots, hyphens or slashes have been used in the character-based date field.
 
 We have to tell R whether to look for a '/', '-', or '.' between the date elements.
 We then have to tell it what position the year (Y), month (m) and (d) come.
+Some '%' characters are used in addition to the above 2 points.
 
 ```{r, echo=FALSE}
 dummy_dates = dummy_dates %>% 
@@ -99,6 +116,7 @@ str(dummy_dates)
 ## Some very simple examples of date field calculations
 
 Once in a date format, various calculations can be easily done.
+None of these calculations would work with a character field.
 Here are just a small selection.
 
 ```{r, echo=FALSE}
@@ -116,7 +134,7 @@ dummy_dates %>%
 
 ## Further Information on {lubridate}
 
-An entire C&C could easily be devoted to just dates and datetime in R.
+An entire C&C could easily be devoted to just dates and datetime in R (one indeed might in the future).
 If you need an analysis in terms of hours and minutes rather than just days, you would need 'datetime' rather than 'date' fields.
 The {lubridate} package can deal with both dates and datetimes.
 The below {lubridate} cheat sheet demonstrates many of these. 
@@ -129,7 +147,7 @@ browseURL("https://rawgit.com/rstudio/cheatsheets/main/lubridate.pdf")
 
 ## Background
 
-This analysis measures the rate dispatched Health Insurance Cards within a given. 
+This analysis measures the rate at which Health Insurance Cards are dispatched within a given time period.
 Once an applicant has successfully applied for a GHIC, a card is ISSUED. 
 Cards are then bundled together several times a day and SUBMITTED to an external company to print. 
 That company then sends a file back to us to confirm the date it was DISPATCHED.
@@ -142,7 +160,7 @@ There is a KPI present for the SLA target on the number of working days elapsed 
 
 We will be working with various fields that we want in a date format, in order to do date calculations.
 Rather than just load in our CSV file, we check how different CSV-loading functions load the data in.
-Loading data is using the most appropriate package can simplify a workflow.
+Loading data using the most appropriate package can simplify a workflow.
 
 Base-R loads all of the date-related fields as a character.
 
@@ -176,7 +194,7 @@ report_date <- as.Date(lubridate::today())
 ## Initial Basic Processing
 
 First we use janitor::clean_names() to simplify the column names.
-We will then name the 'submitted' ccolumn name for ease of refernce too.
+We will then name the 'submitted' column name for ease of reference too.
 
 ```{r, echo=FALSE}
 # Process data
@@ -191,7 +209,7 @@ data_edit = data %>%
 
 Conveniently, moving from datetime to date is very easy in R.
 We do not even need to specify the format, like we did in the introduction.
-We can then check the format of the enw ouptut.
+We can then check the format of the new ouptut.
 
 ```{r, echo=FALSE}
 data_edit = data %>% 
@@ -371,7 +389,7 @@ head(data_edit %>% select(start_date, rejected_date, dispatched_date, submitted_
 ## Using the Coalesce function
 
 In this instance we can use coalesce() to find the most non-missing (NA) date across multiple fields in our data.
-We can also stipulate a value is all the columns we are looking at are missing.
+We can also stipulate a value, if all the columns we are looking at only have NAs.
 coalesce() is simple, concise and useful in many reporting situations. 
 
 ```{r}
@@ -382,8 +400,8 @@ data.frame(
   ) %>% 
   mutate(
     coalesce_one = coalesce(a, b, c),
-    coalesce_two = coalesce(c, b, a),
-    coalesce_three = coalesce(a, b, c, 999)
+    coalesce_two = coalesce(a, b, c, 999),
+    coalesce_three = coalesce(c, b, a)
   )
 ```
 
@@ -424,7 +442,7 @@ data_coalesce = data %>%
   mutate(dispatch_month = floor_date(dispatched_date, unit = "month"))
 ```
 
-## Compare Dataframes to Make Sure the Code is Running as Intened
+## Compare Dataframes to Make Sure the Code is Running as Intended
 
 As we created a new dataframe above, we can now compare the 'coalesce output' with the previous output.
 setdiff() tells you which records across 2 dataframes differ.
@@ -450,7 +468,7 @@ Here is what the json format data looks like.
 browseURL("https://www.gov.uk/bank-holidays.json")
 ```
 
-We can download this json data using the jsonlite package and then extract the bits we are intereted in, namely the England bank holiday dates.
+We can download this json data using the jsonlite package and then extract the bits we are interested in, namely the England bank holiday dates.
 We use the '$' symbol to access different levels of the json, which has 'nested' lists within lists.
 After extracting the dates we want we can turn them into a single column dataframe and change the data into a date format.
 
@@ -506,7 +524,7 @@ head(data_edit %>% select(start_date, end_date, status, sla_days, in_sla))
 
 ## Clean R Environment
 
-We can remove the 'data_coalesce' object, as it has oer 1m rows and we're not using it.
+We can remove the 'data_coalesce' object, as it has over 1m rows and we're not using it.
 rm() can remove an object and then gc() can then 'clear' some memory after this removal. 
 If you are using R locally and have limited memory this is useful. 
 
@@ -518,7 +536,7 @@ gc()
 
 ## Calculate the Number of Cards Issued In and Out of SLA
 
-We use use group_by(), summarise() and ungroup() to now aggregate the data.
+We can use group_by(), summarise() and ungroup() to now aggregate the data.
 
 ```{r}
 # Format final data
@@ -535,7 +553,7 @@ output
 ## Calculate the Proportion of Cards Issued In and Out of SLA
 
 We can now change these figures to a proportion.
-First we need to sum the figures in the 'count_by_sla' column, we can then use the percent() function {scales} to generate some proportions.
+First we need to sum the figures in the 'count_by_sla' column, we can then use the percent() function within {scales} to generate some proportions.
 Finally, str_to_title() within {stringr} can then format the column names slightly, before we save the output as an Excel file.
 
 ```{r}
