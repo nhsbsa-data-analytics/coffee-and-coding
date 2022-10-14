@@ -48,16 +48,7 @@
 
 install.packages(
   c(
-    "dplyr",
-    "lubridate",
-    "openxlsx",
-    "bizdays",
-    "readr",
-    "scales",
-    "jsonlite",
-    "janitor",
-    "stringr",
-    "rstudioapi"
+    "dplyr"
   )
 )
 
