@@ -27,13 +27,13 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------| 
-| 2023-01-25            | Lucy Sherwin     | R for the first time: Part 2
-                          Robinson
+| 2023-01-25            | Lucy Sherwin     | R for the first time: Part 2                                        |
+                          Robinson         |                                                                     | 
 | 2022-12-14            | Graham Platten   | Data visualisation with `{ggplot2}`                                 |
-| 2022-11-23 *          | Mark McPherson   | RDP: Reproducible Dashboard Pipeline 
+| 2022-11-23 *          | Mark McPherson   | RDP: Reproducible Dashboard Pipeline                                |
   2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
 | 2022-09-28            | Adnan Shroufi    | Excel to R: Part two                                                | 
-| 2022-08-17            | Nikki Dodds      | R for the first time
+| 2022-08-17            | Nikki Dodds      | R for the first time                                                |
 | 2022-06-22            | Kayoung Goffe    | Exploring Python with R using `{reticulate}`                        |
 | 2022-05-25            | Adnan Shroufi    | Excel to R: Part one                                                |
 | 2022-04-27            | Matthew Wilson   | Writing functions in R                                              |
