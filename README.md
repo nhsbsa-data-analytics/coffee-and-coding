@@ -23,10 +23,12 @@ We also use GitHub Actions to automate the Binder build process.
 
 ### Sessions
 
-Our next session is organised for 23rd March and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
+We are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------| 
+| 2023-01-25            | Lucy Sherwin     | R for the first time: Part 2
+                          Robinson
 | 2022-12-14            | Graham Platten   | Data visualisation with `{ggplot2}`                                 |
 | 2022-11-23 *          | Mark McPherson   | RDP: Reproducible Dashboard Pipeline 
   2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
