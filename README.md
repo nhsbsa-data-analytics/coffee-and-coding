@@ -28,7 +28,7 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------| 
 | 2023-01-25            | Lucy Sherwin     | R for the first time: Part 2                                        |
-                          Robinson         |                                                                     | 
+|                       | Robinson         |                                                                     | 
 | 2022-12-14            | Graham Platten   | Data visualisation with `{ggplot2}`                                 |
 | 2022-11-23 *          | Mark McPherson   | RDP: Reproducible Dashboard Pipeline                                |
   2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
