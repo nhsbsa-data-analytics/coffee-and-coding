@@ -28,6 +28,7 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------|
 | 2023-04-26            | Matthew Wilson   | Functions part 2 using `Purrr` package                              | 
+| 2023-03-26/29?        | TBC              | TBC                                                                 |  
 | 2023-02-15            | Kayoung Goffe    | Web scraping (R or Python to be determined)                         | 
 | 2023-01-25            | Lucy Sherwin     | R for the first time: Part 2                                        |
 |                       | Robinson         |                                                                     | 
