@@ -1,0 +1,312 @@
+---
+title: "ggplot2"
+author: "Graham Platten"
+date: "2022-11-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE )
+```
+
+## ggplot2 
+<code>ggplot2</code> is an R package which is designed especially for data visualization and providing best exploratory data analysis. It provides hassle-free plots that take care of minute details like drawing legends and representing them. The plots can be created iteratively and edited later. This package is designed to work in a layered fashion, starting with a layer showing the raw data collected during exploratory data analysis with R then adding layers of annotations and statistical summaries.
+
+This package works under deep grammar called as “Grammar of graphics” which is made up of a set of independent components that can be created in many ways. “Grammar of graphics” is the only sole reason which makes ggplot2 very powerful because the R developer is not limited to set of pre-specified graphics which is used in other packages. The grammar includes simple set of core rules and principles.
+
+<code>ggplot2</code> is part of the tidyverse suite of packages. The tidyverse is a set of packages that work in harmony because they share common data representations and API design. The <code>tidyverse</code> package is designed to make it easy to install and load core packages from the tidyverse in a single command.
+
+```{r, echo=FALSE}
+# Install new packages
+#install.packages("tidyverse")
+
+# Library packages
+library(tidyverse)
+```
+
+For this presentation we will use the inbuilt datasets “iris” and "mpg". 
+
+```{r iris}
+str(iris)
+head(iris)
+```
+
+```{r mpg}
+str(mpg)
+head(mpg)
+```
+## Simple plot
+
+Plotting the iris dataset plot with ggplot2 in simple manner involves the following syntax
+```{r}
+ggplot(iris, aes(Sepal.Length, Petal.Length)) +
+  geom_point()
+```
+
+### Add colour by species
+Using the colour argument within aes allows us to set the colour of the points. This can either be one pre-defined colour or in this example we can colour the points based on the Species of the Iris.
+```{r}
+p <- ggplot(iris, aes(Sepal.Length, Petal.Length, colour = Species)) +
+  geom_point()
+
+p
+```
+
+### Add labels
+
+Adding the labs() function allows us to include custom axis labels as in the below example. 
+```{r}
+p2 <- p + labs(y="Petal length (cm)", x = "Sepal length (cm)")
+
+p2
+```
+
+### Add title
+
+Adding the ggtitle() function allows us to add a title to the visulaisation. 
+```{r}
+p2 + ggtitle("Petal and sepal length of iris") 
+```
+
+### Adding labels and title could all be carried out in one go
+
+In the above example each element has been added individually bit this can all be carried out in one code chunk if needed.
+```{r}
+p3 <- ggplot(iris, aes(Sepal.Length, Petal.Length, colour = Species)) +
+  geom_point() +
+  labs(y="Petal length (cm)", x = "Sepal length (cm)") +
+  ggtitle("Petal and sepal length of iris")
+
+p3
+```
+
+### Adding theme to adjust legend
+
+#### Adjust legend position and hide title
+
+We can use the theme() function to add any themes needed to the visualisation. Using ?theme in the console will give you a list of available options within this function. 
+```{r}
+p3 + 
+  theme(legend.title=element_blank(),
+        legend.position="top")
+```
+
+```{r}
+?theme
+```
+
+### Add theme to legend if needed
+
+We can theme the text of individual elements if needed. The below will set the font of the text in the legend to grey with a font size of 12.
+```{r}
+p3 + 
+  theme(legend.title=element_blank(),
+        legend.position="top",
+        legend.text = element_text(colour = "grey", size = 12)) 
+```
+
+## Add attributes
+
+### Change point shape
+
+Within the geom_point() function we can set the point to various different options. A full list of these is available [here](http://www.sthda.com/english/wiki/ggplot2-point-shapes). In the below we can set the shape to equal 4 (a cross).
+```{r}
+p4 <- ggplot(iris, aes(Sepal.Length, Petal.Length, colour = Species)) +
+  geom_point(shape = 4)
+p4
+```
+
+### Add regression line
+
+The geom_smooth() function allows users to quickly add a regression line. The below will add a line for each individual Species based on the lm function. 
+```{r}
+p5 <- p4 +
+  geom_smooth(method = lm)
+p5
+```
+
+## Quick facet
+
+If we wish to seperate charts out by a defined group argument ggplot2 can handle this easily by adding the facet_wrap() function. The below code will create 3 different charts, on for each Species of Iris. 
+```{r}
+p5 +
+  facet_wrap(. ~ Species) + 
+  theme(legend.position = "none")
+```
+
+# Bar Plots & Histograms with the mpg data
+
+## Bar count plot
+
+We can create a simple bar plot using the geom_bar() function. The bars are filled in with NHS blue. Using the fct_infreq() function orders the bars largest to smallest. 
+```{r}
+p6 <- ggplot(mpg, aes(x = fct_infreq(manufacturer))) +
+  geom_bar(fill = "#005EB8")
+
+p6
+```
+
+### Add in built theme
+
+Using one of the in built themes we can style the chart as needed. You can create your own custom themes but this is outside the scope of this talk. The below example will apply the theme_minimal().
+```{r}
+p6 + 
+  theme_minimal() +
+  labs(y="Count", x = "Manufacturer")  +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = 0) +
+  theme(axis.text.x = element_text(angle = 45))
+```
+
+## Histograms
+
+```{r}
+ggplot(data=mpg, aes(x=hwy)) +
+    geom_histogram(
+      col="white",
+       fill="#005EB8",
+       binwidth = 5)
+```
+
+## Stacked bar chart
+
+The below will produce a stacked bar based on the drive type of the car. 
+```{r}
+p7 <- ggplot(mpg, aes(x = fct_infreq(manufacturer), fill = drv)) +
+  geom_bar() 
+
+p7
+```
+
+We can add style to this chart using scale_fill_manual(). We can again add data labels but in stacked bars the position needs to be set using the position_stack() function.
+```{r}
+p7 +
+  scale_fill_manual(values=c("#005EB8", "#009639", "#ED8B00"))+
+  geom_text(stat = "count", aes(label = after_stat(count)), position = position_stack(vjust = 0.5))+
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(y="Count", x = "Manufacturer")
+```
+
+# A ggplot2 Christmas tree!
+
+First we need to build the data need to plot a basic Christmas tree.
+```{r}
+tree_data <- data.frame(
+x = c(10,11,12,10,11,12,10,11,12,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,5,6,7,8,9,10,11,12,13,14,15,16,17,5,6,7,8,9,10,11,12,13,14,15,16,17,6,7,8,9,10,11,12,13,14,15,16,6,7,8,9,10,11,12,13,14,15,16,7,8,9,10,11,12,13,14,15,7,8,9,10,11,12,13,14,15,8,9,10,11,12,13,14,8,9,10,11,12,13,14,9,10,11,12,13,10,11,12,10,11,12,11,6,7,8,6,7,8,3,4,3,4,14,15,16,14,15,16,18,19,18,19),
+y = c(1,1,1,2,2,2,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,11,11,11,11,11,11,11,11,11,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,14,14,14,14,14,14,14,15,15,15,15,15,16,16,16,17,17,17,18,1,1,1,2,2,2,1,1,2,2,1,1,1,2,2,2,1,1,2,2),
+colour = c("#402F1D","#402F1D","#402F1D","#402F1D","#402F1D","#402F1D","#402F1D","#402F1D",
+"#402F1D","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#006747","#006747","#006747","#006747",
+"#006747","#006747","#006747","#006747","#330072","#330072","#330072","#330072",
+"#330072","#330072","#DA291C","#DA291C","#DA291C","#DA291C","#DA291C","#DA291C",
+"#DA291C","#DA291C","#DA291C","#DA291C","#330072","#330072","#330072","#330072")
+)
+```
+
+Build the Christmas tree.
+
+geom_tile() plots each datapoint as a solid square. They then added some formatting options: 
+theme_bw() changes the background colour to white
+scale_x_continuous(breaks = NULL) (and its y-axis counterpart) gets rid of the tickmarks and gridlines
+labs(x = "", y = "") gets rid of the axis labels.
+```{r}
+tree <- ggplot() +
+  geom_tile(data = tree_data, aes(x = x, y = y, fill = colour)) +
+  scale_fill_identity() +
+  theme_bw() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "")
+tree
+```
+
+Any good tree needs lights so we can create the data for these. 
+```{r}
+Desired.Lights <- 50
+Total.Lights <- sum(round(Desired.Lights * 0.35) + round(Desired.Lights * 0.20) + 
+                      round(Desired.Lights * 0.17) + round(Desired.Lights * 0.13) +
+                      round(Desired.Lights * 0.10) + round(Desired.Lights * 0.05))
+
+Lights <- data.frame(Lights.X = c(round(runif(round(Desired.Lights * 0.35), 4, 18), 0),
+                                       round(runif(round(Desired.Lights * 0.20), 5, 17), 0),
+                                       round(runif(round(Desired.Lights * 0.17), 6, 16), 0),
+                                       round(runif(round(Desired.Lights * 0.13), 7, 15), 0),
+                                       round(runif(round(Desired.Lights * 0.10), 8, 14), 0),
+                                       round(runif(round(Desired.Lights * 0.05), 10, 12), 0)))
+Lights$Lights.Y <- c(round(runif(round(Desired.Lights * 0.35), 4, 6), 0),
+                          round(runif(round(Desired.Lights * 0.20), 7, 8), 0),
+                          round(runif(round(Desired.Lights * 0.17), 9, 10), 0),
+                          round(runif(round(Desired.Lights * 0.13), 11, 12), 0),
+                          round(runif(round(Desired.Lights * 0.10), 13, 14), 0),
+                          round(runif(round(Desired.Lights * 0.05), 15, 17), 0))
+Lights$Lights.Colour <- c(round(runif(Total.Lights, 1, 4), 0))
+```
+
+Then we can hang them to our tree.
+```{r}
+tree <- tree +
+          geom_point(data = Lights, aes(x = Lights.X, y = Lights.Y, alpha = Lights.Colour),
+                     colour = "#f3e7d3", shape = 16) +
+          theme(legend.position = "none")
+tree
+```
+
+We can also add baubles using the data below.
+```{r}
+Baubles <- data.frame(Bauble.X = c(6, 9, 15, 17, 5, 13, 16, 7, 10, 14, 7, 9, 11, 
+                                   14, 8, 14, 9, 12, 11, 12, 14, 11, 17, 10))
+Baubles$Bauble.Y <- c(4, 5, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 8, 10,
+                      10, 11, 11, 12, 13, 10, 16, 7, 14)
+Baubles$Bauble.Colour <- factor(c(1, 2, 2, 3, 2, 3, 1, 3, 1, 1, 1, 2, 1, 2,
+                                  3, 3, 2, 1, 3, 2, 1, 3, 3, 1))
+Baubles$Bauble.Size <- c(1, 3, 1, 1, 2, 1, 2, 2, 2, 1, 1, 1, 3, 3, 3,
+                         2, 3, 1, 1, 2, 2, 3, 3, 2)
+```
+
+And then hanging them on the tree.
+```{r}
+tree <- tree + 
+          geom_point(data = Baubles, aes(x = Bauble.X, y = Bauble.Y, 
+                                         colour = Bauble.Colour, size = Bauble.Size),
+                     shape = 16) +
+          scale_colour_manual(values = c("#00A499", "#ED8B00", "#AE2573")) +
+          scale_size_area(max_size = 12)
+tree
+```
+
+Now those presents look a little bare, right? Let’s spruce them up a little with some nice ribbons. We can do this using the geom_segment() option.
+```{r}
+tree <- tree +
+          geom_segment(aes(x = 2.5, xend = 4.5, y = 1.5, yend = 1.5), colour = "#0072CE", size = 2) +
+          geom_segment(aes(x = 5.5, xend = 8.5, y = 1.5, yend = 1.5), colour = "#00A499", size = 2) +
+          geom_segment(aes(x = 13.5, xend = 16.5, y = 1.5, yend = 1.5), colour = "#0072CE", size = 2) +
+          geom_segment(aes(x = 17.5, xend = 19.5, y = 1.5, yend = 1.5), colour = "#00A499", size = 2) +
+          geom_segment(aes(x = 3.5, xend = 3.5, y = 0.5, yend = 2.5), colour = "#0072CE", size = 2) +
+          geom_segment(aes(x = 7.0, xend = 7.0, y = 0.5, yend = 2.5), colour = "#00A499", size = 2) +
+          geom_segment(aes(x = 15.0, xend = 15.0, y = 0.5, yend = 2.5), colour = "#0072CE", size = 2) +
+          geom_segment(aes(x = 18.5, xend = 18.5, y = 0.5, yend = 2.5), colour = "#00A499", size = 2)
+tree
+```
+
+
+Finally we can add a message.
+```{r}
+tree <- tree +
+          annotate("text", x = 11, y = 20, label = "Merry Christmas!", 
+                   family = "mono", size = 12)
+tree
+```
