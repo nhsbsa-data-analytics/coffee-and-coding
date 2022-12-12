@@ -1,6 +1,0 @@
-{
-    "name": "mongo_updater",
-    "type": "http",
-    "config": {},
-    "version": 1
-}

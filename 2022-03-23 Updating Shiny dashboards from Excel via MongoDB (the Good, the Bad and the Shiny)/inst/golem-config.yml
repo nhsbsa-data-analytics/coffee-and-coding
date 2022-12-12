@@ -1,8 +1,0 @@
-default:
-  golem_name: fic
-  golem_version: 0.0.0.9000
-  app_prod: no
-production:
-  app_prod: yes
-dev:
-  golem_wd: C:/RProjects/FIC

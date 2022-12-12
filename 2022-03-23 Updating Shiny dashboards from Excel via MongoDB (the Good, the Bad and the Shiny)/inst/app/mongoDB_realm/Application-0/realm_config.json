@@ -1,8 +1,0 @@
-{
-    "app_id": "application-0-bcgyi",
-    "config_version": 20210101,
-    "name": "Application-0",
-    "location": "IE",
-    "deployment_model": "LOCAL",
-    "environment": "development"
-}

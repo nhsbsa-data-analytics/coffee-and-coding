@@ -1,0 +1,51 @@
+---
+title: "Writing functions in R"
+author: "Matthew Wilson"
+date: "27 Apr 2022"
+output: ioslides_presentation
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Agenda
+1. introduction
+2. a quick presentation -- time to let binder load
+3. code along
+4. questions
+
+## What are functions?
+Simply put functions are blocks of organised, reusable code that is used to perform a single related action. They provide better modularity in your application or analysis and a high degree of code reusing.
+
+* modularity -- splitting code up into easy to maintain chunks. 
+* code reusage -- write your code once and use it many times making it easier to make changes
+
+## Why write our own functions?
+R, like other programming languages uses functions and comes with a large suite of them by default, and many magnitudes more once you start to download and use other R packages.
+
+Packages are collections of functions that have been created by other people to fulfill specific needs. For example:
+
+* `dplyr` -- a data manipulation package
+* `ggplot2` -- a graphics and plotting package
+* `shiny` -- web app framework for R
+
+However, not all of our functional needs are met by base R or available packages.
+
+## Why write our own functions pt. 2
+Creating our own functions can allow us to more easily share our work with other analysts/developers, reducing duplication and effort.
+
+Functions are also easier to document than scripts and handover to other team members or work collaboratively with.
+
+Functions result in higher quality code as there are less places for typing or copy/paste errors to occurs.
+
+## Recap
+Functions are:
+
+* easier to maintain
+* quicker to write
+* allow us to be more flexible with our code
+* easier to share with others
+* help facilitate knowledge sharing through documentation
+* higher quality 

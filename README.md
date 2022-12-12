@@ -23,15 +23,24 @@ We also use GitHub Actions to automate the Binder build process.
 
 ### Sessions
 
-Our next session is organised for 23rd March and we are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
+We are actively looking for volunteers to plan and host future sessions. Please refer to [this guide](CONTRIBUTING.md) when adding new content.
 
 | Date (* next session) | Host             | Title                                                               |
-| :-------------------- | :--------------  | :-------------------------------------------------------------------| 
-| 2022-07-20            |                  |                                                                     | 
+| :-------------------- | :--------------  | :-------------------------------------------------------------------|
+| 2023-04-26            | Matthew Wilson   | Functions part 2 using `Purrr` package                              | 
+| 2023-03-26            | Kayoung Goffe    | Web scraping using Python                                           |  
+| 2023-02-15            | Ryan Leggett     | Python for the first time: Part 2                                   | 
+| 2023-01-25            | Lucy Sherwin     | R for the first time: Part 2                                        |
+|                       | Robinson         |                                                                     | 
+| 2022-12-14            | Graham Platten   | Data visualisation with `{ggplot2}`                                 |
+| 2022-11-23 *          | Mark McPherson   | RDP: Reproducible Dashboard Pipeline                                |
+  2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
+| 2022-09-28            | Adnan Shroufi    | Excel to R: Part two                                                | 
+| 2022-08-17            | Nikki Dodds      | R for the first time                                                |
 | 2022-06-22            | Kayoung Goffe    | Exploring Python with R using `{reticulate}`                        |
 | 2022-05-25            | Adnan Shroufi    | Excel to R: Part one                                                |
-| 2022-04-27            | Matthew Wilson   | Reproducible Analytical Pipelines: Automating high quality analysis |
-| 2022-03-23 *          | Mark McPherson   | Updating Shiny dashboards from Excel via mongoDB                    |
+| 2022-04-27            | Matthew Wilson   | Writing functions in R                                              |
+| 2022-03-23            | Mark McPherson   | Updating Shiny dashboards from Excel via mongoDB                    |
 | 2022-02-23            | Adam Ivison      | Extracting data from images using Python and the cloud              |
 | 2022-01-19            | Grace Libby      | Outputting accessible spreadsheets with R and `{openxlsx}`          |
 | 2021-12-15            | Helen O'Donnell /| Shiny, shiny, little star, make our data shine in R                 |
