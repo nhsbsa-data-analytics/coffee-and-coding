@@ -1,0 +1,426 @@
+---
+title: |
+  ![](BSA_report_header.jpg){width=100%}  
+    
+  Using R for the first time (Part II): Data Cleaning
+#author: ""
+#date: "2023-15-02"
+
+output: 
+  html_document:
+    css: "style/style.css"
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 16px;
+   font-family: sans-serif;
+}
+</style>
+<html lang="en">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Data cleaning is the process of preparing data for analysis by identifying and fixing problems with the data. This can include things like:
+
+  * removing missing or duplicate values
+  * correcting inaccuracies
+  * formatting data in a consistent way
+  
+Data cleaning is important because if the data is not cleaned, the results of any analysis or decision making using that data may be inaccurate or unreliable. It is a necessary and critical step in the data analysis process.
+
+# Load Packages and Data
+
+First we need to load our packages... Or in this case package. As discussed in the previous R for the first time session, Tidyverse is a powerful R library used for data manipulation and analysis. Therefore, it is capable of accomplishing all of the data cleaning steps by itself.
+
+If tidyverse is not already installed, we will need to install it first, otherwise we can just load the library straight away.
+
+```{r load packages, messages = FALSE, include = TRUE}
+#install.packages("tidyverse")
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+```
+
+Next, we import our dataset. Remember from the last session, we can do this using the function read_csv(...), entering our file path between the brackets and assigning the results to the variable data. This function is from the readr package which is automatically loaded in when you load tidyverse. We will also store our data as a data frame and use glimpse to have a quick look at the data imported.
+
+```{r load data}
+data <- read_csv("data_raw.csv")
+data <- as.data.frame(data)
+glimpse(data)
+```
+
+For this exercise, we are using some example survey data from Kaggle, collecting information around mental health in tech roles. Please see https://www.kaggle.com/datasets/osmi/mental-health-in-tech-2016 for more information. For the purposes of this exercise, some additional fields have been added.
+
+# Cleaning the data
+
+Printing the dataset by typing data, we notice a few issues with the data immediately, including:
+
+  * There are spaces and special characters such as a question mark in the column names. These are not allowed in column names because they can cause issues with syntax and make the column name harder to reference. Typically, the special characters are removed and spaces are replaced with a different character, such as an underscore, in order to be used in queries or code.
+  * There seems to be errors in certain columns, such as:
+    * In the column 'How many employees does your company or organization have?', on line 2 there is a date instead of an amount of employees specified. 
+    * In the column 'What is your gender?', there are multiple distinct entries for males, including "male", "Male" and "MALE".
+  * Finally, there are some NULL values, shown in R as NA, such as can be seen in line 1 for the column 'If yes, what condition(s) have you been diagnosed with?'.
+  
+Addressing each issue in order, we start with renaming the columns...
+
+## Renaming Columns
+
+To access the columns names of the dataset, we simply use the colnames function.
+
+```{r look at column names}
+colnames(data)
+```
+
+There are many ways to change the column names. We will use the dplyr package which also loaded automatically within the tidyverse package, and from that package we use the rename function. Remember from the previous coffee & coding session "Using R for the very first time" that when using dplyr we need to use a pipe (either |> or %>%) to pass our data from one function to the next. The key board short cut to create the pipe symbol is Ctrl+Shift+M
+
+```{r rename columns with rename}
+data <- data |> rename(
+  survey_date = "Survey Date",
+  age = "What is your age?", 
+  gender = "What is your gender?",
+  self_employed = "Are you self-employed?",
+  number_of_employees = "How many employees does your company or organization have?",
+  years_employed = "How many years have you worked for your current organization (or been self employed)?",
+  has_mental_health = "Do you currently have a mental health disorder?",
+  conditions = "If yes, what condition(s) have you been diagnosed with?"
+)
+```
+
+Printing the dataset, we can see that the names have been changed.(Note we could have just used head(data) here but instead used kable to format the output a little more user friendly for the markdown document.)
+
+```{r show data}
+kable(data, format = "html") |> 
+  kable_classic() |> 
+  kable_styling(bootstrap_options = c("striped", "hover",  "condensed", "responsive")) |> 
+  scroll_box(width = "100%", height = "400px")
+```
+
+## Convert Data Types
+
+Within data frames in R, there are different types of data that can be used. Some of the most common types are:
+
+  * Dates (date): This data type is used to hold dates.
+  * Integer (int): this is a whole number, like 1, 2, or -5.
+  * Numeric (dbl): this is a number with a decimal point, like 3.14 or -0.01.
+  * Logical (lgl): this is a type that can have only two values: True or False.
+  * Character or String (chr): this is a type that holds from a single character like "Y" up to sentences, like "Hello World". Strings can be enclosed in single or double quotes and can include letters, numbers, and symbols.
+
+Each column in a data frame has its own data type, and R automatically assigns a data type to a column when the data is loaded into the data frame. However, you can also explicitly specify the data type of a column when creating a data frame or convert the data type of a column later on.
+
+Each type of data has its own specific use and rules. For example, you can't apply maths with a word but you can with a number. It is important to use the right type of data in the right place so that the program can understand it and use it correctly.
+
+Finally, each data frame has an index which can be either an integer or a label, and it is used to identify and reference the rows of the data frame. In the above data, you can see the index on the far left, starting from 1 and ending at 1433.
+
+A good first check on any dataset is to check the associated type of each column to make sure it is as expected. We can do this by using the str function below.
+
+```{r show data types}
+str(data)
+```
+
+From the above we can see that the survey_date and age columns are incorrectly classified as characters, where they should be date and int respectively. Additionally, self_employed could be converted to a logical, where 1 = True and 0 = False.
+
+Before we convert the data types we need to check what values we have within the columns to see that they are suitable for conversion. We will do this using the unique function. Since we are looking at a specific column within our dataset we need to use the $ symbol to access it. We will start by checking the values in date.
+
+```{r survey date check}
+unique(data$survey_date)
+```
+
+All values here look to be of the same format which means we do not need to do anything further to this column before converting it. Next we look at age...
+
+```{r age check}
+unique(data$age)
+```
+Here we see there are three values where the number is written in text form instead of a numerical. We will change these before we convert this column to an integer type, otherwise R will replace them with NA during the conversion. 
+
+To change our data values we will again be using dplyr to 'pass' our data to the functions we want to apply, we use mutate first to say that we are going to be changing the data set and then we apply our functions within the mutate. The find and change the numbers written as text we will use a case_when statement, where we can specify conditions and the results we want for those conditions.
+
+```{r age fix}
+data <- data |> mutate(age = case_when(age == "twenty nine" ~ "29",
+                                       age == "forty three" ~ "43",
+                                       age == "thirty six" ~ "36",
+                                       TRUE ~ age))
+str_sort(unique(data$age))
+```
+By sorting the age column before viewing it, it was easier to search for the values were looking for.
+
+Finally we need to check the values in the self_employed column to check this is suitable for conversion to a logical.
+```{r self_employed check}
+unique(data$self_employed)
+```
+Since these are all 0 and 1 we are able to convert this without any further manipulation of the data.
+
+To convert survey_date into a date, we use the function as.Date(...) making sure we let the function know what format the date is currently in. Similarly, to convert self_employed to a logical we use as.logical(...). Finally to convert age in to an integer we use as.integer(...). We can do all three conversions inside a single mutate statement separating each with a comma.
+
+```{r change data types}
+data <- data |> mutate(survey_date = as.Date(survey_date, format = "%d/%m/%Y"),
+                       self_employed = as.logical(self_employed),
+                       age = as.integer(age))
+str(data)
+```
+## Detecting Outliers
+
+To detect outliers, we could take a count of each distinct value in a column and sort the count in descending order. We can easily do this in R using the count function within the dplyr package. If we take survey_date as an example and apply the count function we get:
+
+```{r count values in survery_date}
+data |> count(survey_date, sort = TRUE)
+```
+
+Here we can see that two future dates have been used: 2025-06-01 and 2023-05-01 which haven't occurred yet and must be wrong. We will deal with these in the next section.
+
+## Fixing Data Errors with Conditional Filtering
+
+To fix data errors, we either replace the error in question with:
+
+  * a NULL value, indicating that it is "non-applicable" or
+  * an appropriate value.
+  
+In the latter case, there a few options including the mean/median/mode of the column, the previous value and others. It's important to know your data before applying any of these, as any of these methods can lead to loss of information.
+
+Typically, we would go through each column of the data individually, identifying any errors and dealing with them.
+
+### Suvery Date
+
+Returning to the survey_date column from the previous section, we already identified that two future dates have been used: 2025-06-01 and 2023-05-01 which haven't occurred yet and must be a mistake. We can identify the row numbers where these errors occur using the which(...) function. 
+
+```{r find row indices in survery_date}
+which(data$survey_date == "2025-06-01" | data$survey_date == "2023-05-01")
+```
+Given that the dataset is a survey, we suspect that each row was entered chronologically as a new response came through. Therefore, we can inspect the previous rows of each error by specifying a list of index numbers to test our theory. Using the slice function in R supplying the row indices for each previous row separated by a comma gives us:
+
+```{r find surrounding values in survery_date}
+data |> slice(31, 37, 45, 53, 88, 140) |> select(survey_date)
+```
+
+As suspected, it looks like all of these responses should have occurred on the 1st Jan 2022. To replace these values we will again use an ifelse function which is similar to the case_when we used earlier but is a little simpler to use given we only have one replacement value to assign this time.
+
+```{r replace wrong survery_date}
+data <- data |> mutate(survey_date = ifelse(survey_date == "2025-06-01" | survey_date == "2023-05-01", "2022-01-01", survey_date))
+```
+We can check this worked by looking at the data in the rows where the incorrect dates used to be. We do this using slice again
+
+```{r check new value in survery_date}
+data |> slice(32, 38, 46, 54, 89, 141) |> select(survey_date)
+```
+
+As expected the survey_date on all these rows has been changed to "2022-01-01".
+
+### Age
+
+Next we will look at the Age column for any outlying data points. Putting our data in to context and remembering that it is survey data from employees from tech companies will help up to see if the values we have for age seem realistic. To start we will look at the counts of the distinct ages people have filled in. This time instead of looking at them in order of their count we will look at them in age order
+
+```{r count values in age}
+data |> count(age)
+```
+It seems unrealistic to think anyone under the age of 17 or above the age of 80 could be working in a tech firm and so we can see that there are some values in here which will need adjusting. This means we have decided to change the age value for the rows where it is 3, 15, 99 and 323. We will replace the values with the mean of all the ages in the data. We will do this using ifelse again but this time since there are many values to replace we will use %in% and c() to define a vector or list to check the age value against to see if it requires changing.
+
+```{r replace values in age}
+data <- data |> mutate(age = ifelse(age %in% c(3, 15, 99, 323), round(mean(age),0), age))
+```
+
+One way to check if this has worked would be to check our counts again as we would expect there to be 4 more counts for the mean age which is `r mean(data$age)` or 34 when rounded to an integer. Above we can see there were previously 69 people aged 34 and below we can see this has changed to 73 as expected.
+
+```{r count values in age again}
+data |> filter(age == 34) |> count(age)
+```
+
+### Gender
+
+Like we did with Age we will begin by looking at a count of all the different values in the gender column
+
+```{r count values in gender}
+data |> count(gender) |> 
+  kable(format = "html") |> 
+  kable_classic() |> 
+  kable_styling(bootstrap_options = c("striped", "hover",  "condensed", "responsive")) |> 
+  scroll_box(width = "100%", height = "400px")
+```
+
+We can see there are 66 different terms given for gender here. Typically, we would look to identify trends in the names to alter all of them into a single format. Here however, there is a lot of distinct response with no real pattern. Therefore, it is easiest to create two lists, one for the male values and one for the female values. Then we will use these lists to replace each value with either 'male' or 'female'. For all of the remaining responses, we can then categorise them as 'other'.
+
+```{r fix gender values}
+male <- c('Male', 'male', 'M', 'm', 'Cis Male', 'Cis male', 'man', 'ostensibly male, unsure what that really means', 'Mail', 'Make', 'male (cis)', 
+          'Male (cis)', 'cis male', 'maile', 'Malr', 'Cis Man', 'Mal', 'msle', 'male.', 'sex is male', 'malr', 'cis man', 'mail')
+
+female <- c('Female', 'female', 'F', 'f', 'Woman', 'Femake', 'Female (cis)', 'cis female', 'woman', 'femail', 
+            'cis-female/femme', 'i identify as female.', 'cis-woman', 'cisgender female', 'female (props for making this a freeform field, though)',
+            'female/woman', 'female assigned at birth')
+
+data <- data |> mutate(gender = case_when(is.na(gender) ~ NA,
+                                          gender %in% male ~ "male",
+                                          gender %in% female ~ "female",
+                                          TRUE ~ "other"))
+                       
+data |> count(gender, sort = TRUE)
+```
+
+### Self Employed Flag
+
+We checked the values in self-employed earlier before we set this to be a logical field and so when we apply the count here, as expected we only get TRUE or FALSE values.
+
+```{r count values in self_employed}
+data |> count(self_employed)
+```
+Additionally, we apply the count function to self_employed and number_of_employees together, to make sure nobody who is self employed has a value for number of employees. Thankfully, that is true here. However, from the number_of_employees column, we can see there are two incorrect values '2025-06-01 00:00:00' and '2023-05-01 00:00:00'.
+
+```{r count values in self_employed & employee count}
+data |> count(self_employed, number_of_employees)
+```
+### Number of Employees
+
+As part of our checks on the self_employed column we have already looked at our distinct values for this column and know we have incorrect values. To correct this we will again create a list of categories and assign all others to NA.
+```{r fix values in employee count}
+categories = c('26-100', '100-500', '500-1000', 'More than 1000')
+data <- data |> mutate(number_of_employees = ifelse(number_of_employees %in% categories, number_of_employees, NA))
+data |> count(number_of_employees)
+```
+
+### Years Employed
+
+As we go through the columns we see years_employed is strangely a numeric type, containing decimals and numbers. Therefore we can use summarise to see a few statistics about the field such as the min, max and mean.
+
+```{r look at years employed}
+data |> summarise(min_years_employed = min(years_employed),
+                  max_years_employed = max(years_employed),
+                  mean_years_employed = mean(years_employed))
+```
+
+None of the values look unreasonable here but this column would be better as an integer. Using as.integer() as we did with age earlier will truncate these values and just keep the integer part.
+
+```{r set years employed to be integer}
+data <- data |> mutate(years_employed = as.integer(years_employed))
+```
+
+### Has mental health Flag
+
+A quick look at the has_mental_health flag shows that it seems ok and no further manipulation is needed at this stage.
+```{r look at mental health flag}
+data |> count(has_mental_health)
+```
+
+### Conditions
+
+Finally we look at the last column in our data conditions. As we have gone through the data you may have spotted this is another free text field and so there will likely be many different responses here. 
+
+```{r look at conditions}
+data |> count(conditions, sort = TRUE) |> 
+  kable(format = "html") |> 
+  kable_classic() |> 
+  kable_styling(bootstrap_options = c("striped", "hover",  "condensed", "responsive")) |> 
+  scroll_box(width = "100%", height = "400px")
+
+```
+
+Looking at this in order of largest count first shows there are 865 null values. Out of curiosity, we check if this is when the person has specified they don't have mental health.
+
+```{r look at mental health flag and condtions}
+data |> filter(has_mental_health == "Yes" & is.na(conditions))
+```
+
+By applying a filter to our data to look at only the rows where has_mental_health is "Yes" and conditions is null we can see that only 7 of the 865 null values occur when the person has specified they do have mental health, and we would expect a null where has_mental_health is "No".
+
+## Null Values
+
+For the last step, we need to handle the NULL values within the dataset. NULL values exist where a value doesn't exist for that particular row/column. There are several techniques for handling missing data, depending on the specific situation and the type of data. Some common techniques include:
+
+  * Filling the missing value with an appropriate measure such as mean, median, or value from the previous row.
+  * Dropping the rows that contain the NULL values. This is only effective if there a small amount of rows to be removed, to not lead to loss of information.
+  * Dropping the columns that contains NULLs, often done if there are too many nulls to extract any insights from that column.
+  * Keeping the NULLs and filling with a placeholder such as -1 or NA to extract insights from where the values are NULL.
+  
+It's important to note that there isn't one best method to handle missing data, the best method will depend on the specific dataset and problem, it is recommended to try different methods and compare the results.
+
+To identify which columns contain nulls, we use the is.na() function within a summarise_all to tell us a count of nulls for each column. Note that the dot . (inside the is.na(.)) refers to what was handed over by the pipe, ie. the output of the last step which for us is just the whole dataset.
+
+```{r counts nulls}
+data |> summarise_all(funs(sum(is.na(.))))
+```
+Given the gender column has only three NULL values, we can simply remove these rows by filtering where the values are not null and assigning that back to data.
+```{r drop gender rows with nulls}
+data <- data |> filter(!is.na(gender))
+```
+On the flip side, conditions is made up mostly of NULLs but this is because the majority of the dataset have expressed that they don't have mental health, as we saw above. However, this field is very messy and is not likely to be useful for insights. Therefore, we can use select to drop this column in the following way
+```{r drop conditions column}
+data <- data |> select(-conditions)
+```
+Using the '-' sign in front of the column name tells R to drop this column from the dataset.
+
+Finally, for the number_of_employees column, we know there is a NULL value when the employee is self employed. Therefore, we can fill where this is true with a 'Self Employed' tag.
+```{r fill number of employees nulls where self employed}
+data <- data |> mutate(number_of_employees = ifelse(self_employed == TRUE & is.na(number_of_employees), "Self-employed", number_of_employees))
+```
+
+```{r counts nulls to check all gone}
+data |> summarise_all(funs(sum(is.na(.))))
+```
+From the above, there still exists 270 NULL values within number_of_employees so we fill this with an 'NA' placeholder.
+```{r fill remainder number of employees nulls}
+data <- data |> mutate(number_of_employees = ifelse(is_empty(number_of_employees), NA, number_of_employees))
+```
+Now that we have added that NA placeholder we can see that we have cleared all the null values and our data is ready to go on and analyse.
+```{r final null check}
+data |> summarise_all(funs(sum(is.na(.))))
+```
+# Bringing it all together
+Now we have been through all our columns and identified and dealt with all issues. It is worth noting the way in which we could have done this all in one go using dplyr and simply piping from one instruction to the next. Since we have already performed the modifications to our data we will bring in a new copy of the data for the purposes of showing the entire process in one go from the start.
+```{r bringing it all together}
+my_data <- read_csv("data_raw.csv")
+my_data <- as.data.frame(my_data)
+
+#We have already defined these earlier so no need to rerun them - just here for information
+# male <- c('Male', 'male', 'M', 'm', 'Cis Male', 'Cis male', 'man', 'ostensibly male, unsure what that really means', 'Mail', 'Make', 'male (cis)', 
+#           'Male (cis)', 'cis male', 'maile', 'Malr', 'Cis Man', 'Mal', 'msle', 'male.', 'sex is male', 'malr', 'cis man', 'mail')
+# 
+# female <- c('Female', 'female', 'F', 'f', 'Woman', 'Femake', 'Female (cis)', 'cis female', 'woman', 'femail', 
+#             'cis-female/femme', 'i identify as female.', 'cis-woman', 'cisgender female', 'female (props for making this a freeform field, though)',
+#             'female/woman', 'female assigned at birth')
+# 
+# categories = c('26-100', '100-500', '500-1000', 'More than 1000')
+
+my_data <- my_data |> 
+  #rename the columns
+  rename(
+    survey_date = "Survey Date",
+    age = "What is your age?", 
+    gender = "What is your gender?",
+    self_employed = "Are you self-employed?",
+    number_of_employees = "How many employees does your company or organization have?",
+    years_employed = "How many years have you worked for your current organization (or been self employed)?",
+    has_mental_health = "Do you currently have a mental health disorder?",
+    conditions = "If yes, what condition(s) have you been diagnosed with?" ) |> 
+  # change incorrect values
+  mutate(age = case_when(age == "twenty nine" ~ "29",
+                         age == "forty three" ~ "43",
+                         age == "thirty six" ~ "36",
+                         TRUE ~ age),
+         survey_date = ifelse(survey_date == "2025-06-01" | survey_date == "2023-05-01", "2022-01-01", survey_date)) |> 
+  # change data types
+  mutate(survey_date = as.Date(survey_date, format = "%d/%m/%Y"),
+         self_employed = as.logical(self_employed),
+         age = as.integer(age),
+         years_employed = as.integer(years_employed)) |> 
+  # fix outliers and sort categories out
+  mutate(age = ifelse(age %in% c(3, 15, 99, 323), round(mean(age),0), age),
+         gender = case_when(is.na(gender) ~ NA,
+                            gender %in% male ~ "male",
+                            gender %in% female ~ "female",
+                            TRUE ~ "other"),
+         number_of_employees = ifelse(number_of_employees %in% categories, number_of_employees, NA)) |> 
+  # deal with nulls
+  filter(!is.na(gender)) |> 
+  select(-conditions) |> 
+  mutate(number_of_employees = case_when(self_employed == TRUE & is.na(number_of_employees) ~ "Self-employed",
+                                         is_empty(number_of_employees) ~ NA,
+                                         TRUE ~ number_of_employees))
+```
+It is worth noting this could only be done in one go here because of the closer look we already had at each individual column.
