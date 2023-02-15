@@ -258,7 +258,7 @@ female <- c('Female', 'female', 'F', 'f', 'Woman', 'Femake', 'Female (cis)', 'ci
             'cis-female/femme', 'i identify as female.', 'cis-woman', 'cisgender female', 'female (props for making this a freeform field, though)',
             'female/woman', 'female assigned at birth')
 
-data <- data |> mutate(gender = case_when(is.na(gender) ~ NA,
+data <- data |> mutate(gender = case_when(is.na(gender) ~ NA_character_, #use this if just NA doesn't work - let's R know it's still character type 
                                           gender %in% male ~ "male",
                                           gender %in% female ~ "female",
                                           TRUE ~ "other"))
@@ -413,7 +413,7 @@ my_data <- my_data |>
          years_employed = as.integer(years_employed)) |> 
   # fix outliers and sort categories out
   mutate(age = ifelse(age %in% c(3, 15, 99, 323), round(mean(age),0), age),
-         gender = case_when(is.na(gender) ~ NA,
+         gender = case_when(is.na(gender) ~ NA_character_,
                             gender %in% male ~ "male",
                             gender %in% female ~ "female",
                             TRUE ~ "other"),
