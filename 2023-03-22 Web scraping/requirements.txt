@@ -2,7 +2,5 @@ pandas
 requests
 beautifulsoup4
 re
-tqdm
 matplotlib
-python-nltk
-nltk
+python-rake
