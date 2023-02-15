@@ -12,6 +12,7 @@
 #     "golem",
 #     "highcharter",
 #     "jsonlite",
+#     "kableExtra",
 #     "knitr",
 #     "leaflet",
 #     "lubridate",
@@ -48,7 +49,9 @@
 
 install.packages(
   c(
-    "tidyverse"
+    "tidyverse",
+    "kableExtra",
+    "knitr"
   )
 )
 
