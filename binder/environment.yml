@@ -9,3 +9,5 @@ dependencies:
     - beautifulsoup4
     - pandas
     - matplotlib
+    - nltk
+    - python-rake
