@@ -1,0 +1,6 @@
+pandas
+requests
+beautifulsoup4
+re
+matplotlib
+python-rake

@@ -1,11 +1,11 @@
+name: coffee_coding
 channels:
   - defaults
 
 dependencies:
   - pip
   - pip:
-    - matplotlib
-    - numpy
-    - openpyxl
+    - requests
+    - beautifulsoup4
     - pandas
-    - seaborn
+    - matplotlib
