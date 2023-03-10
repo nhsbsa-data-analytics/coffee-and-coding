@@ -28,12 +28,12 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------|
 | 2023-04-26            | Matthew Wilson   | Functions part 2 using `Purrr` package                              | 
-| 2023-03-15            | Kayoung Goffe    | Web scraping with Python                                           |  
+| 2023-03-15 *          | Kayoung Goffe    | Web scraping with Python                                           |  
 | 2023-02-15            | Lucy Sherwin     | R for the first time: Part 2                                        | 
 |                       | Robinson         |                                                                     |
 | 2023-01-25            | Ryan Leggett     | Python for the first time: Part 2                                   | 
 | 2022-12-14            | Graham Platten   | Data visualisation with `{ggplot2}`                                 |
-| 2022-11-23 *          | Mark McPherson   | RDP: Reproducible Dashboard Pipeline                                |
+| 2022-11-23            | Mark McPherson   | RDP: Reproducible Dashboard Pipeline                                |
   2022-10-19            | Ryan Leggett     | Beginners Python (Title TBC)                                        | 
 | 2022-09-28            | Adnan Shroufi    | Excel to R: Part two                                                | 
 | 2022-08-17            | Nikki Dodds      | R for the first time                                                |
