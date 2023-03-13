@@ -16,6 +16,7 @@ We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online
 
 * JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=lab)
 * RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=rstudio)
+* Google colab instance [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb)
 
 We also use GitHub Actions to automate the Binder build process.
 
