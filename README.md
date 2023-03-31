@@ -28,8 +28,8 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (* next session) | Host             | Title                                                               |
 | :-------------------- | :--------------  | :-------------------------------------------------------------------|
-| 2023-04-26            | Matthew Wilson   | Joining data in R                                                   | 
-| 2023-03-15 *          | Kayoung Goffe    | Web scraping with Python                                            |  
+| 2023-04-26 *          | Matthew Wilson   | Joining data in R                                                   | 
+| 2023-03-15            | Kayoung Goffe    | Web scraping with Python                                            |  
 | 2023-02-15            | Lucy Sherwin     | R for the first time: Part 2                                        | 
 |                       | Robinson         |                                                                     |
 | 2023-01-25            | Ryan Leggett     | Python for the first time: Part 2                                   | 
