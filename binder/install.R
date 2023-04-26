@@ -62,7 +62,8 @@ install.packages(
     "DBI",
     "nycflights13",
     "RSQLite",
-    "knitr"
+    "knitr",
+    "rmarkdown"
   )
 )
 
