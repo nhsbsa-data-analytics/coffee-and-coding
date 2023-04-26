@@ -47,11 +47,23 @@
 #    )
 #  )
 
+# install.packages(
+#   c(
+#     "tidyverse",
+#     "kableExtra",
+#     "knitr"
+#   )
+# )
+
 install.packages(
   c(
-    "tidyverse",
-    "kableExtra",
-    "knitr"
+    "dplyr",
+    "dbplyr",
+    "DBI",
+    "nycflights13",
+    "RSQLite",
+    "knitr",
+    "rmarkdown"
   )
 )
 
