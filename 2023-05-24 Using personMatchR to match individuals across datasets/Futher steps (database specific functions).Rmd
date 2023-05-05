@@ -1,0 +1,157 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Using personMatchR database functions to match individuals across database tables
+
+This notebook shows how the personMatchR package can be used to match individuals across two database tables rather than within data frames held in R.
+
+The database functions allow the database power to be leveraged, allowing much larger volumes of data to be used. For example, when developing the package, test cases across database tables containing 50 million records were producing results in under an hour.
+
+## Prerequisites
+
+It is recommended to have reviewed the "Using personMatchR (coffee-and-coding)" markdown document prior to this notebook to understand the basic principles of how the package works.
+
+The database functions have been created to work with the NHSBSA DWCP and DALP databases and therefore the relevant connection strings and user accounts will be required to allow connection to either of these using the [nhsbsaR](https://github.com/nhsbsa-data-analytics/nhsbsaR) package.
+
+## Example test case
+
+### Install packages and libraries
+
+In addition to the personMatchR package we will use the nhsbsaR package to connect to the database.
+
+```{r}
+# install.packages("devtools")
+devtools::install_github("nhsbsa-data-analytics/personMatchR")
+devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
+# load relevant libraries
+library("dplyr")
+library("dbplyr")
+library("DBI")
+```
+
+### Load data and transfer to database
+
+In absence of suitable large scale datasets we will simply transfer the test data that is included in the personMatchR package.
+
+```{r}
+# using nhsbsaR package to connect to NHSBSA DALP database
+con <- nhsbsaR::con_nhsbsa(database = "DALP")
+
+# define the user schema to be used to store test data
+user_schema <- "your_schema_name_here"
+
+# copy the test datasets to the database environment as a test case example
+# when creating tables specifying the field types is important
+DBI::dbWriteTable(con,
+                  DBI::Id(schema = user_schema, table = "PERSONMATCHR_INPUT_A"),
+                  personMatchR::TEST_DF_A,
+                  field.types = c(
+                    ID = "number(1,0)",
+                    SURNAME = "varchar(26 byte)",
+                    FORENAME = "varchar(26 byte)",
+                    POSTCODE = "varchar(128 byte)",
+                    DOB = "date"
+                  ))
+
+DBI::dbWriteTable(con,
+                  DBI::Id(schema = user_schema, table = "PERSONMATCHR_INPUT_B"),
+                  personMatchR::TEST_DF_B,
+                  field.types = c(
+                    ID = "number(1,0)",
+                    SURNAME = "varchar(26 byte)",
+                    FORENAME = "varchar(26 byte)",
+                    POSTCODE = "varchar(128 byte)",
+                    DOB = "date"
+                  ))
+
+# establish connection to tables within the database
+df_a <- con |> dplyr::tbl(from = dbplyr::in_schema(user_schema, "PERSONMATCHR_INPUT_A"))
+df_b <- con |> dplyr::tbl(from = dbplyr::in_schema(user_schema, "PERSONMATCHR_INPUT_B"))
+
+# review the tables as stored in database
+df_a |> dplyr::collect()
+df_b |> dplyr::collect()
+
+```
+
+
+### Format data
+
+One of the key stages of the matching using the database functions is ensuring the data is formatted prior to calling the matching functions as there is no option to apply formatting as part of the matching function.
+
+Please note, on large datasets the formatting functions may take a bit of time to complete execution
+
+```{r}
+# call the formatting functions
+df_a <- df_a |>
+  personMatchR::format_postcode_db(POSTCODE) |>
+  personMatchR::format_name_db(FORENAME) |>
+  personMatchR::format_name_db(SURNAME) |>
+  personMatchR::format_date_db(DOB)
+
+df_b <- df_b |>
+  personMatchR::format_postcode_db(POSTCODE) |>
+  personMatchR::format_name_db(FORENAME) |>
+  personMatchR::format_name_db(SURNAME) |>
+  personMatchR::format_date_db(DOB)
+
+# the formatted datasets should be written back to database to allow optimal performance
+df_a |> dplyr::compute(name = "PERSONMATCHR_INPUT_A_FORMAT", temporary = FALSE)
+df_b |> dplyr::compute(name = "PERSONMATCHR_INPUT_B_FORMAT", temporary = FALSE)
+
+
+# establish connection to formatted tables within the database
+df_a_fmt <- con |> dplyr::tbl(from = dbplyr::in_schema(user_schema, "PERSONMATCHR_INPUT_A_FORMAT"))
+df_b_fmt <- con |> dplyr::tbl(from = dbplyr::in_schema(user_schema, "PERSONMATCHR_INPUT_B_FORMAT"))
+
+
+# review the tables as stored in database
+df_a_fmt |> dplyr::collect()
+df_b_fmt |> dplyr::collect()
+```
+
+### Performing matching
+
+The matching function call is very similar to that used for matching across data frames. The key difference is that the calc_match_person_db() function call does not automatically trigger the execution. The actual processing activity will not be performed until the dplyr "compute" function is called to execute the code. This compute function will trigger the matching code and ensure the results are written to a database table where they can be accessed.
+
+```{r}
+#call the matching function
+df_output <- personMatchR::calc_match_person_db(
+  df_one = df_a_fmt, # first dataset
+  id_one = ID, # unique id field from first dataset
+  forename_one = FORENAME, # forename field from first dataset
+  surname_one = SURNAME, # surname field from first dataset
+  dob_one = DOB, # date of birth field from first dataset
+  postcode_one = POSTCODE, # postcode field from first dataset
+  df_two = df_b_fmt, # second dataset
+  id_two = ID, # unique id field from second dataset
+  forename_two = FORENAME, # forename field from second dataset
+  surname_two = SURNAME, # surname field from second dataset
+  dob_two = DOB, # date of birth field from second dataset
+  postcode_two = POSTCODE, # postcode field from second dataset
+  output_type = "key", # only return the key match results
+  inc_no_match = TRUE # return records from first dataset without matches
+)
+
+# the match results should be written back to database before being worked with
+df_output |> dplyr::compute(name = "PERSONMATCHR_OUTPUT", temporary = FALSE)
+
+```
+
+### Review match outputs
+
+The match outputs can be read from the database table they have been stored in. Depending on individual use cases, this data would likely require further processing to decide how the output should be used and whether any other datasets need to be joined.
+
+```{r}
+# review the match results
+con |>
+  dplyr::tbl(from = dbplyr::in_schema(user_schema, "PERSONMATCHR_OUTPUT")) |>
+  dplyr::collect()
+
+# close any active database connections
+DBI::dbDisconnect(con)
+```
