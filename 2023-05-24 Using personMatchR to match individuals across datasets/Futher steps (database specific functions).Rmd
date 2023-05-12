@@ -78,7 +78,6 @@ df_b |> dplyr::collect()
 
 ```
 
-
 ### Format data
 
 One of the key stages of the matching using the database functions is ensuring the data is formatted prior to calling the matching functions as there is no option to apply formatting as part of the matching function.

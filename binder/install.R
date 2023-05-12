@@ -63,10 +63,12 @@ install.packages(
     "nycflights13",
     "RSQLite",
     "knitr",
-    "rmarkdown"
+    "rmarkdown",
+    "lubridate"
   )
 )
 
 # Use devtools to install packages not on CRAN, e.g. from Github
-# install.packages("devtools")
-# devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
+install.packages("devtools")
+devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
+devtools::install_github("nhsbsa-data-analytics/personMatchR")
