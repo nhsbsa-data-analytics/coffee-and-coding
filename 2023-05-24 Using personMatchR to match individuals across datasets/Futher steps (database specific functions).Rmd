@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Using personMatchR to match individuals across database tables"
 output:
   html_document:
     df_print: paged
@@ -23,7 +23,7 @@ The database functions have been created to work with the NHSBSA DWCP and DALP d
 
 In addition to the personMatchR package we will use the nhsbsaR package to connect to the database.
 
-```{r}
+```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
 # install.packages("devtools")
 devtools::install_github("nhsbsa-data-analytics/personMatchR")
 devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
@@ -42,7 +42,7 @@ In absence of suitable large scale datasets we will simply transfer the test dat
 con <- nhsbsaR::con_nhsbsa(database = "DALP")
 
 # define the user schema to be used to store test data
-user_schema <- "your_schema_name_here"
+user_schema <- "YOUR_SCHEMA_NAME"
 
 # copy the test datasets to the database environment as a test case example
 # when creating tables specifying the field types is important

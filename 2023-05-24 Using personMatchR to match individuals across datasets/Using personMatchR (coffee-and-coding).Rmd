@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Using personMatchR to match individuals across data-sets"
 output:
   html_document:
     df_print: paged
@@ -35,7 +35,7 @@ Throughout this script we will look at how to use the personMatchR package acros
 
 This package has been published by the DALL team and can be installed from the [NHSBSA Data Analytics GitHub repository](https://github.com/nhsbsa-data-analytics/personMatchR "GitHub repository for the personMatchR package").
 
-```{r}
+```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
 # install.packages("devtools")
 devtools::install_github("nhsbsa-data-analytics/personMatchR")
 # load relevant libraries

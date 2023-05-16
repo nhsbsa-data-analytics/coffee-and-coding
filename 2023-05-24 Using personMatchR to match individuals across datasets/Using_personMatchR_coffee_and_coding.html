@@ -11,7 +11,7 @@
 
 
 
-<title>R Notebook</title>
+<title>Using personMatchR to match individuals across data-sets</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1568,23 +1568,17 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before {
-content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "\e259";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "";
-border: none;
-}
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "";
+content: "\e258";
 font-family: 'Glyphicons Halflings';
-display: inline-block;
-padding: 10px;
-border-right: 1px solid #ddd;
+border: none;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -1625,7 +1619,8 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">R Notebook</h1>
+<h1 class="title toc-ignore">Using personMatchR to match individuals
+across data-sets</h1>
 
 </div>
 
@@ -1674,27 +1669,10 @@ package across some example test cases.</p>
 from the <a href="https://github.com/nhsbsa-data-analytics/personMatchR" title="GitHub repository for the personMatchR package">NHSBSA Data
 Analytics GitHub repository</a>.</p>
 <pre class="r"><code># install.packages(&quot;devtools&quot;)
-devtools::install_github(&quot;nhsbsa-data-analytics/personMatchR&quot;)</code></pre>
-<pre><code>## Skipping install of &#39;personMatchR&#39; from a github remote, the SHA1 (f805799e) has not changed since last install.
-##   Use `force = TRUE` to force installation</code></pre>
-<pre class="r"><code># load relevant libraries
-library(&quot;dplyr&quot;)</code></pre>
-<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.2.3</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(&quot;lubridate&quot;)</code></pre>
-<pre><code>## Warning: package &#39;lubridate&#39; was built under R version 4.2.3</code></pre>
-<pre><code>## 
-## Attaching package: &#39;lubridate&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     date, intersect, setdiff, union</code></pre>
+devtools::install_github(&quot;nhsbsa-data-analytics/personMatchR&quot;)
+# load relevant libraries
+library(&quot;dplyr&quot;)
+library(&quot;lubridate&quot;)</code></pre>
 </div>
 <div id="example-test-case-using-the-personmatchr-package" class="section level2">
 <h2>Example test case using the personMatchR package</h2>
@@ -1745,10 +1723,7 @@ df_output &lt;- personMatchR::calc_match_person(
   format_data = TRUE, # format input datasets prior to matching
   inc_no_match = TRUE # return records from first dataset without matches
 )</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 4e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code># review results
 df_output |&gt; arrange(DF1_INPUT_ID, DF2_INPUT_ID)</code></pre>
 <div data-pagedtable="false">
@@ -1781,10 +1756,7 @@ df_output_type_match &lt;- personMatchR::calc_match_person(
   format_data = TRUE, inc_no_match = TRUE,
   output_type = &quot;match&quot;
 )</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 4e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code>df_output_type_match</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -1799,10 +1771,7 @@ df_output_type_all &lt;- personMatchR::calc_match_person(
   format_data = TRUE, inc_no_match = TRUE,
   output_type = &quot;all&quot;
 )</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 4e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code>df_output_type_all</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -1835,10 +1804,7 @@ df_output_excl_nomatch &lt;- personMatchR::calc_match_person(
   format_data = TRUE, output_type = &quot;key&quot;,
   inc_no_match = FALSE,
 )</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 4e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code>df_output_excl_nomatch</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -1874,11 +1840,8 @@ df_output_unformatted &lt;- personMatchR::calc_match_person(
 ## ℹ In argument: `DOB_SCORE = ifelse(...)`.
 ## Caused by warning in `ifelse()`:
 ## ! NAs introduced by coercion
-## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 4e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+## ℹ Run ]8;;ide:run:dplyr::last_dplyr_warnings()dplyr::last_dplyr_warnings()]8;; to see the 1 remaining warning.</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code>df_output_unformatted</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -1986,13 +1949,13 @@ the current date.</p>
 head(df_dob)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"1963-04-28","2":"1","_rn_":"1"},{"1":"1963-04-29","2":"2","_rn_":"2"},{"1":"1963-04-30","2":"3","_rn_":"3"},{"1":"1963-05-01","2":"4","_rn_":"4"},{"1":"1963-05-02","2":"5","_rn_":"5"},{"1":"1963-05-03","2":"6","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"1963-05-16","2":"1","_rn_":"1"},{"1":"1963-05-17","2":"2","_rn_":"2"},{"1":"1963-05-18","2":"3","_rn_":"3"},{"1":"1963-05-19","2":"4","_rn_":"4"},{"1":"1963-05-20","2":"5","_rn_":"5"},{"1":"1963-05-21","2":"6","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <pre class="r"><code>tail(df_dob)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"2005-04-23","2":"15337","_rn_":"15337"},{"1":"2005-04-24","2":"15338","_rn_":"15338"},{"1":"2005-04-25","2":"15339","_rn_":"15339"},{"1":"2005-04-26","2":"15340","_rn_":"15340"},{"1":"2005-04-27","2":"15341","_rn_":"15341"},{"1":"2005-04-28","2":"15342","_rn_":"15342"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"2005-05-11","2":"15337","_rn_":"15337"},{"1":"2005-05-12","2":"15338","_rn_":"15338"},{"1":"2005-05-13","2":"15339","_rn_":"15339"},{"1":"2005-05-14","2":"15340","_rn_":"15340"},{"1":"2005-05-15","2":"15341","_rn_":"15341"},{"1":"2005-05-16","2":"15342","_rn_":"15342"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>The four pieces of information can be linked together into a single
@@ -2011,7 +1974,7 @@ df_persons = data.frame(
 head(df_persons)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME_ID"],"name":[2],"type":["int"],"align":["right"]},{"label":["FORENAME_ID"],"name":[3],"type":["int"],"align":["right"]},{"label":["DOB_ID"],"name":[4],"type":["int"],"align":["right"]},{"label":["POSTCODE_ID"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"1","2":"5288","3":"4683","4":"13547","5":"18307","_rn_":"1"},{"1":"2","2":"2074","3":"4762","4":"3148","5":"17710","_rn_":"2"},{"1":"3","2":"6018","3":"1253","4":"421","5":"11902","_rn_":"3"},{"1":"4","2":"2380","3":"1628","4":"10401","5":"36547","_rn_":"4"},{"1":"5","2":"966","3":"5181","4":"7655","5":"42480","_rn_":"5"},{"1":"6","2":"5999","3":"5173","4":"14515","5":"45293","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME_ID"],"name":[2],"type":["int"],"align":["right"]},{"label":["FORENAME_ID"],"name":[3],"type":["int"],"align":["right"]},{"label":["DOB_ID"],"name":[4],"type":["int"],"align":["right"]},{"label":["POSTCODE_ID"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"1","2":"4540","3":"5485","4":"9848","5":"2131","_rn_":"1"},{"1":"2","2":"1028","3":"551","4":"9067","5":"31327","_rn_":"2"},{"1":"3","2":"2812","3":"2292","4":"7679","5":"4256","_rn_":"3"},{"1":"4","2":"1232","3":"4379","4":"6293","5":"35636","_rn_":"4"},{"1":"5","2":"451","3":"5645","4":"14934","5":"914","_rn_":"5"},{"1":"6","2":"540","3":"663","4":"14878","5":"42329","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <pre class="r"><code># link back to the sample data to extract the data for the random selections
@@ -2028,7 +1991,7 @@ df_persons = df_persons |&gt;
 head(df_persons)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[4],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"Tarr","3":"Elmyra","4":"2000-05-29","5":"NE9 6JH","_rn_":"1"},{"1":"2","2":"Foster","3":"Lilyan","4":"1971-12-09","5":"NE25 9QJ","_rn_":"2"},{"1":"3","2":"Youngman","3":"Sylvanus","4":"1964-06-21","5":"NE32 4XR","_rn_":"3"},{"1":"4","2":"Grieves","3":"Holland","4":"1991-10-18","5":"NE1 7LB","_rn_":"4"},{"1":"5","2":"Carline","3":"Shelia","4":"1984-04-11","5":"NE28 8HJ","_rn_":"5"},{"1":"6","2":"Wynn","3":"Leilani","4":"2003-01-22","5":"NE63 0PP","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[4],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"Rees","3":"Kathey","4":"1990-05-01","5":"NE3 5WJ","_rn_":"1"},{"1":"2","2":"Chaddock","3":"Miguel","4":"1988-03-11","5":"NE4 7SE","_rn_":"2"},{"1":"3","2":"Holly","3":"Carolyn","4":"1984-05-23","5":"NE12 0NX","_rn_":"3"},{"1":"4","2":"Comley","3":"Barbra","4":"1980-08-06","5":"NE33 4JX","_rn_":"4"},{"1":"5","2":"Beynon","3":"Mechelle","4":"2004-04-03","5":"NE25 0JN","_rn_":"5"},{"1":"6","2":"Bloomer","3":"Lafe","4":"2004-02-07","5":"NE2 1DQ","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -2103,10 +2066,7 @@ df_output_additional &lt;- personMatchR::calc_match_person(
   df_B_large_test, ID, FORENAME, SURNAME, DOB, POSTCODE,
   inc_no_match = TRUE, output_type = &quot;key&quot;, format_data = TRUE
 )</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 5e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code>df_output_additional |&gt; arrange(DF1_INPUT_ID, DF2_INPUT_ID)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -2130,7 +2090,7 @@ df_B_large_test &lt;- rbind(df_B_large_test, df_persons)
 head(df_B_large_test, n=10)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[4],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"O Brien","3":"Richard","4":"NE15 8NY","5":"1942-03-25","_rn_":"1"},{"1":"2","2":"Bloggs","3":"Joseph","4":"NE15 8NY","5":"1999-01-01","_rn_":"2"},{"1":"3","2":"Brown","3":"John","4":"NE15 8NY","5":"2001-11-01","_rn_":"3"},{"1":"4","2":"Dylan","3":"Neville","4":"NE15 8NY","5":"1941-05-24","_rn_":"4"},{"1":"5","2":"Buckley","3":"Stephen","4":"NE15 8NY","5":"2000-01-01","_rn_":"5"},{"1":"6","2":"O'Brien","3":"Richard","4":"NE15 8NY","5":"1972-03-25","_rn_":"6"},{"1":"7","2":"Boggs","3":"Joe","4":"NE15 8NY","5":"1999-01-01","_rn_":"7"},{"1":"8","2":"Smithers","3":"Genoveva","4":"NE16 5SY","5":"1975-04-24","_rn_":"8"},{"1":"9","2":"D'Oyley","3":"Tinnie","4":"NE28 0BU","5":"1983-08-20","_rn_":"9"},{"1":"10","2":"Murphey","3":"Lavon","4":"NE28 9DA","5":"1981-05-01","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[4],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"O Brien","3":"Richard","4":"NE15 8NY","5":"1942-03-25","_rn_":"1"},{"1":"2","2":"Bloggs","3":"Joseph","4":"NE15 8NY","5":"1999-01-01","_rn_":"2"},{"1":"3","2":"Brown","3":"John","4":"NE15 8NY","5":"2001-11-01","_rn_":"3"},{"1":"4","2":"Dylan","3":"Neville","4":"NE15 8NY","5":"1941-05-24","_rn_":"4"},{"1":"5","2":"Buckley","3":"Stephen","4":"NE15 8NY","5":"2000-01-01","_rn_":"5"},{"1":"6","2":"O'Brien","3":"Richard","4":"NE15 8NY","5":"1972-03-25","_rn_":"6"},{"1":"7","2":"Boggs","3":"Joe","4":"NE15 8NY","5":"1999-01-01","_rn_":"7"},{"1":"8","2":"Cowdery","3":"Tamra","4":"NE5 4TL","5":"2003-05-12","_rn_":"8"},{"1":"9","2":"Pitcher","3":"Karly","4":"NE15 7JA","5":"1986-06-03","_rn_":"9"},{"1":"10","2":"Clapp","3":"Niko","4":"NE34 8TA","5":"1978-10-02","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -2153,10 +2113,7 @@ head(df_B_large_test, n=10)</code></pre>
   format_data = TRUE, # format input datasets prior to matching
   inc_no_match = TRUE # return records from first dataset without matches
 )</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
-<pre><code>## [1] &quot;Final cross-join performed as less than 10m rows&quot;
-## [1] &quot;Cross-join size: 5e-06 million rows&quot;</code></pre>
-<pre><code>## Joining with `by = join_by(ID_ONE)`</code></pre>
+<pre><code>## [1] &quot;Final cross-join performed to maximise potential matches as would require less than 10m rows&quot;</code></pre>
 <pre class="r"><code>df_output_large_test |&gt; arrange(DF1_INPUT_ID, DF2_INPUT_ID)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
