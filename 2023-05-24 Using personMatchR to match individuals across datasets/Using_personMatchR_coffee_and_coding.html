@@ -1785,7 +1785,7 @@ df_output_type_all &lt;- personMatchR::calc_match_person(
 the first data-set that could not be matched to any records in the
 second data-set. The choice to use here will depend on the use case and
 whether or not this information would be useful, although excluding it
-is not needed could remove unnecessary records from the output, which
+if not needed could remove unnecessary records from the output, which
 may be beneficial for large data-sets.</p>
 <pre class="r"><code># inc_no_match = TRUE
 # data will be included where no match was possible
@@ -1949,13 +1949,13 @@ the current date.</p>
 head(df_dob)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"1963-05-16","2":"1","_rn_":"1"},{"1":"1963-05-17","2":"2","_rn_":"2"},{"1":"1963-05-18","2":"3","_rn_":"3"},{"1":"1963-05-19","2":"4","_rn_":"4"},{"1":"1963-05-20","2":"5","_rn_":"5"},{"1":"1963-05-21","2":"6","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"1963-05-17","2":"1","_rn_":"1"},{"1":"1963-05-18","2":"2","_rn_":"2"},{"1":"1963-05-19","2":"3","_rn_":"3"},{"1":"1963-05-20","2":"4","_rn_":"4"},{"1":"1963-05-21","2":"5","_rn_":"5"},{"1":"1963-05-22","2":"6","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <pre class="r"><code>tail(df_dob)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"2005-05-11","2":"15337","_rn_":"15337"},{"1":"2005-05-12","2":"15338","_rn_":"15338"},{"1":"2005-05-13","2":"15339","_rn_":"15339"},{"1":"2005-05-14","2":"15340","_rn_":"15340"},{"1":"2005-05-15","2":"15341","_rn_":"15341"},{"1":"2005-05-16","2":"15342","_rn_":"15342"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["DOB"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"2005-05-12","2":"15337","_rn_":"15337"},{"1":"2005-05-13","2":"15338","_rn_":"15338"},{"1":"2005-05-14","2":"15339","_rn_":"15339"},{"1":"2005-05-15","2":"15340","_rn_":"15340"},{"1":"2005-05-16","2":"15341","_rn_":"15341"},{"1":"2005-05-17","2":"15342","_rn_":"15342"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>The four pieces of information can be linked together into a single
@@ -1974,7 +1974,7 @@ df_persons = data.frame(
 head(df_persons)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME_ID"],"name":[2],"type":["int"],"align":["right"]},{"label":["FORENAME_ID"],"name":[3],"type":["int"],"align":["right"]},{"label":["DOB_ID"],"name":[4],"type":["int"],"align":["right"]},{"label":["POSTCODE_ID"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"1","2":"4540","3":"5485","4":"9848","5":"2131","_rn_":"1"},{"1":"2","2":"1028","3":"551","4":"9067","5":"31327","_rn_":"2"},{"1":"3","2":"2812","3":"2292","4":"7679","5":"4256","_rn_":"3"},{"1":"4","2":"1232","3":"4379","4":"6293","5":"35636","_rn_":"4"},{"1":"5","2":"451","3":"5645","4":"14934","5":"914","_rn_":"5"},{"1":"6","2":"540","3":"663","4":"14878","5":"42329","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME_ID"],"name":[2],"type":["int"],"align":["right"]},{"label":["FORENAME_ID"],"name":[3],"type":["int"],"align":["right"]},{"label":["DOB_ID"],"name":[4],"type":["int"],"align":["right"]},{"label":["POSTCODE_ID"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"1","2":"5211","3":"1210","4":"7624","5":"24109","_rn_":"1"},{"1":"2","2":"1379","3":"6782","4":"7820","5":"3021","_rn_":"2"},{"1":"3","2":"6016","3":"5646","4":"3856","5":"19893","_rn_":"3"},{"1":"4","2":"3100","3":"5461","4":"5843","5":"39494","_rn_":"4"},{"1":"5","2":"173","3":"5205","4":"5552","5":"28238","_rn_":"5"},{"1":"6","2":"985","3":"6008","4":"97","5":"2747","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <pre class="r"><code># link back to the sample data to extract the data for the random selections
@@ -1991,7 +1991,7 @@ df_persons = df_persons |&gt;
 head(df_persons)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[4],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"Rees","3":"Kathey","4":"1990-05-01","5":"NE3 5WJ","_rn_":"1"},{"1":"2","2":"Chaddock","3":"Miguel","4":"1988-03-11","5":"NE4 7SE","_rn_":"2"},{"1":"3","2":"Holly","3":"Carolyn","4":"1984-05-23","5":"NE12 0NX","_rn_":"3"},{"1":"4","2":"Comley","3":"Barbra","4":"1980-08-06","5":"NE33 4JX","_rn_":"4"},{"1":"5","2":"Beynon","3":"Mechelle","4":"2004-04-03","5":"NE25 0JN","_rn_":"5"},{"1":"6","2":"Bloomer","3":"Lafe","4":"2004-02-07","5":"NE2 1DQ","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["int"],"align":["right"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[4],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"Stubbs","3":"Nickolas","4":"1984-03-30","5":"NE9 6YY","_rn_":"1"},{"1":"2","2":"Craven","3":"Elianna","4":"1984-10-12","5":"NE5 1AL","_rn_":"2"},{"1":"3","2":"Yorke","3":"Shonda","4":"1973-12-05","5":"NE7 7BB","_rn_":"3"},{"1":"4","2":"Juggins","3":"Migdalia","4":"1979-05-15","5":"NE63 3DG","_rn_":"4"},{"1":"5","2":"Atwood","3":"April","4":"1978-07-28","5":"NE24 3XX","_rn_":"5"},{"1":"6","2":"Cartmell","3":"Siobhan","4":"1963-08-21","5":"NE7 7WX","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -2090,7 +2090,7 @@ df_B_large_test &lt;- rbind(df_B_large_test, df_persons)
 head(df_B_large_test, n=10)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[4],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"O Brien","3":"Richard","4":"NE15 8NY","5":"1942-03-25","_rn_":"1"},{"1":"2","2":"Bloggs","3":"Joseph","4":"NE15 8NY","5":"1999-01-01","_rn_":"2"},{"1":"3","2":"Brown","3":"John","4":"NE15 8NY","5":"2001-11-01","_rn_":"3"},{"1":"4","2":"Dylan","3":"Neville","4":"NE15 8NY","5":"1941-05-24","_rn_":"4"},{"1":"5","2":"Buckley","3":"Stephen","4":"NE15 8NY","5":"2000-01-01","_rn_":"5"},{"1":"6","2":"O'Brien","3":"Richard","4":"NE15 8NY","5":"1972-03-25","_rn_":"6"},{"1":"7","2":"Boggs","3":"Joe","4":"NE15 8NY","5":"1999-01-01","_rn_":"7"},{"1":"8","2":"Cowdery","3":"Tamra","4":"NE5 4TL","5":"2003-05-12","_rn_":"8"},{"1":"9","2":"Pitcher","3":"Karly","4":"NE15 7JA","5":"1986-06-03","_rn_":"9"},{"1":"10","2":"Clapp","3":"Niko","4":"NE34 8TA","5":"1978-10-02","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["SURNAME"],"name":[2],"type":["chr"],"align":["left"]},{"label":["FORENAME"],"name":[3],"type":["chr"],"align":["left"]},{"label":["POSTCODE"],"name":[4],"type":["chr"],"align":["left"]},{"label":["DOB"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"O Brien","3":"Richard","4":"NE15 8NY","5":"1942-03-25","_rn_":"1"},{"1":"2","2":"Bloggs","3":"Joseph","4":"NE15 8NY","5":"1999-01-01","_rn_":"2"},{"1":"3","2":"Brown","3":"John","4":"NE15 8NY","5":"2001-11-01","_rn_":"3"},{"1":"4","2":"Dylan","3":"Neville","4":"NE15 8NY","5":"1941-05-24","_rn_":"4"},{"1":"5","2":"Buckley","3":"Stephen","4":"NE15 8NY","5":"2000-01-01","_rn_":"5"},{"1":"6","2":"O'Brien","3":"Richard","4":"NE15 8NY","5":"1972-03-25","_rn_":"6"},{"1":"7","2":"Boggs","3":"Joe","4":"NE15 8NY","5":"1999-01-01","_rn_":"7"},{"1":"8","2":"Waghorn","3":"Gordon","4":"NE15 6ET","5":"1982-09-24","_rn_":"8"},{"1":"9","2":"Abram","3":"Terry","4":"NE99 1JA","5":"1998-09-08","_rn_":"9"},{"1":"10","2":"Lewington","3":"Harve","4":"NE23 6AF","5":"1972-12-17","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>

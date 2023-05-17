@@ -122,7 +122,7 @@ df_output_type_all
 
 ### Parameter focus: inc_no_match
 
-This parameter will define if the results should include records from the first data-set that could not be matched to any records in the second data-set. The choice to use here will depend on the use case and whether or not this information would be useful, although excluding it is not needed could remove unnecessary records from the output, which may be beneficial for large data-sets.
+This parameter will define if the results should include records from the first data-set that could not be matched to any records in the second data-set. The choice to use here will depend on the use case and whether or not this information would be useful, although excluding it if not needed could remove unnecessary records from the output, which may be beneficial for large data-sets.
 
 ```{r}
 # inc_no_match = TRUE
