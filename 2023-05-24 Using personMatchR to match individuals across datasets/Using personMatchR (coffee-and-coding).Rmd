@@ -37,7 +37,7 @@ This package has been published by the DALL team and can be installed from the [
 
 ```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
 # install.packages("devtools")
-devtools::install_github("nhsbsa-data-analytics/personMatchR")
+# devtools::install_github("nhsbsa-data-analytics/personMatchR")
 # load relevant libraries
 library("dplyr")
 library("lubridate")
