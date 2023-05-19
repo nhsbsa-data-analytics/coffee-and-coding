@@ -51,24 +51,25 @@
 #   c(
 #     "tidyverse",
 #     "kableExtra",
-#     "knitr"
+#     "knitr",
+# 	  "dbplyr",
+#     "DBI",
+#     "nycflights13",
+#     "RSQLite",
 #   )
 # )
 
 install.packages(
   c(
     "dplyr",
-    "dbplyr",
-    "DBI",
-    "nycflights13",
-    "RSQLite",
     "knitr",
     "rmarkdown",
-    "lubridate"
+    "lubridate",
+	"devtools"
   )
 )
 
 # Use devtools to install packages not on CRAN, e.g. from Github
-install.packages("devtools")
-devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
+#install.packages("devtools")
+# devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
 devtools::install_github("nhsbsa-data-analytics/personMatchR")
