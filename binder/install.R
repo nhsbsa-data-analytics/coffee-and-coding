@@ -65,11 +65,12 @@ install.packages(
     "knitr",
     "rmarkdown",
     "lubridate",
-	"devtools"
+	"devtools",
+	"data.table"
   )
 )
 
 # Use devtools to install packages not on CRAN, e.g. from Github
-#install.packages("devtools")
+# install.packages("devtools")
 # devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
 devtools::install_github("nhsbsa-data-analytics/personMatchR")
