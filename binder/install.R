@@ -65,8 +65,7 @@ install.packages(
     "knitr",
     "rmarkdown",
     "lubridate",
-	"devtools",
-	"data.table"
+	"devtools"
   )
 )
 
