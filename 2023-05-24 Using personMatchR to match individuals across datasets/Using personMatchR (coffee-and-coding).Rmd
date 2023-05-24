@@ -36,8 +36,15 @@ Throughout this script we will look at how to use the personMatchR package acros
 This package has been published by the DALL team and can be installed from the [NHSBSA Data Analytics GitHub repository](https://github.com/nhsbsa-data-analytics/personMatchR "GitHub repository for the personMatchR package").
 
 ```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
-# install.packages("devtools")
-# devtools::install_github("nhsbsa-data-analytics/personMatchR")
+install.packages("lubridate")
+install.packages("dplyr")
+install.packages("devtools")
+devtools::install_github("nhsbsa-data-analytics/personMatchR")
+```
+
+Load the relevant libraries required for this session
+
+```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
 # load relevant libraries
 library("dplyr")
 library("lubridate")
@@ -179,7 +186,7 @@ head(df_A_formatted)
 
 ## Testing across a larger data-set
 
-In the example above we were comparing two data-sets with only a handful of records which would be easy to manually compare, but this package is useful when we may have thousands of records to compare. To give it a harder test we could look for individuals within a data-set containing 500 thousand records.
+In the example above we were comparing two data-sets with only a handful of records which would be easy to manually compare, but this package is useful when we may have thousands of records to compare. To give it a harder test we could look for individuals within a data-set containing 100 thousand records.
 
 ***Note: the matching functions for data frames are suitable for data-sets up to around 1 million records before system memory/performance issues may be encountered. For much larger data-sets storing the data in database tables and using the database matching functions from personMatchR would be recommended.***
 
@@ -239,7 +246,7 @@ The four pieces of information can be linked together into a single data-frame t
 
 ```{r}
 # set a sample size for how many records we want
-sample_size = 500000
+sample_size = 100000
 
 # create a data-frame containing random numbers
 df_persons = data.frame(
