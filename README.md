@@ -28,7 +28,9 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2023-05-24 \*          | Steven Buckley                   | Person matching in R - introducing the personMatchR package |
+| 2023-07-26             | Kayoung Goffe                    | {purrr}                                                     | 
+| 2023-06-21 \*          | Mihail Garbuzov                  | Introduction to regular expressions using R                 |
+| 2023-05-24             | Steven Buckley                   | Person matching in R - introducing the personMatchR package |
 | 2023-04-26             | Matthew Wilson                   | Joining data in R                                           |
 | 2023-03-15             | Kayoung Goffe                    | Web scraping with Python                                    |
 | 2023-02-15             | Lucy Sherwin Robson              | R for the first time: Part 2                                |
