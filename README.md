@@ -12,7 +12,18 @@ The goal of these sessions is to provide a relaxed environment to share new skil
 
 ### Tools
 
-We will utilise [Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) as a free online interactive environment to execute code in online. If you are playing along, depending on the session then please launch either:
+If you are playing along there are a couple of free online interactive environments that can, depending on the session, be used to allow access to the materials to code along.
+
+**Posit Cloud RStudio Environment**
+
+This online tool requires the user to have a free account and will allow a project to be created based on this git repository:
+
+-   [Posit cloud login](https://posit.cloud/content/yours?sort=name_asc)
+-   [Guide to using posit cloud](posit%20cloud%20rstudio/Using%20Posit%20Cloud%20RStudio%20environment.pdf)
+
+**Binder**
+
+[Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) is a free online interactive environment to execute code in online with no signup or user accounts required. Launch the version which suits the session you are attending:
 
 -   JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=lab)
 -   RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=rstudio)
