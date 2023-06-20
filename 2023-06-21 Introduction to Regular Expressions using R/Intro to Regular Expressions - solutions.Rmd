@@ -1,0 +1,113 @@
+---
+title: "Introduction to Regular Expressions"
+author: "Mihail Garbuzov"
+date: "2023-06-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+library(dplyr)
+library(stringr)
+```
+
+## Exercise problem solutions
+
+# People's names
+
+Write a pattern that matches a person's forename and surname as part of a wider text. What disadvantages would this method have?
+
+```{r}
+"In 1831, Charles Darwin embarked on a voyage aboard a ship employed as a naturalist." |>
+  str_view("[:upper:][:lower:]+\\s[:upper:][:lower:]+")
+
+# Won't match a full name if any middle names are present
+# Will unintentionally match non-person's names, e.g. Crystal Palace
+```
+
+# Assignment numbers and NINs
+
+In ESR data, employees have assignment numbers with role IDs, which have a pattern `11111111-11` (where the role ID after the hyphen is optional) and national insurance numbers, which have a pattern `AA111111A`. In a pension opt-out dataset we have had to work with in the past, there was an `employee_id` column, which included one or the other of these. Write patterns that label the type of number in `employee_id`.
+
+```{r}
+df <- tibble(
+  employee_id = c("13654789-01", "16345628", "ZX364578A", "07599999999")
+)
+
+df |> mutate(
+  employee_id_type = case_when(
+    str_detect(employee_id, "^\\d{8}(-\\d{2})?$") ~ "Assignment No.",
+    str_detect(employee_id, "^\\w{2}\\d{6}\\w{1}$") ~ "NIN",
+    T ~ "Other"
+  )
+)
+
+```
+
+# NHS numbers
+
+Write a pattern that matches valid NHS numbers only. A valid number consists of 10 digits, but there are some invalid dummy numbers, such as 0000000000, 1111111111, etc.
+
+```{r}
+
+df <- tibble(
+  nhs_no = c("7893544451", "0000000000")
+)
+
+df |> mutate(
+  nhs_no_type = case_when(
+    str_detect(nhs_no, "^\\d{10}$") & !str_detect(nhs_no, "^(\\d)(\\1){9}$") ~ "Valid",
+    T ~ "Invalid"
+  )
+)
+
+```
+
+# Email logins
+
+Write a piece of code that extracts login names from email addresses that occur in a wider text. There are at least two methods of doing this.
+
+```{r }
+"My email is mihail.garbuzov@nhsbsa.nhs.uk." |>
+  str_extract("([\\w\\.]+)@[\\w\\.]+\\w+", group = 1) # Using a capturing group
+
+"My email is mihail.garbuzov@nhsbsa.nhs.uk." |>
+  str_extract("[\\w\\.]+(?=@[\\w\\.]+\\w+)") # Using lookahead
+
+```
+
+# UK postcodes
+
+UK postcodes may come in various formats, listed below
+
+A0 0AA, A00 0AA, AA0 0AA, AA00 0AA, A0A 0AA, AA0A 0AA
+
+Write a piece of code with one or more Regex patterns to valid postcodes. What is a limitation of this method?
+
+```{r}
+postcodes <- c(
+  "A0 0AA",
+  "A00 0AA",
+  "AA0 0AA",
+  "AA00 0AA",
+  "A0A 0AA",
+  "AA0A 0AA",
+  # invalid formats included for testing
+  "A0AA 0AA",
+  "A00A 0AA"
+)
+
+str_view(postcodes, "[A-Z]{1,2}[0-9][A-Z0-9]? [0-9][A-Z]{2}", match = NA)
+
+# Explanation: the first half begins with 1-2 letters followed by a digit,
+# after which there is either a second digit, a letter or nothing.
+# Two halves are separated by a space, which is optional, making the pattern more robust
+# The second half is always strictly made of one digit and two letters
+
+# Limitation is that while Regex may validate a format, it doesn't guarantee a 
+# postcode is real and existing.
+```

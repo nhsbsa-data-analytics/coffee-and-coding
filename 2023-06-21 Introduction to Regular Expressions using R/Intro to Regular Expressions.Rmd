@@ -1,0 +1,305 @@
+---
+title: "Introduction to Regular Expressions"
+author: "Mihail Garbuzov"
+date: "2023-06-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+library(dplyr)
+library(stringr)
+```
+
+## Introduction
+
+Regular expressions are sequences that specify matching patterns in text. They are implemented in many programming languages.
+
+We will mostly be using the helper function `str_view()` from the package `stringr` to view matched patterns in strings.
+
+For example, match a letter "b" (case-sensitive) in three strings, two of which contain a "b". The option `match = NA` ensures all strings are returned in the output, even those that do not contain any matched patterns.
+
+```{r }
+c("abc", "bcd", "cde") |> str_view("b", match = NA)
+```
+
+## Matching one vs. all patterns
+
+In the earlier versions of `stringr` there were two functions `str_view()` and `str_view_all()`, which matched the first and all patterns, respectively. In the most recent version at the time of writing (1.5.0), `str_view()` behaves like the deprecated `str_view_all()`, i.e. matches all patterns.
+
+(This appears an unintended behaviour and an [issue](https://github.com/tidyverse/stringr/issues/505) is raised to rectify it.)
+
+```{r }
+str_view("xyyyz", "y") # Matches all three occurrences of "y"
+```
+
+Once a regular expression is developed and tested using the viewing function to ensure correct behaviour, matched patterns can be extracted, replaced or removed. The functions to do this still support the distinction between using only the first matched pattern, or all matched patterns.
+
+```{r }
+str_extract("axcx", "x") # Extracts only the first matched occurrence
+```
+
+```{r }
+str_extract_all("axcx", "x") # Extracts all matched occurrences
+```
+
+## Matching classes
+
+Simple examples above used a matching pattern consisting of only one letter. We can specify a whole range of possible characters permissible at one position in a string. This is known as a *class* an is simply listed in square brackets.
+
+```{r}
+c("xax", "xbx", "xcx", "xdx", "xex") |> str_view("[acd]", match=NA)
+```
+
+A non-abstract example would be a pattern `gr[ae]y`, which would match both a British and an American spelling of the word grey/gray.
+
+A class can also include a list of characters as a range, e.g. `[a-z]` includes all lowercase letters, `[A-Z]` includes all uppercase letters, `[0-9]` includes all digits. One class can include multiple ranges and/or multiple characters.
+
+```{r}
+str_view("abcdeABCDE12345", "[a-ceAC-E2-4]") # All occurrences of characters allowed in a class
+```
+
+Regex has a few shortcuts for some commonly used classes: `w` ('words' characters) includes all letters, all digits and the underscore `_`, `d` includes digits, `s` is a space. In R, these have to be preceded by two backslashes, but in other languages (e.g. SLQ) only one backslash.
+
+```{r}
+str_view("a1b2c3", "\\d") # All occurrences of digits
+```
+
+Furthermore, there are locale-specific (POSIX) class shortcuts, e.g. `[:alnum:]` is similar to `\\w`, but does not include the underscore, `[:digit:]` is equivalent to `\\d` and `[0-9]`, `[:space:]` is equivalent to `\\s`. Extended shortcuts include, for example, `[:punct:]`, which includes various punctuation characters, or `[:graph:]` which is a union of `[:alnum:]` and `[:punct:]`. (For full reference see `?regex`)
+
+Any class shortcuts or ranges can be unioned as required.
+
+```{r}
+str_view("abcABC!?;", "[a-z[:punct:]]") # All occurrences of lowercase letters and punctuation marks
+```
+
+## Class negations
+
+A class can also be specified by defining what NOT to include, which is known as negation.
+
+```{r}
+str_view("xaxbxc", "[^abc]") # Negate letters a, b, c
+```
+
+Regex class shortcuts (`\\w`, `\\d`, `\\s`) can be negated by capitalising them.
+
+```{r}
+str_view("1a1b1c", "\\D") # Negate all digits using a Regex class shortcut
+```
+
+POSIX class shortcuts can be negated using `^`.
+
+```{r}
+# Match all occurrences of characters other than punctuation marks
+str_view("abcABC!?;", "[^[:punct:]]") 
+```
+
+## Quantification
+
+Up to now, we've used only single letters or classes in the patterns. When a permissible character occurs in the string more than once, `str_view()` will match all occurrences, whereas other functions might match only the first occurrence. It is therefore important to understand the distinction between matching multiple characters in multiple occurrences vs. matching multiple characters in one occurrence.
+
+For example, the code below would match all occurrences (of which there are three) of letters in the range `b-d`, each occurrence being one-character long.
+
+```{r}
+str_view("abcde", "[b-d]")
+```
+
+Whereas this code would match all occurrences (of which there is only one), where one or more letters from the range `b-e` occur together.
+
+```{r}
+str_view("abcde", "[b-d]+")
+```
+
+Above, `+` is one of the ways to quantify how many times a preceding element or class is allowed to be repeated in the string.
+
+-   `?` - 0 or 1 time
+-   `*` - 0+ times
+-   `+` - 1+ times
+-   `{n}` - Exactly *n* times
+-   `{n,}` - At least *n* times
+-   `{,m}` - At most *m* times
+-   `{n,m}` - At least *n*, but no more than *m* times
+
+For example, match both British and American spellings of colour/color.
+
+```{r}
+c("color", "colour") |> str_view("colou?r")
+```
+
+Match "x" when it occurs 3 or 4 times in a row
+
+```{r}
+str_view("x xx xxx xxxx xxxxx", "x{3,4}")
+```
+
+## Wildcard
+
+Wildcard is specified by `.` and will match any character.
+
+```{r}
+str_view("axc", "a.c")
+```
+
+## Anchors at the start or the end of a string
+
+Patterns preceded by `^` are matched only if they are located at the start of the string, and those followed by `$` are matched only if they are located at the end.
+
+```{r}
+c("abc", "xabc") |> str_view("^abc", match = NA)
+```
+
+## Anchors at the start or end of a word
+
+Similar to the above, a word boundary (a non-word character followed by a word character or *vice versa*) can be used to anchor matching patterns. `\\b` is a word boundary and `\\B` is its negation. For example, match "bank", but only when it is a word on its own, or only when it is a part of a larger word.
+
+```{r}
+c("bank", "embankment") |> str_view("\\bbank\\b", match = NA)
+```
+
+```{r}
+c("bank", "embankment") |> str_view("\\Bbank\\B", match = NA)
+```
+
+## Escaping metacharacters
+
+To match literal characters reserved by the Regex engine for special purposes (such as the `.` wildcard) they need to be preceded by two forward slashes.
+
+```{r}
+str_view("This is a sentence.", "\\.")
+```
+
+## Alternation logic and capturing
+
+Alternation logic is specified using `|`, e.g. match either the word "cats" or "dogs" (in plural) as part of a larger string:
+
+```{r}
+c("two cats", "three dogs") |> str_view("cats|dogs")
+```
+
+To use alteration logic as part of the larger pattern, it needs to be wrapped in round brackets.
+
+```{r}
+c("two cats", "three dogs") |> str_view(".*(cats|dogs)")
+```
+
+When a group of characters is wrapped in round brackets (regardless of whether it includes alternation or not), it is *captured* and is called a *capturing group*. A capturing group can be re-used (back-referenced) elsewhere in the pattern. The first capturing group in a pattern is referred to using `\\1`, the second using `\\2`, etc. In the example below, capturing and back-referencing detect a (four-letter) palindrome:
+
+```{r}
+c("noon", "deed") |> str_view("(\\w)(\\w)\\2\\1")
+```
+
+In longer expressions with many capturing groups it is easy to lose track of their sequential number. For greater ease of referencing, they can be named and back-referenced by name instead.
+
+```{r}
+c("noon", "deed") |> str_view("(?<first>\\w)(?<second>\\w)\\k<second>\\k<first>")
+```
+
+If we need to use the alteration logic for more than one character (which must be in round brackets and is therefore captured by default), but do not want the group to be captured, we can negate capturing using `(?:)`. For example, detect a four-letter palindrome preceded by either "high" or good".
+
+```{r}
+c("high noon", "good deed") |> str_view("(?:high|good)\\s(\\w)(\\w)\\2\\1")
+```
+
+## Look-ahead and look-behind
+
+These are essentialy four types of qualifier for a target pattern, i.e. match a target pattern, but only when it's either preceded/not preceded, followed/not followed by a qualifying pattern.
+
+-   `x(?=y)` - match "x" only when followed by "y"
+-   `x(?!y)` - match "x" only when NOT followed by "y"
+-   `(?<=y)x` - match "x" only when preceded by "y"
+-   `(?<!y)x` - match "x" only when NOT preceded by "y"
+
+For example, we might use one of these to extract prices of items from text, when a number (a target pattern) is preceded by £ (a qualifying pattern).
+
+```{r}
+c("The total amount due for 10 items is £50.") |> str_view("(?<=£)\\d+")
+```
+
+# Exercise problems
+
+## People's names
+
+Write a pattern that matches a person's forename and surname as part of a wider text. What disadvantages would this method have?
+
+```{r}
+"In 1831, Charles Darwin embarked on a voyage aboard a ship employed as a naturalist." |>
+  str_view("...")
+
+```
+
+## Assignment numbers and NINs
+
+In ESR data, employees have assignment numbers with role IDs, which have a pattern `11111111-11` (where the role ID after the hyphen is optional) and national insurance numbers, which have a pattern `AA111111A`. In a pension opt-out dataset we have had to work with in the past, there was an `employee_id` column, which included one or the other of these. Write patterns that label the type of number in `employee_id`.
+
+```{r}
+df <- tibble(
+  employee_id = c("13654789-01", "16345628", "ZX364578A", "07599999999")
+)
+
+df |> mutate(
+  employee_id_type = case_when(
+    str_detect(employee_id, "...") ~ "Assignment No.",
+    str_detect(employee_id, "...") ~ "NIN",
+    T ~ "Other"
+  )
+)
+
+```
+
+## NHS numbers
+
+Write a pattern that matches valid NHS numbers only. A valid number consists of 10 digits, but there are some invalid dummy numbers, such as 0000000000, 1111111111, etc.
+
+```{r}
+
+df <- tibble(
+  nhs_no = c("7893544451", "0000000000")
+)
+
+df |> mutate(
+  nhs_no_type = case_when(
+    str_detect(nhs_no, "...") & ...? ~ "Valid",
+    T ~ "Invalid"
+  )
+)
+
+```
+
+## Email logins
+
+Write a piece of code that extracts login names from email addresses that occur in a wider text. There are at least two methods of doing this.
+
+```{r }
+"My email is mihail.garbuzov@nhsbsa.nhs.uk." |>
+  str_extract("...")
+
+```
+
+## UK postcodes
+
+UK postcodes may come in various formats, listed below
+
+A0 0AA, A00 0AA, AA0 0AA, AA00 0AA, A0A 0AA, AA0A 0AA
+
+Write a piece of code with one or more Regex patterns to valid postcodes. What is a limitation of this method?
+
+```{r}
+postcodes <- c(
+  "A0 0AA",
+  "A00 0AA",
+  "AA0 0AA",
+  "AA00 0AA",
+  "A0A 0AA",
+  "AA0A 0AA",
+  # invalid formats included for testing
+  "A0AA 0AA",
+  "A00A 0AA"
+)
+
+str_view(postcodes, "...", match = NA)
+
+```
