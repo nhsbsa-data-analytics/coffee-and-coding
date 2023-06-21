@@ -27,7 +27,7 @@ For example, match a letter "b" (case-sensitive) in three strings, two of which 
 c("abc", "bcd", "cde") |> str_view("b", match = NA)
 ```
 
-## Matching one vs. all patterns
+## Matching one vs. all occurrences
 
 In the earlier versions of `stringr` there were two functions `str_view()` and `str_view_all()`, which matched the first and all patterns, respectively. In the most recent version at the time of writing (1.5.0), `str_view()` behaves like the deprecated `str_view_all()`, i.e. matches all patterns.
 
