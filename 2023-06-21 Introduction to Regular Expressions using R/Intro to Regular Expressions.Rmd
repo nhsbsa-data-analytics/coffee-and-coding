@@ -183,7 +183,7 @@ c("two cats", "three dogs") |> str_view("cats|dogs")
 To use alteration logic as part of the larger pattern, it needs to be wrapped in round brackets.
 
 ```{r}
-c("two cats", "three dogs") |> str_view(".*(cats|dogs)")
+c("two cats", "three dogs") |> str_view("[ehortw]+\\s(cats|dogs)")
 ```
 
 When a group of characters is wrapped in round brackets (regardless of whether it includes alternation or not), it is *captured* and is called a *capturing group*. A capturing group can be re-used (back-referenced) elsewhere in the pattern. The first capturing group in a pattern is referred to using `\\1`, the second using `\\2`, etc. In the example below, capturing and back-referencing detect a (four-letter) palindrome:
