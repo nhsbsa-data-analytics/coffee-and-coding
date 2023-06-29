@@ -39,8 +39,10 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2023-07-26             | Kayoung Goffe                    | {purrr}                                                     | 
-| 2023-06-21 \*          | Mihail Garbuzov                  | Introduction to regular expressions using R                 |
+| 2023-09-20             | Adnan Shroufi                    | How to load and use `{addressMatchR}`                       | 
+| 2023-08-               | TBC                              | TBC                                                         |
+| 2023-07-26    \*       | Kayoung Goffe                    | Introduction to `{purrr}` in R                              | 
+| 2023-06-21             | Mihail Garbuzov                  | Introduction to regular expressions using R                 |
 | 2023-05-24             | Steven Buckley                   | Person matching in R - introducing the personMatchR package |
 | 2023-04-26             | Matthew Wilson                   | Joining data in R                                           |
 | 2023-03-15             | Kayoung Goffe                    | Web scraping with Python                                    |
@@ -48,7 +50,7 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 | 2023-01-25             | Ryan Leggett                     | Python for the first time: Part 2                           |
 | 2022-12-14             | Graham Platten                   | Data visualisation with `{ggplot2}`                         |
 | 2022-11-23             | Mark McPherson                   | RDP: Reproducible Dashboard Pipeline                        |
-| 2022-10-19             | Ryan Leggett                     | Beginners Python (Title TBC)                                |
+| 2022-10-19             | Ryan Leggett                     | Beginners Python                                |
 | 2022-09-28             | Adnan Shroufi                    | Excel to R: Part two                                        |
 | 2022-08-17             | Nikki Dodds                      | R for the first time                                        |
 | 2022-06-22             | Kayoung Goffe                    | Exploring Python with R using `{reticulate}`                |
