@@ -1,0 +1,382 @@
+---
+title: "Purrr beginners guide"
+author: "Kayoung Goffe"
+date: "2023-08-09"
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  html_notebook:
+    theme: flatly
+    toc: yes
+    toc_float: yes
+    toc_depth: 3
+---
+
+------------------------------------------------------------------------
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+Install packages (for posit)
+```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
+# install.packages("purrr")
+# install.packages("dplyr")
+# install.packages("repurrrsive")
+# install.packages("readr")
+# install.packages("ggplot2")
+```
+
+```{r}
+library(purrr)
+library(dplyr)
+library(repurrrsive)
+library(readr)
+library(ggplot2)
+```
+
+
+## Introduction
+
+`purrr` is an R package promoting functional programming with tools for manipulating functions and vectors.
+
+What is functional programming?
+
+In R, you can do many of the things with a function that you can do with a vector: You can assign them to variables, store them in lists, pass them as arguments to other functions, create them inside functions, and even return them as the result of a function. (from [Advanced R](https://adv-r.hadley.nz/))
+
+We will cover:
+
+-   Function
+
+-   Vectors: atomic vector, list
+
+-   Iteration
+
+-   Explore {Purrr} package
+
+I've followed [R for Data Science](https://r4ds.had.co.nz/) book chapter 15-17, 20 and [Advanced R book](https://adv-r.hadley.nz/) chapter 9.
+
+## Functions
+
+In R, function is a set of statements that perform a specific task. If you copy and paste a block of code more than twice, it is good time to consider to write a function.
+
+Things to consider when you create a function:
+
+-   Choose a good function `name`. Name of function is important. It should be short, clearly evoke what the function does. It should be verb. (e.g. summarise_years()). If function name is composed of multiple words, R4DS book recommends to use "snake_case". Use prefix if you have family of functions. (Good example `stringr` package.)
+
+-   List the inputs or arguments inside `function(x,y...)`
+
+-   Place the code inside the body of function {}
+
+-   The R4DS book suggests for comments in your code that clarify the '**why**' behind your approach, rather than the '*what*' or '*how*'. The '*what*' and '*how*' should be inherently apparent through well-structured and self-explanatory code. If they aren't, it may be a signal to refine your functions for better readability and understanding.
+
+-   use `stop`, `stopifnot` to check argument and values if they returns as you expect.
+
+We've covered functions [previous coffee and coding](https://github.com/nhsbsa-data-analytics/coffee-and-coding/tree/master/2022-04-27%20Writing%20functions%20in%20R), please check if you need.
+
+```{r very simple example function, echo=FALSE}
+
+add_numbers <- function(x, y) {
+  return(x + y)
+}
+
+# Call the function
+add_numbers(5, 3)
+
+```
+
+## Vectors
+
+-   Atomic vectors:
+
+logical, integer, double, character
+
+-   Augmented vectors: Factors: built on top of the integers, have levels attribute Dates and Date-Times: numeric vectors with class POSIXct (Portable Operating System Interface, calendar time) Tibbles: augmented lists. It inherit the regular data frame behaviour
+
+-   List:
+
+List are more complex than atomic vectors. It can contain any type and it can also contain other lists and lists (therefore they are called recursive vector). Data frames and tibbles built on top of lists with additional constrain. For example, the length of each of its vectors must be the same (to make sure data frame has rectangular structure.)
+
+`[` : It returns a list containing the selected elements. The result will be a list.
+
+`[[` : It returns actual element. It extract a single component from a list.
+
+`$`: It returns actual element by name from a list (or data frame)
+
+```{r echo=FALSE, out.width = "50%", fig.align = "center"}
+knitr::include_graphics("vector_type.png")
+```
+
+Image taken from R4DS chapter 16.
+
+```{r list example}
+
+my_list <- list(a = 1:3,  
+                b = "my string",
+                c = list(1,3,5),
+                e = exp(2),
+                f = function(x)x+2
+                )
+
+# same value returns
+my_list[[1]]
+my_list$a
+
+my_list[[3]][[1]] 
+
+```
+
+## Iteration
+
+Another tool for reducing duplication is `iteration`. Iteration helps you when you need to do the same thing to multiple inputs, for example, repeating same operation on different columns, or different data frames.
+
+There are already many ways we can do including:
+
+-   copy & paste but we try to avoid doing this.
+
+-   For loops
+
+```{r for loop exercies from R4DS book, include=TRUE}
+
+# Example 1. compute the mean of every column in mtcars
+# Before starting the loop, you must allocate sufficient space for the output.
+mtcars_output <- vector("double", ncol(mtcars))
+
+# give name
+names(mtcars_output) <- names(mtcars)
+
+for (i in names(mtcars)){
+  mtcars_output[[i]] <- mean(mtcars[[i]]) #R4DS book suggests to use [[]] as it makes clear that we want to work with single element
+}
+
+mtcars_output
+
+# Example 2. Imagine you have a directory full of CSV files that you want to read in. You have their paths in a vector, 
+# files <- dir("data/", pattern = "\\.csv$", full.names = TRUE), and now want to read each one with read_csv(). Write the for loop that will
+# load them into a single data frame
+
+files <- dir("data/", pattern = "\\.csv$", full.names = TRUE)
+
+# allocate empty list
+files_output <- vector("list", length(files))
+
+for (i in seq_along(files)) {
+  files_output[[i]] <- read.csv(files[[i]])
+}
+
+print(files_output)
+# bind to one data frame
+files_output_df <- dplyr::bind_rows(files_output)
+print(files_output_df)
+
+```
+
+-   apply() family functions in base R (lapply, sapply, vapply etc)
+
+```{r apply function examples}
+
+## lapply: applies a function to each element of a list or a vector and returns a list.
+
+# Create list
+my_list <- list(a = 1:5, b = 6:10, c = 11:15)
+# apply each list element to get mean
+mean_list <- lapply(my_list, mean)
+# Print the result
+print(mean_list)
+
+
+## sapply/vapply: The advantage of vapply() over sapply() is that vapply() allows you to specify the output type, and it will throw an error if the function returns a different type of output.
+
+# This makes it safer to use than sapply(), because it can help to prevent bugs in your code by ensuring that the function always returns the expected output type.
+
+```
+
+## Why Purrr?
+
+The `{purrr}` package in R offers consistent, readable syntax and is more efficient than for loops. It integrates with the `tidyverse` pipe operator, enabling streamlined and maintainable code. Purrr is type-stable, ensuring predictable outputs. Purrr is also flexible, allowing use of built-in or custom functions. Additionally, purrr is great at handling complex data formats like list-columns and JSON data.
+
+### The Map Functions
+
+**map() is the main family of functions in purrr package.**
+
+-   map() makes a list
+
+-   map_lgl() makes a logical vector
+
+-   map_int() makes an integer vector
+
+-   map_dbl() makes a double vector
+
+-   map_chr() makes a character
+
+-   map_dfr() makes a dataframe with rbind
+
+-   map_dfc() makes a dataframe with cbind etc
+
+**map(.x, .f, . . .)** : Each function takes vector (.x) as input, applies a function (.f) to each element, and then
+
+returns a new vector that's the same length as the input.
+
+We will use data from [`{repurrrsive}` package](https://github.com/jennybc/repurrrsive).
+
+1.  map()
+
+```{r map()}
+
+# We use star wars dataset and pull characters in each episode
+
+# Here, .x is pronoun. It refers to the current list element. 
+
+characters <- map(sw_films, ~ .x[["characters"]] )
+
+# ~ read as do something with. sw_films extract characters list value ([[]] to extract element of list)
+
+# We can use shortcut
+characters <- map(sw_films, "characters")
+
+# Both returns same list
+print(characters)
+
+```
+
+2.  map_lgl()
+
+```{r map_lgl()}
+
+# Star wars dataset, which person has unknown values?(e.g. many missing values)
+# str to check the structure
+str(sw_people[[1]])
+
+
+unknown_extract <- map_lgl(sw_people, ~ "unknown" %in% .x)
+
+print(unknown_extract)
+
+```
+
+3.  map_dbl()
+
+```{r map_dbl()}
+
+# gap_split data - what is the average life expectancy in each country?
+# First look at gap_split (from Gapminder dataset)
+print(gap_split[[1]])
+
+# go through each element, getting mean value of lifeExp then round.
+map_dbl(gap_split[1:10], ~ round(mean(.x$lifeExp),1)) # restricted to 10 just for the display
+```
+
+4.  map_int() & map_chr()
+
+Going back to star wars dataset, we can count `unknown` in each list element and give character name using map_chr()
+
+```{r map_int()}
+
+map_int(sw_people, ~ map_lgl(.x, ~ "unknown" %in% .x) |> sum()) |> 
+  purrr::set_names(map_chr(sw_people, "name"))
+
+# check if it returns correct numbers of elements 
+sw_people[[86]]
+
+```
+
+### Other Map variants: map2
+
+map2() can iterate over two inputs.
+
+[This page](https://adv-r.hadley.nz/functionals.html?q=map2#map2) helps to understand.
+
+**map2(.x, .y, .f)**: to each element of .x and corresponding element of .y, apply .f 
+
+.x : first object to iterate over
+.y : second object to iterate over
+
+```{r map2 example, warning=FALSE, message=FALSE}
+# We have list of csv files. We want to append them and create row bind dataframe.
+# One way to use is map2()
+# For each csv file, read file name(Asia,etc) and assign them to extra column.
+
+# .x: gapminder files by continent
+# .y: name of file (Asia, Europe etc)
+# .f: mutate (add extra continent column)
+
+continents <- c("Asia", "Europe", "Africa", "Americas")
+files <- paste0("./data/map2_example_csv/",continents, ".csv")
+
+data_list <- map(files, ~read_csv(.x)) 
+
+# Each data_list, create continents column 
+data_list_add_col <- map2(.x = data_list,
+                          .y = continents,
+                          .f = ~mutate(.x, continents = .y))
+
+
+
+# You can add in one line if you want. 
+
+data_list_add_col <- map2(.x = map(files, read_csv),
+                          .y = continents,
+                          .f = ~mutate(.x, continents = .y)
+                          )
+
+# check 
+data_list_add_col[[1]]
+```
+
+
+```{r map2 ggplot example, warning=FALSE, message=FALSE}
+
+# We've created list contains four tibbles.
+# We can now create plots using map2 
+# We want to create scatterplot to see if income and life expectancy has any correlation.
+
+
+ggplot(data_list_add_col[[2]],
+       aes(income, life_exp)) +
+         geom_line() +
+  labs(title = continents[[2]])
+  
+
+# We check that this is working, let's       
+
+continent_plots <- map2(.x = data_list_add_col,
+     .y = continents,
+     .f = ~ ggplot(.x, aes(income, life_exp)) +
+       geom_line() +
+       labs (title = .y))
+
+```
+If you have more than two variables, you can use pmap() to extend.
+
+### Other Map variants: walk
+
+Walk is an alternative to map that you can use when you want to call a function for its side effects, rather than for its return value. For example, render output to the screen, save files to disk. Important thing is the action, not the return value (R4DS book)
+
+If we want to save our ggplot as pdfs, we can use walk to do that. `continents_plots` returns list. We are interested in each plot, not return object. change this using walk to save in the output folder.
+
+
+### List-columns
+
+A list-column in R is a special type of column in a data frame that can store lists as its elements. Unlike regular atomic vectors (e.g., numeric, character), which can only hold individual values of the same data type, a list-column can contain multiple values of different data types, including other vectors, data frames, or even more lists. This powerful feature allows you to store complex and heterogeneous data structures within a single data frame cell.
+
+`purrr` works really well with list-columns too.
+
+
+```{r list columns}
+
+# Let's check gap_nested data frame from repurrsive
+print(gap_nested)
+
+# We want to calculate average life expectancy per country.
+
+average_life_expectancy <- gap_nested |> 
+mutate(avg_life_exp = map_dbl(data, ~ round(mean(.x$lifeExp),2))) |> 
+  select(-data)
+
+print(average_life_expectancy)
+
+
+```

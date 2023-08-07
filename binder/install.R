@@ -64,8 +64,12 @@ install.packages(
     "dplyr",
     "knitr",
     "rmarkdown",
-    "lubridate",
-	"devtools"
+    "purrr",
+    "repurrrsive",
+    "readr",
+    "ggplot2"
+    # "lubridate",
+	# "devtools"
   )
 )
 
