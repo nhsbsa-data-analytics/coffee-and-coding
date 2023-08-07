@@ -335,7 +335,7 @@ data_list_add_col[[1]]
 
 
 ggplot(data_list_add_col[[2]],
-       aes(income, life_exp)) +
+       aes(gdpPercap, lifeExp)) +
          geom_line() +
   labs(title = continents[[2]])
   
@@ -344,7 +344,7 @@ ggplot(data_list_add_col[[2]],
 
 continent_plots <- map2(.x = data_list_add_col,
      .y = continents,
-     .f = ~ ggplot(.x, aes(income, life_exp)) +
+     .f = ~ ggplot(.x, aes(gdpPercap, lifeExp)) +
        geom_line() +
        labs (title = .y))
 
@@ -356,6 +356,23 @@ If you have more than two variables, you can use pmap() to extend.
 Walk is an alternative to map that you can use when you want to call a function for its side effects, rather than for its return value. For example, render output to the screen, save files to disk. Important thing is the action, not the return value (R4DS book)
 
 If we want to save our ggplot as pdfs, we can use walk to do that. `continents_plots` returns list. We are interested in each plot, not return object. change this using walk to save in the output folder.
+
+
+```{r walk }
+
+# We need walk2 as it requires two variables; ggplot object in the list, title 
+
+walk2(
+  .x = continent_plots,
+  .y = continents,
+  .f = function(plot, title) {
+    ggsave(filename = paste0("./output/", title, ".pdf"), plot = plot)
+  }
+)
+
+```
+
+
 
 
 ### List-columns
@@ -378,5 +395,23 @@ mutate(avg_life_exp = map_dbl(data, ~ round(mean(.x$lifeExp),2))) |>
 
 print(average_life_expectancy)
 
+
+# another example; correlation & running linear regression 
+
+library(dplyr)
+library(purrr)
+
+# Assuming gap_nested is a list-column with tibbles
+
+# Calculate correlation and linear regression for each tibble in the list-column
+result_list <- gap_nested %>%
+  mutate(correlation_and_regression = map(data, ~ list(
+    correlation = cor(.x$lifeExp, .x$gdpPercap),
+    linear_regression = lm(lifeExp ~ gdpPercap, data = .x)
+  )))
+
+print(result_list)
+
+result_list$correlation_and_regression[[1]] # etc you can exapand by adding different model and compare output etc
 
 ```
