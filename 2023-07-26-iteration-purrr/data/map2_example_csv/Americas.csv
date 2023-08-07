@@ -1,0 +1,36 @@
+country,income,income_level,life_exp,co2,co2_change,population
+Antigua and Barbuda,21,Level 3,76.2,5.88,increase,0.0963
+Argentina,22.7,Level 3,76.5,4.41,decrease,44.4
+Bahamas,36.5,Level 4,73.8,4.7,decrease,0.386
+Barbados,15.7,Level 3,76.5,4.48,decrease,0.287
+Belize,7.26,Level 2,74.4,1.5,increase,0.383
+Bolivia,8.66,Level 3,71.8,1.96,increase,11.4
+Brazil,14.7,Level 3,75.7,2.18,increase,209
+Canada,49,Level 4,82.2,15.3,decrease,37.1
+Chile,25,Level 4,80.1,4.59,increase,18.7
+Colombia,14.3,Level 3,80.1,1.96,increase,49.7
+Costa Rica,20.7,Level 3,80,1.61,decrease,5
+Cuba,9.68,Level 3,78.3,2.53,increase,11.3
+Dominica,11.5,Level 3,72.3,2.55,increase,0.0716
+Dominican Republic,17.7,Level 3,72.9,2.34,increase,10.6
+Ecuador,11.6,Level 3,76.2,2.46,increase,17.1
+El Salvador,8.62,Level 3,75.6,1.11,increase,6.42
+Grenada,16.8,Level 3,73.2,2.43,increase,0.111
+Guatemala,8.46,Level 3,72.4,1.07,increase,17.2
+Guyana,12.5,Level 3,67.1,3.12,increase,0.779
+Haiti,3.17,Level 2,63.5,0.27,increase,11.1
+Honduras,5.68,Level 2,71.9,1.04,decrease,9.59
+Jamaica,9.74,Level 3,76.3,2.79,decrease,2.93
+Mexico,19.9,Level 3,75.5,3.79,decrease,126
+Nicaragua,5.73,Level 2,75.2,0.862,increase,6.47
+Panama,31,Level 4,79.9,2.62,increase,4.18
+Paraguay,12.8,Level 3,76.5,1.07,increase,6.96
+Peru,12.8,Level 3,80,1.74,increase,32
+St. Kitts and Nevis,27.5,Level 4,72.1,4.62,increase,0.0524
+St. Lucia,15.3,Level 3,75.1,2.31,decrease,0.182
+St. Vincent and the Grenadines,12.5,Level 3,72.8,2.03,decrease,0.11
+Suriname,19,Level 3,72.6,3.1,decrease,0.576
+Trinidad and Tobago,26.3,Level 4,74.8,31.3,decrease,1.39
+United States,61.6,Level 4,79,16.6,decrease,327
+Uruguay,23,Level 3,77.5,2.01,decrease,3.45
+Venezuela,12.4,Level 3,75.4,4.81,decrease,28.9

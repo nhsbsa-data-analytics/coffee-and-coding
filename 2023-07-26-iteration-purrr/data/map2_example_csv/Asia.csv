@@ -1,0 +1,60 @@
+country,income,income_level,life_exp,co2,co2_change,population
+Afghanistan,2.03,Level 1,62.7,0.254,increase,37.2
+Australia,49,Level 4,82.9,16.9,decrease,24.9
+Bahrain,46.4,Level 4,77,19.8,decrease,1.57
+Bangladesh,4.44,Level 2,74.2,0.531,increase,161
+Bhutan,11.3,Level 3,73,1.61,increase,0.754
+Brunei,60.4,Level 4,74.2,18.5,decrease,0.429
+Cambodia,4.16,Level 2,69.7,0.64,increase,16.2
+China,15.1,Level 3,77.4,7.06,increase,1430
+Fiji,13.8,Level 3,68.3,2.41,increase,0.883
+"Hong Kong, China",61.1,Level 4,84.3,5.86,decrease,7.37
+India,6.52,Level 2,70.5,1.96,increase,1350
+Indonesia,11.4,Level 3,71.1,2.3,increase,268
+Iran,13.5,Level 3,77.6,8.81,increase,81.8
+Iraq,10.6,Level 3,73.3,5.32,increase,38.4
+Israel,39.9,Level 4,83,7.67,decrease,8.38
+Japan,41.8,Level 4,84.8,9.14,decrease,127
+Jordan,10,Level 3,77.9,2.42,decrease,9.97
+Kazakhstan,25.5,Level 4,71.7,17.6,increase,18.3
+Kiribati,2.29,Level 1,59.3,0.601,decrease,0.116
+Kuwait,50.5,Level 4,81.6,23.7,decrease,4.14
+Kyrgyz Republic,5.13,Level 2,73.3,1.6,increase,6.3
+Lao,7.59,Level 2,68.6,2.74,increase,7.06
+Lebanon,15.7,Level 3,76.2,3.53,decrease,6.86
+Malaysia,27.6,Level 4,75.2,8.08,increase,31.5
+Maldives,18.8,Level 3,79,2.96,increase,0.516
+Marshall Islands,3.82,Level 2,65.3,2.58,increase,0.0584
+"Micronesia, Fed. Sts.",3.46,Level 2,64.1,1.34,increase,0.113
+Mongolia,12,Level 3,68,8.88,increase,3.17
+Myanmar,4.47,Level 2,69.1,0.491,increase,53.7
+Nauru,13.6,Level 3,63.2,4.71,increase,0.0107
+Nepal,3.77,Level 2,70.8,0.337,increase,28.1
+New Zealand,42.9,Level 4,81.8,7.34,decrease,4.74
+North Korea,1.86,Level 1,72.9,1.18,decrease,25.5
+Oman,32.6,Level 4,73.6,13.9,decrease,4.83
+Pakistan,4.74,Level 2,65.5,1.05,increase,212
+Palau,17.6,Level 3,67.4,13.2,increase,0.0179
+Palestine,6.32,Level 2,74.7,0.661,increase,4.86
+Papua New Guinea,4.19,Level 2,64.4,0.911,increase,8.61
+Philippines,8.52,Level 3,71.6,1.27,increase,107
+Qatar,91,Level 4,76.1,38,decrease,2.78
+Samoa,6.39,Level 2,70.4,1.32,increase,0.196
+Saudi Arabia,47.6,Level 4,74.3,18.4,increase,33.7
+Singapore,98.2,Level 4,84.7,7.1,decrease,5.76
+Solomon Islands,2.7,Level 2,59,0.273,decrease,0.653
+South Korea,42,Level 4,82.9,12.9,increase,51.2
+Sri Lanka,12.9,Level 3,77.2,1.1,increase,21.2
+Syria,3.89,Level 2,73.2,1.67,decrease,16.9
+Taiwan,51.9,Level 4,80.2,11.6,increase,23.7
+Tajikistan,3.42,Level 2,69.2,0.603,increase,9.1
+Thailand,18.1,Level 3,78.3,4.15,increase,69.4
+Timor-Leste,3.09,Level 2,70.5,0.412,increase,1.27
+Tonga,6.41,Level 2,72.9,1.31,increase,0.103
+Turkmenistan,14.8,Level 3,70.6,13.7,increase,5.85
+Tuvalu,3.95,Level 2,67.8,1.01,decrease,0.0115
+United Arab Emirates,67,Level 4,73.7,21.4,decrease,9.63
+Uzbekistan,7.08,Level 2,68.1,2.81,decrease,32.5
+Vanuatu,3.09,Level 2,65.3,0.529,increase,0.293
+Vietnam,7.59,Level 2,74.3,2.16,increase,95.5
+Yemen,2.66,Level 2,66.1,0.356,decrease,28.5
