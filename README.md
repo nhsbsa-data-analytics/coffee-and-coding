@@ -39,9 +39,9 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
+| 2021-10-
 | 2023-09-20             | Adnan Shroufi                    | How to load and use `{addressMatchR}`                       | 
-| 2023-08-               | TBC                              | TBC                                                         |
-| 2023-07-26    \*       | Kayoung Goffe                    | Introduction to `{purrr}` in R                              | 
+| 2023-08-09\*           | Kayoung Goffe                    | Introduction to `{purrr}` in R                              | 
 | 2023-06-21             | Mihail Garbuzov                  | Introduction to regular expressions using R                 |
 | 2023-05-24             | Steven Buckley                   | Person matching in R - introducing the personMatchR package |
 | 2023-04-26             | Matthew Wilson                   | Joining data in R                                           |
