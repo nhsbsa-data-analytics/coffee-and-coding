@@ -22,6 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Install packages (for posit)
+
 ```{r echo = TRUE, results = "hide", message = FALSE, warning = FALSE}
 # install.packages("purrr")
 # install.packages("dplyr")
@@ -37,7 +38,6 @@ library(repurrrsive)
 library(readr)
 library(ggplot2)
 ```
-
 
 ## Introduction
 
@@ -230,7 +230,7 @@ We will use data from [`{repurrrsive}` package](https://github.com/jennybc/repur
 
 # Here, .x is pronoun. It refers to the current list element. 
 
-characters <- map(sw_films, ~ .x[["characters"]] )
+characters <- map(sw_films, ~ .x[["characters"]] ) # sw_films[[1]]$characters
 
 # ~ read as do something with. sw_films extract characters list value ([[]] to extract element of list)
 
@@ -289,10 +289,9 @@ map2() can iterate over two inputs.
 
 [This page](https://adv-r.hadley.nz/functionals.html?q=map2#map2) helps to understand.
 
-**map2(.x, .y, .f)**: to each element of .x and corresponding element of .y, apply .f 
+**map2(.x, .y, .f)**: to each element of .x and corresponding element of .y, apply .f
 
-.x : first object to iterate over
-.y : second object to iterate over
+.x : first object to iterate over .y : second object to iterate over
 
 ```{r map2 example, warning=FALSE, message=FALSE}
 # We have list of csv files. We want to append them and create row bind dataframe.
@@ -326,7 +325,6 @@ data_list_add_col <- map2(.x = map(files, read_csv),
 data_list_add_col[[1]]
 ```
 
-
 ```{r map2 ggplot example, warning=FALSE, message=FALSE}
 
 # We've created list contains four tibbles.
@@ -349,6 +347,7 @@ continent_plots <- map2(.x = data_list_add_col,
        labs (title = .y))
 
 ```
+
 If you have more than two variables, you can use pmap() to extend.
 
 ### Other Map variants: walk
@@ -356,7 +355,6 @@ If you have more than two variables, you can use pmap() to extend.
 Walk is an alternative to map that you can use when you want to call a function for its side effects, rather than for its return value. For example, render output to the screen, save files to disk. Important thing is the action, not the return value (R4DS book)
 
 If we want to save our ggplot as pdfs, we can use walk to do that. `continents_plots` returns list. We are interested in each plot, not return object. change this using walk to save in the output folder.
-
 
 ```{r walk }
 
@@ -372,15 +370,11 @@ walk2(
 
 ```
 
-
-
-
 ### List-columns
 
 A list-column in R is a special type of column in a data frame that can store lists as its elements. Unlike regular atomic vectors (e.g., numeric, character), which can only hold individual values of the same data type, a list-column can contain multiple values of different data types, including other vectors, data frames, or even more lists. This powerful feature allows you to store complex and heterogeneous data structures within a single data frame cell.
 
 `purrr` works really well with list-columns too.
-
 
 ```{r list columns}
 
@@ -415,3 +409,57 @@ print(result_list)
 result_list$correlation_and_regression[[1]] # etc you can exapand by adding different model and compare output etc
 
 ```
+
+## Other functions from `purrr`
+
+```{r}
+# purrr::discard
+# R shiny selectInput example
+
+# names(var_choices) |> # This one is list (var_choices are defined as list)
+#   purrr::discard(
+#     .p = stringr::str_detect(
+#       string = names(var_choices),
+#       pattern = "name|Month|Quarters|Financial"
+#     )
+
+
+# demographic_factor_summary <- function(period, breakdown_cols) {
+# 
+#   breakdown_cols <- c(
+#     "PERIOD", "AFC_BAND" 
+#   )
+# 
+#   tmp_db <- base_db |>
+#     mutate(PERIOD = case_when(
+#       period %in% c("2019/20", "2020/21", "2021/22", "2022/23") ~ FINANCIAL_YEAR,
+#       period == latest_month ~ YEAR_MONTH
+#     )) |>
+#     filter(PERIOD == period) |>
+#     group_by(
+#       across(all_of(unname(breakdown_cols))),
+#     ) |>
+#     summarise(
+#       TOTAL = n(),
+#       .groups = "drop"
+#     ) |>
+#     collect()
+# 
+#   if (nrow(tmp_db) == 0) {
+#     return(NULL)
+#   }
+# 
+#   tmp_db
+# }
+# 
+# 
+# df <- tidyr::crossing(
+#   period = analysis_period
+# ) |>
+#   purrr::pmap_dfr(demographic_factor_summary)
+
+# pmap_dfr (row binding and create data frame)
+
+```
+
+## Purrr [cheat sheet](https://rstudio.github.io/cheatsheets/html/purrr.html?_gl=1*14ew3ee*_ga*NjU5MTI2MjkzLjE2NTU4NDQ1NTI.*_ga_2C0WZ1JHG0*MTY5MTQ4NjEwMy4yMC4wLjE2OTE0ODYxMDMuMC4wLjA.)
