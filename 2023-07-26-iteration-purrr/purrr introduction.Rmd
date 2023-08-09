@@ -55,9 +55,9 @@ We will cover:
 
 -   Iteration
 
--   Explore {Purrr} package
+-   Explore {purrr} package
 
-I've followed [R for Data Science](https://r4ds.had.co.nz/) book chapter 15-17, 20 and [Advanced R book](https://adv-r.hadley.nz/) chapter 9.
+I've followed [R for Data Science](https://r4ds.had.co.nz/) book chapter functions, vectors, iteration and [Advanced R book](https://adv-r.hadley.nz/) chapter 9 functionals.
 
 ## Functions
 
