@@ -187,6 +187,14 @@ mean_list <- lapply(my_list, mean)
 # Print the result
 print(mean_list)
 
+class(mean_list)
+
+
+class(sapply(my_list,mean))
+
+class(vapply(my_list, mean, numeric(1)))        
+# Using vapply function, similar to sapply but have to specify the output type
+
 
 ## sapply/vapply: The advantage of vapply() over sapply() is that vapply() allows you to specify the output type, and it will throw an error if the function returns a different type of output.
 
