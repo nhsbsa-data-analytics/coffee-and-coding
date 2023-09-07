@@ -39,8 +39,8 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2021-10-
-| 2023-09-20  \*         | Adnan Shroufi                    | How to load and use `{addressMatchR}`                       | 
+| 2021-10-25             | Adnan Shroufi                    | How to load and use `{addressMatchR}`                       |   
+| 2023-09-27  \*         | Mark McPherson                   | Automated testing in R using `{testthat}`                   |
 | 2023-08-09             | Kayoung Goffe                    | Introduction to `{purrr}` in R                              | 
 | 2023-06-21             | Mihail Garbuzov                  | Introduction to regular expressions using R                 |
 | 2023-05-24             | Steven Buckley                   | Person matching in R - introducing the personMatchR package |
@@ -50,7 +50,7 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 | 2023-01-25             | Ryan Leggett                     | Python for the first time: Part 2                           |
 | 2022-12-14             | Graham Platten                   | Data visualisation with `{ggplot2}`                         |
 | 2022-11-23             | Mark McPherson                   | RDP: Reproducible Dashboard Pipeline                        |
-| 2022-10-19             | Ryan Leggett                     | Beginners Python                                |
+| 2022-10-19             | Ryan Leggett                     | Beginners Python                                            |
 | 2022-09-28             | Adnan Shroufi                    | Excel to R: Part two                                        |
 | 2022-08-17             | Nikki Dodds                      | R for the first time                                        |
 | 2022-06-22             | Kayoung Goffe                    | Exploring Python with R using `{reticulate}`                |
