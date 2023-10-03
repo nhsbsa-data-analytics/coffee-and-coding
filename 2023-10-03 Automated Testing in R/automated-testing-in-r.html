@@ -1582,8 +1582,8 @@ themselves.”</p>
 Thomas Edison
 </footer>
 </blockquote>
-<div id="testing-code-is-a-sound-investment-todo-remove-heading" class="section level3">
-<h3>Testing code is a sound investment –TODO: remove heading?</h3>
+<div id="testing-code-is-a-sound-investment" class="section level3">
+<h3>Testing code is a sound investment</h3>
 <p>When you write some code it is often not set in stone. You may go
 back to it to make improvements. Or the requirements could change. You
 might even become aware of a bug that you need to fix. It may even be
@@ -1663,8 +1663,8 @@ tests.</p>
 <h2>Different types of testing</h2>
 <p>There are numerous types of testing, enough that they are often
 discussed as a hierarchy.</p>
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-c6e2e142ca9ab44d68e7" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-c6e2e142ca9ab44d68e7">{"x":{"diagram":"digraph {\n    graph [\n  \t\tlabel = \"Software Testing\n\n\"\n  \t\tlabelloc = t\n  \t\tfontname = \"Helvetica,Arial,sans-serif\"\n  \t\tfontsize = 20\n  \t\tlayout = dot\n  \t\trankdir = TB\n  \t\tnewrank = true\n  \t]\n  \tnode [\n  \t\tstyle=filled\n  \t\tshape=rect\n  \t\tpencolor=\"#00000044\" // frames color\n  \t\tfontname=\"Helvetica,Arial,sans-serif\"\n  \t\tshape=plaintext\n  \t]     \n    rec1 [label = \"Testing\"]\n    rec2 [label = \"Functional\"]\n    rec3 [label =  \"Non-Functional\"]\n    rec4 [label = \"Unit\"]\n    rec5 [label = \"Integration\"]\n    rec6 [label = \"System\"]\n    rec7 [label = \"Acceptance\"]\n    rec8 [label = \"Security\"]\n    rec9 [label = \"Performance\"]\n    rec10 [label = \"Usability\"]\n    rec11 [label = \"Compatibility\"]\n    rec12 [fillcolor = \"#ff880022\" label = \"Automated\nGorilla (Random & manual)\"]\n    rec13 [label = \"Component\nSystem\nEnd-to-End\"]\n    rec14 [label = \"End-to-End\nSmoke\nSanity\nMonkey\"]\n    rec15 [label = \"Alpha\nBeta\nUser Acceptance\"]\n    rec16 [label = \"Penetration\nFuzz\nAccess Control\"]\n    rec17 [label = \"Load\nStress\nVolume\nScalability\nEndurance\nRecovery\"]\n    rec18 [label = \"Exploratory\nUI\"]\n    rec19 [label = \"Cross Browser\nCross Platform\"]\n    \n    # edge definitions with the node IDs\n    rec1 -> rec2\n    rec1 -> rec3\n    rec2 -> rec4 -> rec12\n    rec2 -> rec5 -> rec13\n    rec2 -> rec6 -> rec14\n    rec2 -> rec7 -> rec15\n    rec3 -> rec8 -> rec16\n    rec3 -> rec9 -> rec17\n    rec3 -> rec10 -> rec18\n    rec3 -> rec11 -> rec19\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-54db70fad5203efde76c" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-54db70fad5203efde76c">{"x":{"diagram":"digraph {\n    graph [\n  \t\tlabel = \"Software Testing\n\n\"\n  \t\tlabelloc = t\n  \t\tfontname = \"Helvetica,Arial,sans-serif\"\n  \t\tfontsize = 20\n  \t\tlayout = dot\n  \t\trankdir = TB\n  \t\tnewrank = true\n  \t]\n  \tnode [\n  \t\tstyle=filled\n  \t\tshape=rect\n  \t\tpencolor=\"#00000044\" // frames color\n  \t\tfontname=\"Helvetica,Arial,sans-serif\"\n  \t\tshape=plaintext\n  \t]     \n    rec1 [label = \"Testing\"]\n    rec2 [label = \"Functional\"]\n    rec3 [label =  \"Non-Functional\"]\n    rec4 [label = \"Unit\"]\n    rec5 [label = \"Integration\"]\n    rec6 [label = \"System\"]\n    rec7 [label = \"Acceptance\"]\n    rec8 [label = \"Security\"]\n    rec9 [label = \"Performance\"]\n    rec10 [label = \"Usability\"]\n    rec11 [label = \"Compatibility\"]\n    rec12 [fillcolor = \"#ff880022\" label = \"Automated\nGorilla (Random & manual)\"]\n    rec13 [label = \"Component\nSystem\nEnd-to-End\"]\n    rec14 [label = \"End-to-End\nSmoke\nSanity\nMonkey\"]\n    rec15 [label = \"Alpha\nBeta\nUser Acceptance\"]\n    rec16 [label = \"Penetration\nFuzz\nAccess Control\"]\n    rec17 [label = \"Load\nStress\nVolume\nScalability\nEndurance\nRecovery\"]\n    rec18 [label = \"Exploratory\nUI\"]\n    rec19 [label = \"Cross Browser\nCross Platform\"]\n    \n    # edge definitions with the node IDs\n    rec1 -> rec2\n    rec1 -> rec3\n    rec2 -> rec4 -> rec12\n    rec2 -> rec5 -> rec13\n    rec2 -> rec6 -> rec14\n    rec2 -> rec7 -> rec15\n    rec3 -> rec8 -> rec16\n    rec3 -> rec9 -> rec17\n    rec3 -> rec10 -> rec18\n    rec3 -> rec11 -> rec19\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 <p>Gorilla testing is so named for being an unplanned, brute force and
 manual method. Automated testing is opposite in its approach. Here you
 carefully plan what to test and write the tests so you can reuse them.
@@ -1834,10 +1834,10 @@ testthat functionality.</li>
 <p>A useful function if you encounter issues with package or project
 discovery is <code>usethis::proj_siterep()</code>.</p>
 <pre class="r"><code>usethis::proj_sitrep()</code></pre>
-<pre><code>## •   working_directory: &#39;/cloud/project/2023-10-03 Automated Testing in R&#39;
-## • active_usethis_proj: &lt;unset&gt;
-## • active_rstudio_proj: &lt;unset&gt;
-## • There is currently no active usethis project.
+<pre><code>## *   working_directory: &#39;C:/Repos/coffee-and-coding/2023-10-03 Automated Testing in R&#39;
+## * active_usethis_proj: &lt;unset&gt;
+## * active_rstudio_proj: &lt;unset&gt;
+## * There is currently no active usethis project.
 ##   usethis attempts to activate a project upon first need.
 ##   Call `proj_get()` to initiate project discovery.
 ##   Call `proj_set(&quot;path/to/project&quot;)` or `proj_activate(&quot;path/to/project&quot;)` to provide
@@ -1861,7 +1861,7 @@ relevant links to the code if appropriate, such as
 is repeated at the end of the output.</p>
 <pre><code>## [ FAIL 1 | WARN 0 | SKIP 0 | PASS 5 ]
 ## 
-## ── Failure (test-absolute.R:2:3): absolute works with +ve number ───────────────
+## &lt;U+2500&gt;&lt;U+2500&gt; Failure (test-absolute.R:2:3): absolute works with +ve number &lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;
 ## absolute(10) (`actual`) not equal to -10 (`expected`).
 ## 
 ##   `actual`:  10
@@ -1871,20 +1871,20 @@ is repeated at the end of the output.</p>
 <p>Testing the whole package gives more detailed output. Here there are
 two files being tested, each with its own summary line and notes. The
 first set of tests had a fail, while the second set all passed.</p>
-<pre><code>## ℹ Testing testpkg
-## ✔ | F W S  OK | Context
-## ✖ | 1       5 | absolute
+<pre><code>## &lt;U+2139&gt; Testing testpkg
+## &lt;U+2714&gt; | F W S  OK | Context
+## &lt;U+2716&gt; | 1       5 | absolute
 ## 
-## ───────────────────────────────────────────────────────────────────────────────
+## &lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;
 ## Failure (test-absolute.R:2:3): absolute works with +ve number
 ## absolute(10) (`actual`) not equal to -10 (`expected`).
 ## 
 ##   `actual`:  10
 ## `expected`: -10
-## ───────────────────────────────────────────────────────────────────────────────
-## ✔ |         6 | neg_absolute
+## &lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;
+## &lt;U+2714&gt; |         6 | neg_absolute
 ## 
-## ══ Results ════════════════════════════════════════════════════════════════════
+## &lt;U+2550&gt;&lt;U+2550&gt; Results &lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;&lt;U+2550&gt;
 ## Duration: 0.2 s
 ## 
 ## [ FAIL 1 | WARN 0 | SKIP 0 | PASS 11 ]</code></pre>
@@ -1914,14 +1914,14 @@ are very close in value, the test will pass.</p>
 <pre class="r"><code>test_that(&quot;sqrt of 4, squared, is 2&quot;, {
   expect_equal(sqrt(2) ^ 2, 2)
 })</code></pre>
-<pre><code>## Test passed 🥳</code></pre>
+<pre><code>## Test passed</code></pre>
 <p>A related expectation is <code>expect_identical</code>. This is less
 forgiving than <code>expect_equal</code>.</p>
 <pre class="r"><code># Not run when knitting as failing the test is an error, which stops the knit process
 test_that(&quot;sqrt of 4, squared, is 2&quot;, {
   expect_identical(sqrt(2) ^ 2, 2)
 })</code></pre>
-<pre><code>## ── Failure (Line 2): sqrt of 4, squared, is 2 ──────────────────────────────────
+<pre><code>## &lt;U+2500&gt;&lt;U+2500&gt; Failure (Line 2): sqrt of 4, squared, is 2 &lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;
 ## sqrt(2)^2 not identical to 2.
 ## Objects equal but not identical</code></pre>
 <p>In the example, <code>sqrt(2)</code> can only be approximated
@@ -1942,7 +1942,7 @@ or very little tolerance</a> for differences between two objects.</p>
 <pre class="r"><code>test_that(&quot;sqrt of 4, squared and floored, is 2&quot;, {
   expect_identical(floor(sqrt(2) ^ 2), 2)
 })</code></pre>
-<pre><code>## Test passed 🎊</code></pre>
+<pre><code>## Test passed</code></pre>
 <p>Another object expectation is its type. Here we know that
 mathematically, <code>sqrt(2)^2</code> <em>is</em> an integer and might
 expect with the additional <code>floor</code>ing it would be represented
@@ -1951,7 +1951,7 @@ real numbers.</p>
 <pre class="r"><code>test_that(&quot;sqrt of 4, squared, is an integer&quot;, {
   expect_type(floor(sqrt(2) ^ 2), &quot;integer&quot;)
 })</code></pre>
-<pre><code>## ── Failure (Line 2): sqrt of 4, squared, is an integer ─────────────────────────
+<pre><code>## &lt;U+2500&gt;&lt;U+2500&gt; Failure (Line 2): sqrt of 4, squared, is an integer &lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;&lt;U+2500&gt;
 ## floor(sqrt(2)^2) has type &#39;double&#39;, not &#39;integer&#39;.</code></pre>
 <p>The examples demonstrate that careful consideration of equality,
 identity and type is needed when testing objects. Our mathematical
@@ -1988,7 +1988,7 @@ test_that(&quot;inequalities apply&quot;, {
   expect_gt(z, y)
   expect_gte(z, w)
 })</code></pre>
-<pre><code>## Test passed 😀</code></pre>
+<pre><code>## Test passed</code></pre>
 <p>Checking names. Can be used for named lists, vectors or data.frames,
 or related objects like tibbles. These are just a special type of named
 list whose elements are vectors.</p>
@@ -1997,9 +1997,9 @@ list whose elements are vectors.</p>
 test_that(&quot;df has correct names&quot;, {
   expect_named(df, c(&quot;foo&quot;, &quot;bar&quot;))
 })</code></pre>
-<pre><code>## Test passed 😀</code></pre>
-<p>Testing sets. Hot off the press, these seem to have been added in
-latest version.</p>
+<pre><code>## Test passed</code></pre>
+<p>Testing sets. Hot off the press - these are new in v3.1.10, so may
+need to update <code>testthat</code>).</p>
 <pre class="r"><code>a &lt;- letters[1:5]
 b &lt;- letters[1:10]
 c &lt;- letters[1:10]
@@ -2013,7 +2013,7 @@ test_that(&quot;set testing&quot;, {
   expect_setequal(b, c) # b and c contain exactly the same elements
   expect_mapequal(d, e) # d and e have the same names AND d[names(e)] is identical to e
 })</code></pre>
-<pre><code>## Test passed 🌈</code></pre>
+<pre><code>## Test passed</code></pre>
 <pre class="r"><code>d[names(e)]</code></pre>
 <pre><code>## $cat
 ## [1] 1
@@ -2025,13 +2025,13 @@ test_that(&quot;set testing&quot;, {
   expect_true(1 + 1 == 2)
   expect_false(1 + 2 == 4)
 })</code></pre>
-<pre><code>## Test passed 🎉</code></pre>
+<pre><code>## Test passed</code></pre>
 <p>Vector prototype testing. <code>expect_vector</code> allows to check
 both type and size in one expectation.</p>
 <pre class="r"><code>test_that(&quot;vector has type character, length 10&quot;, {
   expect_vector(letters[1:10], &quot;character&quot;, 10)
 })</code></pre>
-<pre><code>## Test passed 🎉</code></pre>
+<pre><code>## Test passed</code></pre>
 </div>
 <div id="side-effects" class="section level4">
 <h4>Side-effects</h4>
@@ -2062,7 +2062,7 @@ test_that(&quot;pointless_func shows conditions&quot;, {
   expect_no_message(pointless_func(10))
   expect_no_condition(pointless_func(10))
 })</code></pre>
-<pre><code>## Test passed 🎊</code></pre>
+<pre><code>## Test passed</code></pre>
 <p>Testing printed output</p>
 <pre class="r"><code>str(mtcars)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    32 obs. of  11 variables:
@@ -2082,7 +2082,7 @@ test_that(&quot;pointless_func shows conditions&quot;, {
   expect_output(str(mtcars), &quot;11 variables&quot;)
   expect_output(str(mtcars), &quot;11 VARIABLES&quot;, ignore.case = TRUE)
 })</code></pre>
-<pre><code>## Test passed 🎊</code></pre>
+<pre><code>## Test passed</code></pre>
 </div>
 </div>
 <div id="test-coverage" class="section level3">
@@ -2172,7 +2172,13 @@ making the code pass them. A key point is that when writing the code to
 pass the tests, the developer does <em>as little as possible</em> to
 make them pass. This method of development leads to well-tested and lean
 code.</p>
+<p>Personally, I would recommend trying this out on your next project. I
+have used it before (not in R, but in JavaScript). It ‘feels’ weird at
+first, but you really do end up with solid code and tests.</p>
 </div>
+</div>
+<div id="the-end---questions" class="section level2">
+<h2>The End - Questions?</h2>
 </div>
 
 

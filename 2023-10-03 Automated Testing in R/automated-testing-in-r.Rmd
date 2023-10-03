@@ -15,7 +15,9 @@ librarian::shelf(
   testthat,
   covr,
   DT,
-  htmltools
+  htmltools,
+  DiagrammeR,
+  tufte
 )
 ```
 
@@ -444,7 +446,7 @@ test_that("df has correct names", {
 })
 ```
 
-Testing sets. Hot off the press, these seem to have been added in latest version.
+Testing sets. Hot off the press - these are new in v3.1.10, so may need to update `testthat`).
 
 ```{r}
 a <- letters[1:5]
