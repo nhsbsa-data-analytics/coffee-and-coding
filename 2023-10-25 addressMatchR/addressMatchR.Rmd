@@ -18,10 +18,92 @@ The details
 This package enables two database tables to be matched against each other, with the only requirement being each table has a postcode and address field. The output will be a matched dataset where matches are categorised as being Exact or Non-Exact, with Non-Exact matches being scored, so that the quality of these Non-Exact matches can be considered. You can download the package using the following code:
 
 ```{r}
-install.packages(c("devtools", "dplyr", "dbplyr", "DBI"))
-devtools::install_github("nhsbsa-data-analytics/addressMatchR")
-devtools::install_github("nhsbsa-data-analytics/addressMatchR")
+#install.packages("devtools")
+#devtools::install_github("nhsbsa-data-analytics/addressMatchR")
 ```
+
+
+```{r}
+library(dplyr)
+```
+
+We can use the source() function to load in 3 functions that appear in the {addressMatchR} package, without us having to actually install it. 
+
+
+```{r}
+source("address_match_functions.R")
+```
+
+```{r}
+ab = read.csv("coffee_coding_addressbase_sample.csv")
+df = read.csv("coffee_coding_dummy_address_match_data.csv")
+```
+
+
+```{r}
+colnames(ab)
+colnames(df)
+```
+
+
+```{r}
+View(calc_match_addresses_df)
+```
+
+
+```{r}
+output = calc_match_addresses_df(
+    primary_df = df,
+    primary_postcode_col = 'POSTCODE',
+    primary_address_col = 'ADDRESS',
+    lookup_df = ab,
+    lookup_postcode_col = 'AB_POSTCODE',
+    lookup_address_col = 'AB_ADDRESS'
+    )
+```
+
+
+```{r}
+df
+
+clean_df = df %>%
+  tidy_postcode_df(., POSTCODE) %>% 
+  tidy_single_line_address_df(df = ., col = ADDRESS)
+
+clean_df
+```
+
+
+```{r}
+ab
+
+clean_ab = ab %>%
+  tidy_postcode_df(., AB_POSTCODE) %>% 
+  tidy_single_line_address_df(df = ., col = AB_ADDRESS)
+
+clean_ab
+```
+
+
+```{r}
+output = calc_match_addresses_df(
+    primary_df = clean_df,
+    primary_postcode_col = 'POSTCODE',
+    primary_address_col = 'ADDRESS',
+    lookup_df = clean_ab,
+    lookup_postcode_col = 'AB_POSTCODE',
+    lookup_address_col = 'AB_ADDRESS'
+    )
+```
+
+```{r}
+final_output = output %>% 
+  filter(
+    MATCH_COUNT == 1,
+    SCORE >= 0.7
+  )
+```
+
 
 
 This package has been created and configured to work with database tables, as people or teams often need or want to match addresses in bulk. This could be tens or even hundreds of million records, which may not be feasible within a local R environment. For that reason, all of the functions have been configured to work with {dbplyr}, so the data being matched never ‘leaves’ the database.

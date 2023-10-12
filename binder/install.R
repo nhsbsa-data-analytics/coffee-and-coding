@@ -1,5 +1,6 @@
 # install.packages(
 #   c(
+#     "bizdays",
 #     "chron",
 #     "config",
 #     "crul",
@@ -11,8 +12,8 @@
 #     "glue",
 #     "golem",
 #     "highcharter",
+#     "janitor",
 #     "jsonlite",
-#     "kableExtra",
 #     "knitr",
 #     "leaflet",
 #     "lubridate",
@@ -25,6 +26,7 @@
 #     "pkgload",
 #     "qdapRegex",
 #     "RColorBrewer",
+#     "readr",
 #     "readxl",
 #     "reshape2",
 #     "rgdal",
@@ -35,6 +37,7 @@
 #     "shinycssloaders",
 #     "shinyWidgets",
 #     "skimr",
+#     "stringdist",
 #     "stringr",
 #     "textdata",
 #     "tidyr",
@@ -47,33 +50,21 @@
 #    )
 #  )
 
-# install.packages(
-#   c(
-#     "tidyverse",
-#     "kableExtra",
-#     "knitr",
-# 	  "dbplyr",
-#     "DBI",
-#     "nycflights13",
-#     "RSQLite",
-#   )
-# )
-
 install.packages(
   c(
     "dplyr",
-    "knitr",
-    "rmarkdown",
-    "purrr",
-    "repurrrsive",
+    "lubridate",
+    "openxlsx",
+    "bizdays",
     "readr",
-    "ggplot2"
-    # "lubridate",
-	# "devtools"
+    "scales",
+    "jsonlite",
+    "janitor",
+    "stringr",
+    "rstudioapi"
   )
 )
 
 # Use devtools to install packages not on CRAN, e.g. from Github
 # install.packages("devtools")
 # devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
-devtools::install_github("nhsbsa-data-analytics/personMatchR")
