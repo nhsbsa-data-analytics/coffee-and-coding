@@ -105,6 +105,126 @@ final_output = output %>%
 ```
 
 
+```{r}
+primary_df = clean_df %>% 
+  filter(POSTCODE == "NE418AG") 
+
+lookup_df = clean_ab %>% 
+  filter(AB_POSTCODE == "NE418AG")
+```
+
+```{r}
+# Identify then tokenise non exact matches
+primary_tokens <- primary_df %>% 
+  tidytext::unnest_tokens(
+    output = "TOKEN",
+    input = "ADDRESS",
+    to_lower = FALSE,
+    drop = FALSE
+  ) %>%
+  dplyr::group_by(ADDRESS) %>%
+  dplyr::mutate(
+    TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1),
+    TOKEN_NUMBER = row_number(),
+    # Add the theoretical max score for each non exact match address
+    MAX_SCORE = sum(TOKEN_WEIGHT, na.rm = TRUE)
+  ) %>%
+  dplyr::ungroup()
+
+primary_tokens
+```
+
+```{r}
+# Tokenise lookup addresses
+lookup_tokens <- lookup_df %>%
+  tidytext::unnest_tokens(
+    output = "TOKEN",
+    input = "AB_ADDRESS",
+    to_lower = FALSE,
+    drop = FALSE
+  ) %>%
+  # Only need 1 instance of token per lookup ID
+  dplyr::distinct() %>%
+  dplyr::mutate(
+    TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1)
+  )
+
+lookup_tokens
+```
+
+
+```{r}
+# Score remaining matches
+cross_tokens = dplyr::full_join(
+  x = primary_tokens,
+  y = lookup_tokens,
+  by = c("POSTCODE" = "AB_POSTCODE", "TOKEN_WEIGHT"),
+  suffix = c("", "_LOOKUP"),
+  relationship = "many-to-many"
+  ) %>%
+  # Score remaining token pairs
+  dplyr::mutate(
+    SCORE = dplyr::case_when(
+      # Exact matches
+      TOKEN == TOKEN_LOOKUP ~ 1,
+      (TOKEN != TOKEN_LOOKUP) & (TOKEN_WEIGHT == 4) ~ 0,
+      TOKEN != TOKEN_LOOKUP ~ stringdist::stringsim(
+        a = TOKEN,
+        b = TOKEN_LOOKUP,
+        method = "jw",
+        p = 0.1
+      )
+    )
+  ) %>% 
+  dplyr::mutate(SCORE = SCORE * TOKEN_WEIGHT) %>% 
+  arrange(ADDRESS, AB_ADDRESS, TOKEN_NUMBER)
+
+cross_tokens %>% 
+  select(ADDRESS, TOKEN, AB_ADDRESS, TOKEN_LOOKUP, TOKEN_WEIGHT, TOKEN_NUMBER, SCORE)
+```
+
+
+```{r}
+result_one = cross_tokens %>% 
+  # Remove tokens with score less than 0.8 then multiple by weight
+  dplyr::filter(SCORE > 0.8) %>%
+  # Max score per token
+  dplyr::group_by(ADDRESS, AB_ADDRESS, TOKEN, TOKEN_NUMBER, MAX_SCORE) %>%
+  dplyr::summarise(SCORE = max(SCORE, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>% 
+  arrange(ADDRESS, AB_ADDRESS, TOKEN_NUMBER)
+
+result_one %>% 
+  select(-c(MAX_SCORE, TOKEN_NUMBER))
+```
+
+
+
+
+
+```{r}
+result_two = result_one %>% 
+  # Sum scores per ID pair & generate score out of maximum score
+  dplyr::group_by(ADDRESS, AB_ADDRESS, MAX_SCORE) %>%
+  dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
+  dplyr::mutate(SCORE = SCORE / MAX_SCORE) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(-MAX_SCORE)
+
+result_two
+```
+
+
+```{r}
+result_three = result_two %>% 
+  # Slice top score with ties per primary df ID
+  dplyr::group_by(ADDRESS) %>%
+  dplyr::slice_max(order_by = SCORE, with_ties = TRUE) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(MATCH_TYPE = "NON-EXACT")
+
+result_three
+```
 
 This package has been created and configured to work with database tables, as people or teams often need or want to match addresses in bulk. This could be tens or even hundreds of million records, which may not be feasible within a local R environment. For that reason, all of the functions have been configured to work with {dbplyr}, so the data being matched never ‘leaves’ the database.
 

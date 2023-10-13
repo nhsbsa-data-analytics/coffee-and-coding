@@ -13,19 +13,37 @@ pcd <- con %>%
   select(POSTCODE = PCD_NO_SPACES) %>%
   distinct()
 
-x = con %>%
-  tbl(from = in_schema("ADNSH", "INT646_ABP_20230331"))
+# Get AddressBase info
+class = con %>%
+  tbl(from = in_schema("ADNSH", "AB_PLUS_CLASS")) %>% 
+  select(
+    CLASS = CODE_CONCAT,
+    CLASS_DESC 
+  )
+
+# Get uprn info
+uprn = con %>%
+  tbl(from = in_schema("DALL_REF", "ADDRESSBASE_PLUS_FLAT")) %>% 
+  select(UPRN, CLASS)
 
 # Get AddressBase info
 ab = con %>%
-  tbl(from = in_schema("ADNSH", "INT646_ABP_20230331")) %>%
+  tbl(from = in_schema("ADNSH", "INT646_ABP_20230331")) %>% 
   inner_join(pcd) %>% 
-  select(AB_POSTCODE = POSTCODE, AB_ADDRESS = CORE_SINGLE_LINE_ADDRESS) %>% 
+  select(
+    AB_POSTCODE = POSTCODE, 
+    AB_ADDRESS = CORE_SINGLE_LINE_ADDRESS,
+    UPRN,
+    PARENT_UPRN
+    ) %>% 
   distinct() %>% 
-  nhsbsaR::collect_with_parallelism(., 16)
+  inner_join(uprn) %>% 
+  inner_join(class) %>% 
+  nhsbsaR::collect_with_parallelism(., 16) %>% 
+  distinct()
 
-
-df
+# Write data
+write.csv(ab, "coffee_coding_addressbase_sample.csv", row.names = FALSE)
 
 # Generate primary df ID
 primary_df = df %>%

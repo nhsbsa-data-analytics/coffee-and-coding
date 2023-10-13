@@ -31,7 +31,7 @@ calc_match_addresses_df <- function(
   
   # Check if there are zero shared postcodes
   row_count = lookup_df %>%
-    dplyr::rename("{primary_postcode_col}" := .data[[lookup_postcode_col]]) %>% 
+    dplyr::rename("{primary_postcode_col}" := {{ lookup_postcode_col }}) %>% 
     dplyr::inner_join(
       primary_df, 
       by = primary_postcode_col,
