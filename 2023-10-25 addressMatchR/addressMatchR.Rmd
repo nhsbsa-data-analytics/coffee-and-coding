@@ -43,6 +43,7 @@ We will also load in our data for the session, which are the 2 tables we will ma
 
 ```{r}
 library(dplyr)
+library(highcharter)
 source("address_match_functions.R")
 ab = read.csv("coffee_coding_addressbase_sample.csv")
 df = read.csv("coffee_coding_dummy_address_match_data.csv")
@@ -314,10 +315,19 @@ lookup_tokens <- lookup_df %>%
     TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1)
   )
 
-data.table(lookup_tokens)
-
+lookup_tokens
 ```
 
+## Cross-Reference the primary df and lookup df tokens
+
+This bit might seem difficult at first glance but is simpler to understand when visualised.
+The following is taking place:
+
+- Each token from each address is scored against each other using JW.
+- Exact tokens have a score of 1.
+- JW scores are between 0 and 1.
+- Numerical tokens are not scored against non-numerical tokens.
+- Numerical tokens are scored either 0 *or* 4 (as a number is either right or wrong).
 
 ```{r}
 # Score remaining matches
@@ -349,36 +359,92 @@ cross_tokens %>%
   select(ADDRESS, TOKEN, AB_ADDRESS, TOKEN_LOOKUP, TOKEN_WEIGHT, TOKEN_NUMBER, SCORE)
 ```
 
+We can now visualise the scoring for each of the 3 matches.
+
+```{r}
+token_heatmap = function(df){
+  df %>% 
+    hchart('heatmap', hcaes(TOKEN, TOKEN_LOOKUP, value = round(SCORE,2)),
+       dataLabels = list(enabled = T),
+       borderWidth = 2,
+       borderColor = "black"
+       ) %>% 
+  hc_legend(enabled = F) %>% 
+  hc_yAxis(title = list(text = "Look-up Address (AB)")) %>% 
+  hc_xAxis(title = list(text = "Primary Address (Dummy)")) %>% 
+  hc_add_theme(hc_theme(chart = list(style = list(fontFamily = 'Arial', fontWeight = 'bold')))) %>% 
+  hc_legend(enabled = F) %>% 
+  hc_size(height=300,width=470) %>% 
+  hc_colorAxis(minColor = "white", maxColor = "green") %>% 
+  hc_credits(enabled = T)
+}
+
+
+cross_tokens %>% 
+  filter(AB_ADDRESS == "1 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+cross_tokens %>% 
+  filter(AB_ADDRESS == "SPAR STORES 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+cross_tokens %>% 
+  filter(AB_ADDRESS == "THE FLAT 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+```
+
+JW is a really useful string similarity algorithm.
+However 2 strings that are totally unrelated can sometimes have a moderate scores, which could infleucne the overall matchs core.
+We therefore coerce any JW score 0.8 or lower to 0.
+This further simplifies our visualisation and calculation.
 
 ```{r}
 result_one = cross_tokens %>% 
   # Remove tokens with score less than 0.8 then multiple by weight
-  dplyr::filter(SCORE > 0.8) %>%
+  dplyr::mutate(SCORE = ifelse(SCORE <= 0.8, 0, SCORE)) 
+
+result_one %>% 
+  filter(AB_ADDRESS == "1 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+result_one %>% 
+  filter(AB_ADDRESS == "SPAR STORES 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+result_one %>% 
+  filter(AB_ADDRESS == "THE FLAT 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+```
+
+at this point, we could manually by hand calculate each matching score.
+All we need is:
+
+- The best scoring token (for each token)
+- The maximum theoretical score
+- The actual score
+
+Although we can also do this with the below code.
+
+```{r}
+result_two = result_one %>% 
   # Max score per token
   dplyr::group_by(ADDRESS, AB_ADDRESS, TOKEN, TOKEN_NUMBER, MAX_SCORE) %>%
   dplyr::summarise(SCORE = max(SCORE, na.rm = TRUE)) %>%
   dplyr::ungroup() %>% 
-  arrange(ADDRESS, AB_ADDRESS, TOKEN_NUMBER)
-
-result_one %>% 
-  select(-c(MAX_SCORE, TOKEN_NUMBER))
-```
-
-
-
-
-
-```{r}
-result_two = result_one %>% 
   # Sum scores per ID pair & generate score out of maximum score
   dplyr::group_by(ADDRESS, AB_ADDRESS, MAX_SCORE) %>%
-  dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
-  dplyr::mutate(SCORE = SCORE / MAX_SCORE) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(-MAX_SCORE)
+  dplyr::summarise(TOTAL = sum(SCORE, na.rm = TRUE)) %>%
+  dplyr::mutate(SCORE = TOTAL / MAX_SCORE) %>%
+  dplyr::ungroup()
 
 result_two
 ```
+
+
+
+
+
+##
 
 
 ```{r}
@@ -393,49 +459,31 @@ result_three
 ```
 
 
+### PART FOUR: Summary and Next Steps
 
+## Summary
 
+In summary, this example matching workflow only required 3 functions:
 
+- *tidy_postcode_df()*
+- *tidy_single_line_address_df()*
+- *calc_match_addresses_df()*
 
+The process had the following caveats/limitations:
 
+- The code has been configured to work with an Oracle database.
+- If a postcode is incorrect, an address will attempt to be matched against the ‘wrong street’.
+- Address records with no postcode or an invalid postcode will not be able to be matched.
+- The matching and address cleaning functions expect an address within a single cell.
 
+The following additional steps may be required depending on the use case:
 
-Match the data
-The matching function only requires each of the lazyframes to be specified, along with their postcode and address column names. We can store the matched output in a new lazyframe.
-
-
-
-
-
-
-
-## Other package functions
-One of our own internal use cases for using this package was matching a selection of address records against Ordnance Survey (OS) AddressBase. The package also includes functions to help upload OS AddressBase into R, and how to create two versions of a single line address from AddressBase Plus (which has address information across multiple fields).
-
-addressMatchR::upload_addressbase_plus_to_oracle()
-addressMatchR::calc_addressbase_plus_dpa_single_line_address()
-addressMatchR::calc_addressbase_plus_geo_single_line_address()
-The idea is that AddressBase address information can be used as a comprehensive set of lookup addresses, to validate a set of addresses against. Access to AddressBase is free for all NHS organisations under the Public Sector Geospatial Agreement (PSGA) and worth looking at if you need a comprehensive list of UK addresses to match against. More information on Ordnance Survey AddressBase and the PSGA can be found here: The Public Sector Geospatial Agreement | Ordnance Survey.
-
-What do I need to be aware of?
-There are many ways to match address information with none being perfect. Some caveats around the approach used within the package are outlined below:
-
-The code has been configured to work with an Oracle database, so some functions may require tweaking for different databases. Please get in touch if you require any assistance or advice about this
-If a postcode is incorrect, an address will attempt to be matched against the ‘wrong street’.
-Address records with no postcode or an invalid postcode will not be able to be matched.
-The user is required to manually deal with non-exact matches that share the same top score.
-The user is recommended to manually validate a selection of non-exact matches to see if a match score threshold is required (very much use case dependent).
-The matching and address cleaning functions expect an address within a single cell.
-Further information
-Hopefully this quick overview and explanation of the {addressMatchR} package is enough to get you started with matching large volumes of address records across database tables. Feel free to have a look at the underlying code on our GitHub page if you want to see how the functions work in more detail.
-
-If you would like to see the output from one of our use cases of using the package, please have a read of our interactive analysis of care home prescribing in older age patients.
-
-If you need to get in touch with a question about the package and/or code, or about how to process the output related to your own use case, please get in touch with us at: nhsbsa.datalab@nhs.net
-
-Thanks!
-
+- The user is required to manually deal with non-exact matches that share the same top score (i.e. MATCH_COUNT > 1).
+- The user is recommended to manually validate a selection of non-exact matches to see if a match score threshold is required.
+- If matching against AB, the matched building classification may need to be considered.
 
 ## Next Steps
 
-PERSOMATCHR
+Think about the following questions:
+
+- 
