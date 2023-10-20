@@ -459,6 +459,7 @@ result_three
 ```
 
 
+
 ### PART FOUR: Summary and Next Steps
 
 ## Summary
@@ -486,4 +487,6 @@ The following additional steps may be required depending on the use case:
 
 Think about the following questions:
 
-- 
+```{r}
+rm(list = ls()); gc()
+```
