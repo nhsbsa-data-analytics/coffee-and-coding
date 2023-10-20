@@ -5,51 +5,80 @@ date: "2023-10-03"
 output: html_document
 ---
 
+### PART ONE: Introduction to addressMatchR
 
+Matching address records from one table to another is a common and often repeated task. This is easy when address strings can be matched exactly, although not so easy when they cannot be matched exactly. An overarching issue is that an address string may be spelt (or misspelt) in multiple ways across multiple records. Despite this, we may want to know which records are likely to be same address in another table, even though these addresses do not share the exact same spelling. Matching address details across systems would be an example of this, where the two systems do not share a unique identifier. 
 
-### Introduction
+## The Package
 
-Matching address records from one table to another is a common and often repeated task. This is easy when address strings can be matched exactly, although not so easy when they cannot be matched exactly. An overarching issue is that an address string may be spelt (or misspelt) in multiple ways across multiple records. Despite this, we may want to know which records are likely to be same address in another table, even though these addresses do not share the exact same spelling.
+To this end, the NHSBSA Data Science team have created an address matching package called {addressMatchR}. Using this package, we can now standardise all our address matching activities and save time using the same functions for a variety of use cases. With the code and functions openly available, we hope that other NHS organisations can benefit from this package as well. We *also* hope that we can find more use cases for this package, and discover more address matching opportunities, within the NHSBSA. As you watch and listen to this C&C, try and think of examples where matching address details across systems may be something you could derive some value from. 
 
-The solution
-To this end, the NHSBSA Data Science team have created an address matching package called {addressMatchR}. Using this package, we can now standardise all our address matching activities and save time using the same functions for a variety of use cases. With the code and functions openly available, we hope that other NHS organisations can benefit from this package as well.
-
-The details
-This package enables two database tables to be matched against each other, with the only requirement being each table has a postcode and address field. The output will be a matched dataset where matches are categorised as being Exact or Non-Exact, with Non-Exact matches being scored, so that the quality of these Non-Exact matches can be considered. You can download the package using the following code:
+This package enables two database tables to be matched against each other, with the only requirement being each table has a postcode and address field. The output will be a matched dataset where matches are categorised as being Exact or Non-Exact, with Non-Exact matches being scored, so that the quality of these Non-Exact matches can be considered. You could download the package using the code below.
+We will not actually run the code as we don't have a db connection in this session. 
 
 ```{r}
 #install.packages("devtools")
 #devtools::install_github("nhsbsa-data-analytics/addressMatchR")
 ```
 
+## Types of Matching
+
+This package was originally created and configured to work with database tables. This is because people or teams often need or want to match addresses in bulk. This could be tens or even hundreds of million records, which may not be feasible within a local R environment. For that reason, the original functions of the package were configured to work with {dbplyr}, so the data being matched never ‘leaves’ the database.
+
+For those encountering {dbplyr} for the first time, it is a package which enables users to use remote database tables as if they are in-memory data frames by automatically converting {dplyr} code into SQL. The advantage of this is that {dplyr} functions can be used to query a database and process the output using succinct and easy-to-read code. A disadvantage is that {dbplyr} code sometimes needs to be structured in a way to optimise how it is converted into SQL. More information on {dbplyr} can be found here: https://dbplyr.tidyverse.org/
+
+However, for the purposes of the C&C, we have developed a non-db version of the functions within the package. I.e. some functions that work with local dataframes.
+These functions that work with dataframes will be added to the package in time. However, if you are address matching in bulk, you really need to use the db-based functions.
+If you do not have a database, get in touch with DALL and we will see if we can help.
+
+### PART TWO: Using the Package
+
+We can use the source() function to load in 3 functions, similar to the ones that appear in the {addressMatchR} package, without us having to actually install it.
+As already mentioned, the difference is these functions work with local dataframes rather than remote db tables. 
+
+We will also load in our data for the session, which are the 2 tables we will match against each other.
+'ab' is a sample of addresses from Ordnance Survey (OS) AddressBase (AB).
+'df' is a series of mostly mis-spelt commercial addresses, with some dummy residential addresses included too.
+
 
 ```{r}
 library(dplyr)
-```
-
-We can use the source() function to load in 3 functions that appear in the {addressMatchR} package, without us having to actually install it. 
-
-
-```{r}
 source("address_match_functions.R")
-```
-
-```{r}
 ab = read.csv("coffee_coding_addressbase_sample.csv")
 df = read.csv("coffee_coding_dummy_address_match_data.csv")
 ```
 
+## Inspect Table Metadata
+
+Having loaded the tables we want to match, we can have a look at their coolumn names.
+We can also have a look at what parameters the function takes.
 
 ```{r}
+cat("Column names of the Address Base data:\n")
 colnames(ab)
+
+cat("\nColumn names of dummy address data:\n")
 colnames(df)
+
+cat("\nList of parameters for the matching function:\n")
+rlang::fn_fmls(calc_match_addresses_df)
 ```
 
+## Inspect Table Content
+
+Having had a look at each table metadata, we can have a look at the data itself.
 
 ```{r}
-View(calc_match_addresses_df)
+ab
+df
 ```
 
+## First attempt using the package (with uncleaned data)
+
+We can now try and use the package without doing any kind of formatting or processing of the data and see what happens.
+This is using the *calc_match_addresses_df()* function.
+For reference, the db-version of this function is *calc_match_addresses()*.
+We will use the object and column names we saw above.
 
 ```{r}
 output = calc_match_addresses_df(
@@ -62,6 +91,42 @@ output = calc_match_addresses_df(
     )
 ```
 
+## Why did this happen?
+
+In order to understand why no matches were possible in this instance, we must first take a step back and understand how the matching algorithm actually works.
+The key points to understand are:
+
+- The function identifies two match types, Exact and Non-Exact matches.
+- Exact matches are when the address and postcode are identical across datasets.
+- All records not Exact matched are considered for a Non-Exact match.
+- A Non-Exact match is used to identify address strings deemed similar yet not identical.
+- *Non-Exact matching is conducted on a postcode level.* 
+- For example, an address from postcode ‘NE1 5DL’ would only be matched against other addresses that shared the same postcode.
+- Therefore if we have 2 datasets that don't share any postcodes, no matching will even be attempted.
+- Otherwise we would be matching addresses from one street against addresses from another street.
+- A natural caveat/limitation is that addresses with an incorrect postcode will be matched against the 'wrong street'.
+
+## Clean the data to enable postcode-level matching
+
+We are using some dummy address, which after having it's postcode cleaned *can* be matched against our AB sample.
+In summary, we clean the postcode in order to actually enable more matching, through standardising the postcode format.
+The *tidy_postcode_df()* function does this by:
+
+- Removing all non alphanumeric characters.
+- Removing all spaces.
+- Converting all letters to uppercase.
+
+In addition to this, we also clean the address string itself.
+We do this using the *tidy_single_line_address_df()* function.
+This is to enable a better quality of matching the actual address string.
+The function does this by:
+
+- Removing unwanted characters, such as commas.
+- Splitting up 'flat number' style strings ('2A' -> '2' and 'A').
+- Removing multiple spaces.
+- Removing spaces either side of a hyphen.
+
+We can now clean the dummy address data, have a look at it, and compare it against our original dataset.
 
 ```{r}
 df
@@ -73,6 +138,7 @@ clean_df = df %>%
 clean_df
 ```
 
+We will now apply the same cleaning steps to the AB data we will address match the dummy data against.
 
 ```{r}
 ab
@@ -84,6 +150,9 @@ clean_ab = ab %>%
 clean_ab
 ```
 
+## Second attempt using the package (with cleaned data)
+
+We can now plug the cleaned dataframes in the *calc_match_addresses_df()* function and see what happens.
 
 ```{r}
 output = calc_match_addresses_df(
@@ -96,14 +165,88 @@ output = calc_match_addresses_df(
     )
 ```
 
+## Inspecting the match type
+
+Before we look at the output dataframe, we can see that of the 10 dummy address records:
+
+- 1 was exact matched
+- 7 were non-exact matched
+- 2 still couldn't be matched (due to non-overlapping postcodes)
+
+```{r}
+output %>%
+  select(ADDRESS, MATCH_TYPE) %>% 
+  distinct() %>% 
+  count(MATCH_TYPE)
+
+output %>% 
+  filter(MATCH_TYPE == "EXACT")
+
+output %>% 
+  filter(MATCH_TYPE == "NONE")
+
+"NE200RP" %in% clean_ab$AB_POSTCODE
+```
+
+## Inspecting the match count
+
+Some non-exact matches were matched to a single address.
+Some non-exact matches couldn't be matched to a single address.
+In the below example, this is because every address within the same postcode has the same (equally poor) score. 
+
+```{r}
+output %>% 
+  filter(ADDRESS == "956 FALCON TERRACE") %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, MATCH_TYPE, MATCH_COUNT) %>% 
+  arrange(AB_ADDRESS)
+```
+
+## Inspceting the match score
+
+Another thing you might want to do is get a feel for what the match scores were like.
+
+```{r}
+output %>% 
+  filter(
+    MATCH_COUNT == 1,
+    MATCH_TYPE == "NON-EXACT"
+  ) %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, CLASS_DESC)
+```
+
+## Processing the output
+
+If this were a real use case, you might want to do the following:
+
+- Think about *if* you want to keep multiple matches.
+- Think about *if* you want to apply a score threshold.
+- Think about if you *only* want matches of a given class description (e.g. care home)
+
+Both of these are use case dependent and will require some manual intervention/validation.
+For example, you might want to read and look a selection on non-exact matched records to find a suitable threshold value. 
+The below code would leave you only with exact and non-exact matches with a match count of one, and with a match scpre greater than 0.5.
+
+
 ```{r}
 final_output = output %>% 
   filter(
     MATCH_COUNT == 1,
-    SCORE >= 0.7
-  )
+    SCORE > 0.5,
+    CLASS_DESC == "Care / Nursing Home"
+  ) %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, CLASS_DESC, MATCH_COUNT)
+
+final_output
 ```
 
+### PART THREE: How exactly are non-exact match scores calculated?
+
+In order to demonstrate this, we will take:
+
+- 1 single dummy address records
+- The 3 AB (lookup) addresses that share this postcode
+
+We don't need to clean these, as these are filtered from the already cleaned dataframes.
 
 ```{r}
 primary_df = clean_df %>% 
@@ -111,7 +254,27 @@ primary_df = clean_df %>%
 
 lookup_df = clean_ab %>% 
   filter(AB_POSTCODE == "NE418AG")
+
+primary_df
+lookup_df
 ```
+
+## We do the following for each address
+
+The matching algorithm generates a matching score for each lookup-address that an address is matched against. 
+For example, if 30 lookup-addresses share the same postcode, each of these 30 addresses would be scored against the address.
+The non-exact matching is roughly as follows:
+
+- The scoring process splits an address into tokens (words)
+- Every token of an address against all the tokens of the addresses with a shared postcode.
+- Token-level scoring uses the Jaro-Winkler string similarity algorithm.
+- However, numerical tokens don’t use Jaro-Winkler and are scored slightly differently and given a higher weighting.
+- All of the token-level scores are aggregated to give a final score, for every lookup-address an address was matched against.  
+- The best scoring Non-Exact match is then selected. 
+- If multiple properties have the same best match score, they are all included as joint best Non-Exact matches.
+
+First, we will tokenise and prepare the primary df (the dummy data).
+We will use *tidytext::unnest_tokens()* to do this.
 
 ```{r}
 # Identify then tokenise non exact matches
@@ -134,6 +297,8 @@ primary_tokens <- primary_df %>%
 primary_tokens
 ```
 
+Next, we will tokenise and prepare the lookup df (the AB data).
+
 ```{r}
 # Tokenise lookup addresses
 lookup_tokens <- lookup_df %>%
@@ -149,7 +314,8 @@ lookup_tokens <- lookup_df %>%
     TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1)
   )
 
-lookup_tokens
+data.table(lookup_tokens)
+
 ```
 
 
@@ -226,123 +392,24 @@ result_three = result_two %>%
 result_three
 ```
 
-This package has been created and configured to work with database tables, as people or teams often need or want to match addresses in bulk. This could be tens or even hundreds of million records, which may not be feasible within a local R environment. For that reason, all of the functions have been configured to work with {dbplyr}, so the data being matched never ‘leaves’ the database.
 
-For those encountering {dbplyr} for the first time, it is a package which enables users to use remote database tables as if they are in-memory data frames by automatically converting {dplyr} code into SQL. The advantage of this is that {dplyr} functions can be used to query a database and process the output using succinct and easy-to-read code. A disadvantage is that {dbplyr} code sometimes needs to be structured in a way to optimise how it is converted into SQL. More information on {dbplyr} can be found here: A dplyr backend for databases • dbplyr (tidyverse.org)
 
-Connect to a database
-The first thing to do when using {dbplyr} is to connect to a database, after which tables within a user’s schema can be queried. These objects are referred to as ‘lazyframes’ rather than dataframes, with the tables still being remote. We first need to establish a database connection, using our database connection details and authentication.
 
-con <- DBI::dbConnect(
-  odbc::odbc(),
-  Driver = "XXXXXX", 
-  DBQ = "XXXXXX",
-  UID = "XXXXXX",
-  PWD = "XXXXXX"
-)
-Generate dummy data
-We will generate two dummy address data sets rather than use genuine address data. We will match these two datasets against each other.
 
-data_one <- data.frame(
-  ADDRESS_ONE = c(
-    "10 KINGS ROAD", "11 KINGS ROAD", "12 KINGS RD", 
-    "13 KONGS ROAD", "14 KING ROD", "15A KINGS ROADD",
-    "15B KINGS RD", "THE SHOP KINGS RD", "THE SHIP KINGS ROAD"
-  ),
-  POSTCODE_ONE = c(
-    rep("ABCD 333", 2), rep("ABCD 123", 7) 
-  )
-)
 
-data_two <- data.frame(
-  ADDRESS_TWO = c(
-    "10 KINGS ROAD", "11 KINGS ROAD", "12, kings, road",
-    "13, kings, rd", "14, king, road", "15A, kings road",
-    "15B, kings road", "the shop, king-rd", "the ship kings,,road"
-  ),
-  POSTCODE_TWO = c(
-    "abcd123", "abcd123", "ABCD-123", "ABCD-123", "ABCD.123",
-    "ABCD  123", "ABCD 123", "ABCD123###", "ABCD 123"
-  )
-)
-In practice, {dbplyr} needs to connect to tables existing within a database. If we save these two datasets as tables within our schema, we can connect to them afterwards.
 
-DBI::dbWriteTable(con, name = "TEST_ADDRESS_DATA_ONE", value = data_one)
-DBI::dbWriteTable(con, name = "TEST_ADDRESS_DATA_TWO", value = data_two)
-Clean the data
-We can now connect to our two database address tables and clean the address and postcode fields. The functions within the package used for address and postcode cleaning are addressMatchR::tidy_postcode() and addressMatchR::tidy_single_line_address(). The tidy_postcode() functions does exactly as you would imagine and trims whitespace and removes spaces and non-alphanumeric characters. The tidy_single_line_address() does the same, but also splits house numbers with alphanumeric strings (e.g. 24A -> 24, A), which helps the matching algorithm work more effectively.
 
-data_one <- dplyr::tbl(con, "TEST_ADDRESS_DATA_ONE") %>% 
-  addressMatchR::tidy_postcode(df = ., col = POSTCODE_ONE) %>% 
-  addressMatchR::tidy_single_line_address(df = ., col = ADDRESS_ONE)
-
-data_two <- dplyr::tbl(con, "TEST_ADDRESS_DATA_TWO") %>% 
-  addressMatchR::tidy_postcode(df = ., col = POSTCODE_TWO) %>% 
-  addressMatchR::tidy_single_line_address(df = ., col = ADDRESS_TWO)
-We can now match the two cleaned address database tables against each other. To explain the format of the output, it is necessary to explain how the matching function itself works.
-
-What happens under the hood?
-
-The key features of the matching algorithm are listed below:
-
-The function identifies two match types, Exact and Non-Exact matches
-Exact matches are when the address and postcode are identical across datasets
-All records not Exact matched are considered for a Non-Exact match
-A Non-Exact match was to identify address strings deemed similar yet not identical
-If an address could not be Non-Exact matched it was excluded from the output
-Non-Exact matching is conducted on a postcode level. For example, an address from postcode ‘NE1 5DL’ would only be matched against other addresses that shared the same postcode.
-The matching algorithm generates a matching score for each lookup-address that an address is matched against. For example, if 30 lookup-addresses share the same postcode, each of these 30 addresses would be scored against the address.
-The scoring process splits an address into tokens (words) and then scores every token of an address against all the tokens of the addresses with a shared postcode.
-Token-level scoring uses the Jaro-Winkler string similarity algorithm.
-However, numerical tokens don’t use Jaro-Winkler and are scored slightly differently and given a higher weighting.
-All of the token-level scores are aggregated to give a final score, for every lookup-address an address was matched against.  
-The best scoring Non-Exact match is then selected. If multiple properties have the same best match score, they are all included as joint best Non-Exact matches.
-For the purposes of this blog, the above process has been heavily simplified. For a far more detailed and thorough explanation of the matching process, read section four of this RPubs article, which also describes a use case of the address matching function within an analysis of care home prescribing.
 
 Match the data
 The matching function only requires each of the lazyframes to be specified, along with their postcode and address column names. We can store the matched output in a new lazyframe.
 
-results_db <- addressMatchR::calc_match_addresses <- function(
-    data_one,
-    ADDRESS_ONE,
-    POSTCODE_ONE,
-    data_two,
-    ADDRESS_TWO,
-    POSTCODE_TWO
-)
-We can then inspect this output. The cleaned rather than initial address fields are displayed here.
 
-ADDRESS_ONE         POSTCODE_ONE ADDRESS_TWO         SCORE MATCH_TYPE
-<chr>               <chr>        <chr>               <dbl> <chr>     
-1 THE SHIP KINGS ROAD ABCD123      THE SHIP KINGS ROAD 1     EXACT     
-2 12 KINGS RD         ABCD123      12 KINGS ROAD       0.833 NON-EXACT 
-3 13 KONGS ROAD       ABCD123      13 KINGS RD         0.813 NON-EXACT 
-4 14 KING ROD         ABCD123      14 KING ROAD        0.989 NON-EXACT 
-5 15 A KINGS ROADD    ABCD123      15 A KINGS ROAD     0.994 NON-EXACT 
-6 15 B KINGS RD       ABCD123      15 B KINGS ROAD     0.857 NON-EXACT 
-7 THE SHOP KINGS RD   ABCD123      THE SHOP KING-RD    0.719 NON-EXACT
-The output shows the following has happened:
 
-The 2 records with postcode ABCD333 from data_one weren’t matched, as no records from data_two shared the same postcode.
-Only 1 record from data_one had an Exact match and the remaining records were considered for a Non-Exact match.
-The highest scoring match from data_two was attributed to each data_one record. In this instance, each Non-Exact match correctly identified the appropriate address.
-If address tables in a database are too big to be matched locally, it is possible the results may be too big to be collected into a dataframe. That said, if required the output could be collected locally by:
 
-results_df <- results_db %>% 
-  dplyr::collect()
-In contrast, the following would write the results back to the database:
 
-results_db %>%
-  dplyr::compute(
-    name = "TEST_ADDRESS_MATCH",
-    temporary = FALSE
-  )
-Using this second method, at no point during the workflow will any of the data have been ‘at rest’ within our R environment. As mentioned, this means such a workflow can work with far larger volumes of data, as is often the case with address matching. Finally, we then need to remember to disconnect from the database and delete our dummy address data.
 
-DBI::dbRemoveTable(con, "TEST_ADDRESS_DATA_ONE")
-DBI::dbRemoveTable(con, "TEST_ADDRESS_DATA_TWO")
-DBI::dbDisconnect(con)
-Other package functions
+
+## Other package functions
 One of our own internal use cases for using this package was matching a selection of address records against Ordnance Survey (OS) AddressBase. The package also includes functions to help upload OS AddressBase into R, and how to create two versions of a single line address from AddressBase Plus (which has address information across multiple fields).
 
 addressMatchR::upload_addressbase_plus_to_oracle()
@@ -367,3 +434,8 @@ If you would like to see the output from one of our use cases of using the packa
 If you need to get in touch with a question about the package and/or code, or about how to process the output related to your own use case, please get in touch with us at: nhsbsa.datalab@nhs.net
 
 Thanks!
+
+
+## Next Steps
+
+PERSOMATCHR
