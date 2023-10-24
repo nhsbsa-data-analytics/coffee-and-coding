@@ -62,8 +62,13 @@ We will also load in our data for the session, which are the 2 tables we will ma
 'df' is a series of mostly mis-spelt commercial addresses, with some dummy residential addresses included too.
 
 ```{r, message=FALSE}
+packages_to_install = c("dplyr", "highcharter", "stringr", "stringdist", "tidytext")
+for(i in packages_to_install){install.packages(i)}
 library(dplyr)
 library(highcharter)
+library(stringr)
+library(tidytext)
+library(stringdist)
 source("address_match_functions.R")
 ab = read.csv("coffee_coding_addressbase_sample.csv")
 df = read.csv("coffee_coding_dummy_address_match_data.csv")
@@ -580,5 +585,3 @@ I you have any further questions about if/how DALL could help you with any addre
 
 Thanks!!!
 :)
-
-
