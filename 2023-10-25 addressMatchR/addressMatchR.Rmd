@@ -1,0 +1,587 @@
+---
+title: "addressMatchR"
+author: "Adnan Shroufi"
+date: "2023-10-03"
+output: html_document
+---
+
+### PART ONE: Introduction to addressMatchR
+
+Matching address records from one table to another is a common and often repeated task. 
+This is easy when address strings can be matched exactly, although not so easy when they cannot be matched exactly. 
+An overarching issue is that an address string may be spelt (or misspelt) in multiple ways across multiple records. 
+Despite this, we may want to know which records are likely to be same address in another table, even though these addresses do not share the exact same spelling. 
+Matching address details across systems would be an example of this, where the two systems do not share a unique identifier. 
+
+## The Package
+
+To this end, the NHSBSA Data Science team have created an address matching package called {addressMatchR}. 
+Using this package, we can now standardise all our address matching activities and save time using the same functions for a variety of use cases. 
+With the code and functions openly available, we hope that other NHS organisations can benefit from this package as well. 
+We *also* hope that we can find more use cases for this package, and discover more address matching opportunities, within the NHSBSA. 
+As you watch and listen to this C&C, try and think of examples where matching address details across systems may be something you could derive some value from. 
+
+This package enables two database tables to be matched against each other, with the only requirement being each table has a postcode and address field. 
+The output will be a matched dataset where matches are categorised as being Exact or Non-Exact, with Non-Exact matches being scored.
+This enables the quality of these Non-Exact matches to be considered. 
+You could download the package using the code below, *if* you have a database (db) connection.
+We will not actually run the code as we don't have a db connection in this session. 
+
+```{r}
+#install.packages("devtools")
+#devtools::install_github("nhsbsa-data-analytics/addressMatchR")
+```
+
+## Types of Matching
+
+This package was originally created and configured to work with database tables. 
+This is because people or teams often need or want to match addresses in bulk. 
+This could be tens or even hundreds of million records, which may not be feasible within a local R environment. 
+For that reason, the original functions of the package were configured to work with {dbplyr}, so the data being matched never ‘leaves’ the database.
+
+For those encountering {dbplyr} for the first time, it is a package which enables users to use remote database tables as if they are in-memory data frames.
+It does this by automatically converting {dplyr} code into SQL. 
+The advantage of this is that {dplyr} functions can be used to query a database and process the output using succinct and easy-to-read code. 
+A disadvantage is that {dbplyr} code sometimes needs to be structured in a way to optimise how it is converted into SQL. 
+More information on {dbplyr} can be found here: https://dbplyr.tidyverse.org/
+
+However, for the purposes of the C&C, we have developed a non-db version of the functions within the package. 
+I.e. some functions that work with local dataframes.
+These functions that work with dataframes will be added to the package in time. 
+However, if you are address matching in bulk, you really need to use the db-based functions.
+If you do not have a database, get in touch with DALL and we will see if we can help.
+You can get in touch at: *datalab@nhsbsa.nhs.uk*
+
+### PART TWO: Using the Package
+
+We can use the *source()* function to load in 3 functions, similar to the ones that appear in the {addressMatchR} package, without us having to actually install it.
+As already mentioned, the difference is these functions work with local dataframes rather than remote db tables. 
+
+We will also load in our data for the session, which are the 2 tables we will match against each other.
+'ab' is a sample of addresses from Ordnance Survey (OS) AddressBase (AB).
+'df' is a series of mostly mis-spelt commercial addresses, with some dummy residential addresses included too.
+
+```{r, message=FALSE}
+packages_to_install = c("dplyr", "highcharter", "stringr", "stringdist", "tidytext")
+install.packages(setdiff(packages_to_install, rownames(installed.packages())))
+library(dplyr)
+library(highcharter)
+library(stringr)
+library(tidytext)
+library(stringdist)
+source("address_match_functions.R")
+ab = read.csv("coffee_coding_addressbase_sample.csv")
+df = read.csv("coffee_coding_dummy_address_match_data.csv")
+```
+
+## Inspect Table Metadata
+
+Having loaded the tables we want to match, we can have a look at their column names.
+We can also have a look at what parameters the actual address matching function takes.
+
+```{r}
+cat("Column names of the Address Base data:\n")
+colnames(ab)
+
+cat("\nColumn names of dummy address data:\n")
+colnames(df)
+
+cat("\nList of parameters for the matching function:\n")
+rlang::fn_fmls(calc_match_addresses_df)
+```
+
+## Inspect Table Content
+
+Having had a look at each table metadata, we can have a look at the data itself.
+
+```{r}
+head(ab,10)
+head(df,10)
+```
+
+## First attempt using the package (with uncleaned data)
+
+We can now try and use the package without doing any kind of formatting or processing of the data and see what happens.
+This is using the *calc_match_addresses_df()* function.
+For reference, the db-version of this function is *calc_match_addresses()*.
+We will use the object and column names we saw above.
+
+```{r}
+output = calc_match_addresses_df(
+    primary_df = df,
+    primary_postcode_col = 'POSTCODE',
+    primary_address_col = 'ADDRESS',
+    lookup_df = ab,
+    lookup_postcode_col = 'AB_POSTCODE',
+    lookup_address_col = 'AB_ADDRESS'
+    )
+```
+
+## Why did this happen?
+
+In order to understand why no matches were possible in this instance, we must first take a step back and understand how the matching algorithm actually works.
+The key points to understand are:
+
+- The function identifies two match types, Exact and Non-Exact matches.
+- Exact matches are when the address and postcode are identical across datasets.
+- All records not Exact matched are considered for a Non-Exact match.
+- A Non-Exact match is used to identify address strings deemed similar yet not identical.
+- *Non-Exact matching is conducted on a postcode level.* 
+- For example, an address from postcode ‘NE1 5DL’ would only be matched against other addresses that shared the same postcode.
+- Therefore if we have 2 datasets that don't share any postcodes, no matching will even be attempted.
+- Otherwise we would be matching addresses from one street against addresses from another street.
+- A natural caveat/limitation is that addresses with an incorrect postcode will be matched against the 'wrong street'.
+
+## Clean the data to enable postcode-level matching
+
+We are using some dummy address, which after postcode cleaning *can* be matched against our AB sample.
+In summary, we clean the postcode in order to actually enable more matching, through standardising the postcode format.
+The *tidy_postcode_df()* function does this by:
+
+- Removing all non alphanumeric characters.
+- Removing all spaces.
+- Converting all letters to uppercase.
+
+In addition to this, we also clean the address string itself.
+We do this using the *tidy_single_line_address_df()* function.
+This is to enable a better quality of matching the actual address string.
+The function does this by:
+
+- Removing unwanted characters, such as commas.
+- Splitting up 'flat number' style strings ('2A' -> '2' and 'A').
+- Removing multiple spaces.
+- Removing spaces either side of a hyphen.
+
+We can now clean the dummy address data, have a look at it, and compare it against our original dataset.
+
+```{r}
+df
+
+clean_df = df %>%
+  tidy_postcode_df(., POSTCODE) %>% 
+  tidy_single_line_address_df(df = ., col = ADDRESS)
+
+clean_df
+```
+
+We will now apply the same cleaning steps to the AB data we will address match the dummy data against.
+
+```{r}
+head(ab,10)
+
+clean_ab = ab %>%
+  tidy_postcode_df(., AB_POSTCODE) %>% 
+  tidy_single_line_address_df(df = ., col = AB_ADDRESS)
+
+head(clean_ab,10)
+```
+
+## Second attempt using the package (with cleaned data)
+
+We can now plug the cleaned dataframes in the *calc_match_addresses_df()* function and see what happens.
+
+```{r}
+output = calc_match_addresses_df(
+    primary_df = clean_df,
+    primary_postcode_col = 'POSTCODE',
+    primary_address_col = 'ADDRESS',
+    lookup_df = clean_ab,
+    lookup_postcode_col = 'AB_POSTCODE',
+    lookup_address_col = 'AB_ADDRESS'
+    )
+```
+
+## Inspecting the match type
+
+Before we look at the output dataframe, we can see that of the 10 dummy address records:
+
+- 1 was exact matched
+- 7 were non-exact matched
+- 2 still couldn't be matched (due to non-overlapping postcodes)
+
+```{r}
+output %>%
+  select(ADDRESS, MATCH_TYPE) %>% 
+  distinct() %>% 
+  count(MATCH_TYPE)
+
+output %>% 
+  filter(MATCH_TYPE == "EXACT")
+
+output %>% 
+  filter(MATCH_TYPE == "NONE")
+
+"NE200RP" %in% clean_ab$AB_POSTCODE
+```
+
+## Inspecting the match count
+
+Some non-exact matches were matched to a single address.
+Some non-exact matches couldn't be matched to a single address.
+In the below example, this is because every address within the same postcode has the same (equally poor) score. 
+
+```{r}
+output %>% 
+  filter(ADDRESS == "956 FALCON TERRACE") %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, MATCH_TYPE, MATCH_COUNT) %>% 
+  arrange(AB_ADDRESS)
+```
+
+## Inspceting the match score
+
+Another thing you might want to do is get a feel for what the match scores were like.
+
+```{r}
+output %>% 
+  filter(
+    MATCH_COUNT == 1,
+    MATCH_TYPE != "NONE"
+  ) %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, CLASS_DESC) %>% 
+  arrange(desc(SCORE))
+```
+
+## Processing the output
+
+If this were a real use case, you might want to do the following:
+
+- Think about *if* you want to keep multiple matches.
+- Think about *if* you want to apply a score threshold.
+- Think about if you *only* want matches of a given class description (e.g. care home)
+
+Both of these are use case dependent and will require some manual intervention/validation.
+For example, you might want to read and look a selection on non-exact matched records to find a suitable threshold value. 
+The below code would leave you only with exact and non-exact matches with a match count of one, and with a match score greater than 0.5.
+
+```{r}
+final_output = output %>% 
+  filter(
+    MATCH_COUNT == 1,
+    SCORE > 0.5,
+    CLASS_DESC == "Care / Nursing Home"
+  ) %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, CLASS_DESC, MATCH_COUNT)
+
+final_output
+```
+
+### PART THREE: How exactly are non-exact match scores calculated?
+
+In order to demonstrate this, we will take:
+
+- 1 single dummy address records
+- The 3 AB (lookup) addresses that share this postcode
+
+We don't need to clean these, as these are filtered from the already cleaned dataframes.
+
+```{r}
+primary_df = clean_df %>% 
+  filter(POSTCODE == "NE418AG") 
+
+lookup_df = clean_ab %>% 
+  filter(AB_POSTCODE == "NE418AG")
+
+primary_df
+lookup_df
+```
+
+## We do the following for each address
+
+The matching algorithm generates a matching score for each lookup-address that an address is matched against. 
+For example, if 30 lookup-addresses share the same postcode, each of these 30 addresses would be scored against the address.
+The non-exact matching is roughly as follows:
+
+- The scoring process splits an address into tokens (words)
+- Every token of an address against all the tokens of the addresses with a shared postcode.
+- Token-level scoring uses the Jaro-Winkler string similarity algorithm.
+- However, numerical tokens don’t use Jaro-Winkler and are scored slightly differently and given a higher weighting.
+- All of the token-level scores are aggregated to give a final score, for every lookup-address an address was matched against.  
+- The best scoring Non-Exact match is then selected. 
+- If multiple properties have the same best match score, they are all included as joint best Non-Exact matches.
+
+First, we will tokenise and prepare the primary df (the dummy data).
+We will use *tidytext::unnest_tokens()* to do this.
+
+```{r}
+# Identify then tokenise non exact matches
+primary_tokens <- primary_df %>% 
+  tidytext::unnest_tokens(
+    output = "TOKEN",
+    input = "ADDRESS",
+    to_lower = FALSE,
+    drop = FALSE
+  ) %>%
+  dplyr::group_by(ADDRESS) %>%
+  dplyr::mutate(
+    TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1),
+    TOKEN_NUMBER = row_number(),
+    # Add the theoretical max score for each non exact match address
+    MAX_SCORE = sum(TOKEN_WEIGHT, na.rm = TRUE)
+  ) %>%
+  dplyr::ungroup()
+
+primary_tokens
+```
+
+Next, we will tokenise and prepare the lookup df (the AB data).
+
+```{r}
+# Tokenise lookup addresses
+lookup_tokens <- lookup_df %>%
+  tidytext::unnest_tokens(
+    output = "TOKEN",
+    input = "AB_ADDRESS",
+    to_lower = FALSE,
+    drop = FALSE
+  ) %>%
+  # Only need 1 instance of token per lookup ID
+  dplyr::distinct() %>%
+  dplyr::mutate(
+    TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1)
+  )
+
+lookup_tokens
+```
+
+## Cross-Reference the primary df and lookup df tokens
+
+This bit might seem difficult at first glance but is simpler to understand when visualised later on.
+The following is taking place:
+
+- Each token from each address is scored against each other using JW.
+- Exact tokens have a score of 1.
+- Jaro Winkler scores are between 0 and 1.
+- Numerical tokens are not scored against non-numerical tokens.
+- Numerical tokens are scored either 0 *or* 4 (as a number is either right or wrong).
+
+```{r}
+# Score remaining matches
+cross_tokens = dplyr::full_join(
+  x = primary_tokens,
+  y = lookup_tokens,
+  by = c("POSTCODE" = "AB_POSTCODE", "TOKEN_WEIGHT"),
+  suffix = c("", "_LOOKUP"),
+  relationship = "many-to-many"
+  ) %>%
+  # Score remaining token pairs
+  dplyr::mutate(
+    SCORE = dplyr::case_when(
+      # Exact matches
+      TOKEN == TOKEN_LOOKUP ~ 1,
+      (TOKEN != TOKEN_LOOKUP) & (TOKEN_WEIGHT == 4) ~ 0,
+      TOKEN != TOKEN_LOOKUP ~ stringdist::stringsim(
+        a = TOKEN,
+        b = TOKEN_LOOKUP,
+        method = "jw",
+        p = 0.1
+      )
+    )
+  ) %>% 
+  dplyr::mutate(SCORE = SCORE * TOKEN_WEIGHT) %>% 
+  arrange(ADDRESS, AB_ADDRESS, TOKEN_NUMBER)
+
+cross_tokens %>% 
+  select(ADDRESS, TOKEN, AB_ADDRESS, TOKEN_LOOKUP, TOKEN_WEIGHT, TOKEN_NUMBER, SCORE)
+```
+
+## How does Jaro winkler actually work?
+
+Jaro-Winkler (JW) is a string similarity algorithm, that gives a score between 0 and 1 when two strings are compared.
+If they were exactly the same this would be a score of 1.
+If they had no similarity whatsoever this would be a score of 0.
+The score is calculated using the following parameters:
+
+- The number of matching characters across both strings
+- The length of common prefix at the start of each string (up to four characters)
+- The number of transpositions required to get from one string to another
+
+The below examples offer a sense of what 'high' and 'low' scores look like:
+
+```{r}
+cross_join(
+  x = data.frame(STRING_ONE = "CATCH"),
+  y = data.frame(STRING_TWO = c("CAR", "CAT", "CAIRN", "KATCH", "KITSCH", "DESK", "CREAM", "CACH", "ROAD", "STREET"))
+) %>% 
+  mutate(JW_SCORE = stringdist::stringsim(
+    a = STRING_ONE, 
+    b = STRING_TWO, 
+    method = "jw",
+    p = 0.1
+    )) %>% 
+  arrange(desc(JW_SCORE))
+```
+
+As can be seen, some string-pair scores that to the human eye are clearly not related can still have a 'moderate' score.
+For this reason we are only interested in JW scores greater than 0.8.
+In this instance that would leave us with:
+
+```{r}
+cross_join(
+  x = data.frame(STRING_ONE = "CATCH"),
+  y = data.frame(STRING_TWO = c("CAR", "CAT", "CAIRN", "KATCH", "KITSCH", "DESK", "CREAM", "CACH", "ROAD", "STREET"))
+) %>% 
+  mutate(JW_SCORE = stringdist::stringsim(
+    a = STRING_ONE, 
+    b = STRING_TWO, 
+    method = "jw",
+    p = 0.1
+    )) %>% 
+  arrange(desc(JW_SCORE)) %>% 
+  filter(JW_SCORE > 0.8)
+```
+
+The JW string similarity algorithm is not perfect, but works well with picking up typos, such as those found within an address.
+We can now visualise the scoring for each of the 3 matches.
+
+```{r}
+token_heatmap = function(df){
+  df %>% 
+    hchart('heatmap', hcaes(TOKEN, TOKEN_LOOKUP, value = round(SCORE,2)),
+       dataLabels = list(enabled = T),
+       borderWidth = 2,
+       borderColor = "black"
+       ) %>% 
+  hc_legend(enabled = F) %>% 
+  hc_yAxis(title = list(text = "Look-up Address (AB)")) %>% 
+  hc_xAxis(title = list(text = "Primary Address (Dummy)")) %>% 
+  hc_add_theme(hc_theme(chart = list(style = list(fontFamily = 'Arial', fontWeight = 'bold')))) %>% 
+  hc_legend(enabled = F) %>% 
+  hc_size(height=300,width=470) %>% 
+  hc_colorAxis(minColor = "white", maxColor = "green") %>% 
+  hc_credits(enabled = T)
+}
+
+
+cross_tokens %>% 
+  filter(AB_ADDRESS == "1 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+cross_tokens %>% 
+  filter(AB_ADDRESS == "SPAR STORES 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+cross_tokens %>% 
+  filter(AB_ADDRESS == "THE FLAT 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+```
+
+JW is a really useful string similarity algorithm.
+However 2 strings that are totally unrelated can sometimes have a moderate score, which could influence the overall match score.
+As already mentioned above, we therefore coerce any JW score 0.8 or lower to 0.
+This further simplifies our visualisation and calculation.
+
+```{r}
+result_one = cross_tokens %>% 
+  # Remove tokens with score less than 0.8 then multiple by weight
+  dplyr::mutate(SCORE = ifelse(SCORE <= 0.8, 0, SCORE)) 
+
+result_one %>% 
+  filter(AB_ADDRESS == "1 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+result_one %>% 
+  filter(AB_ADDRESS == "SPAR STORES 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+
+result_one %>% 
+  filter(AB_ADDRESS == "THE FLAT 2 SOUTH VIEW WYLAM") %>% 
+  token_heatmap()
+```
+
+At this point, we could manually by hand calculate each matching score.
+All we need is:
+
+- The best scoring token (for each token)
+- The maximum theoretical score
+- The actual score
+
+Although we can also do this with the below code.
+
+```{r}
+result_two = result_one %>% 
+  # Max score per token
+  dplyr::group_by(ADDRESS, AB_ADDRESS, TOKEN, TOKEN_NUMBER, MAX_SCORE) %>%
+  dplyr::summarise(SCORE = max(SCORE, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>% 
+  # Sum scores per ID pair & generate score out of maximum score
+  dplyr::group_by(ADDRESS, AB_ADDRESS, MAX_SCORE) %>%
+  dplyr::summarise(TOTAL = sum(SCORE, na.rm = TRUE)) %>%
+  dplyr::mutate(SCORE = TOTAL / MAX_SCORE) %>%
+  dplyr::ungroup()
+
+result_two
+```
+
+## Selelct the highest scoring record from the lookup data
+
+We can now select the highest scoring match from the lookup data.
+Sometimes the highest scoring match can still have a 'low' score, such as below 0.5.
+Manual data validation can determine whether you need to apply a score threshold.
+This very much depends on what kind of data you are working with and what your use case is.
+The final output of our dummy data is once again displayed, where we did the following:
+
+- Removed no-matches
+- Only retained matches with a match count of 1
+- Only retained matches with score > 0.5
+
+```{r}
+result_two %>% 
+  # Slice top score with ties per primary df ID
+  dplyr::group_by(ADDRESS) %>%
+  dplyr::slice_max(order_by = SCORE, with_ties = TRUE) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(MATCH_TYPE = "NON-EXACT")
+
+output %>% 
+  filter(
+    MATCH_COUNT == 1,
+    MATCH_TYPE != "NONE",
+    SCORE > 0.5
+  ) %>% 
+  select(SCORE, ADDRESS, AB_ADDRESS, CLASS_DESC) %>% 
+  arrange(desc(SCORE))
+```
+
+
+### PART FOUR: Summary and Next Steps
+
+## Summary
+
+In summary, this example matching workflow only required 3 functions:
+
+- *tidy_postcode_df()*
+- *tidy_single_line_address_df()*
+- *calc_match_addresses_df()*
+
+The process had the following caveats/limitations:
+
+- The code has been configured to work with an Oracle database.
+- If a postcode is incorrect, an address will attempt to be matched against the ‘wrong street’.
+- Address records with no postcode or an invalid postcode will not be able to be matched.
+- The matching and address cleaning functions expect an address within a single cell.
+
+The following additional steps may be required depending on the use case:
+
+- The user is required to manually deal with non-exact matches that share the same top score (i.e. MATCH_COUNT > 1).
+- The user is recommended to manually validate a selection of non-exact matches to see if a match score threshold is required.
+- If matching against AB, the matched building classification may need to be considered.
+
+## Next Steps
+
+About the package itself and future address matching work:
+
+- The non-db function will be added to the package soon
+- The scoring itself might be tweaked to use TF-IDF (Term frequency-inverse document frequency)
+- We may in future investigate totally approaches to address matching
+
+Consider the following questions, around how you or your team might be able to use the package:
+
+- When have we wanted to match address details across systems/tables but been unable to do so?
+- What additional work could we do if we were able to match address details across systems/tables?
+- How much data do we want to match and where does it sit?
+
+I you have any further questions about if/how DALL could help you with any address matching work, please contact us at:
+*datalab@nhsbsa.nhs.uk*
+
+Thanks!!!
+:)
