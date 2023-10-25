@@ -61,7 +61,7 @@ We will also load in our data for the session, which are the 2 tables we will ma
 'ab' is a sample of addresses from Ordnance Survey (OS) AddressBase (AB).
 'df' is a series of mostly mis-spelt commercial addresses, with some dummy residential addresses included too.
 
-```{r, message=FALSE}
+```{r, message=FALSE, echo=FALSE, include=FALSE}
 packages_to_install = c("dplyr", "highcharter", "stringr", "stringdist", "tidytext")
 install.packages(setdiff(packages_to_install, rownames(installed.packages())))
 library(dplyr)
