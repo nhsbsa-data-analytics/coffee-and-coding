@@ -40,7 +40,7 @@ This could be tens or even hundreds of million records, which may not be feasibl
 For that reason, the original functions of the package were configured to work with {dbplyr}, so the data being matched never ‘leaves’ the database.
 
 For those encountering {dbplyr} for the first time, it is a package which enables users to use remote database tables as if they are in-memory data frames.
-It odes this by automatically converting {dplyr} code into SQL. 
+It does this by automatically converting {dplyr} code into SQL. 
 The advantage of this is that {dplyr} functions can be used to query a database and process the output using succinct and easy-to-read code. 
 A disadvantage is that {dbplyr} code sometimes needs to be structured in a way to optimise how it is converted into SQL. 
 More information on {dbplyr} can be found here: https://dbplyr.tidyverse.org/
@@ -63,7 +63,7 @@ We will also load in our data for the session, which are the 2 tables we will ma
 
 ```{r, message=FALSE}
 packages_to_install = c("dplyr", "highcharter", "stringr", "stringdist", "tidytext")
-for(i in packages_to_install){install.packages(i)}
+install.packages(setdiff(packages_to_install, rownames(installed.packages())))
 library(dplyr)
 library(highcharter)
 library(stringr)
@@ -95,8 +95,8 @@ rlang::fn_fmls(calc_match_addresses_df)
 Having had a look at each table metadata, we can have a look at the data itself.
 
 ```{r}
-ab
-df
+head(ab,10)
+head(df,10)
 ```
 
 ## First attempt using the package (with uncleaned data)
@@ -167,13 +167,13 @@ clean_df
 We will now apply the same cleaning steps to the AB data we will address match the dummy data against.
 
 ```{r}
-ab
+head(ab,10)
 
 clean_ab = ab %>%
   tidy_postcode_df(., AB_POSTCODE) %>% 
   tidy_single_line_address_df(df = ., col = AB_ADDRESS)
 
-clean_ab
+head(clean_ab,10)
 ```
 
 ## Second attempt using the package (with cleaned data)
@@ -466,7 +466,7 @@ cross_tokens %>%
 ```
 
 JW is a really useful string similarity algorithm.
-However 2 strings that are totally unrelated can sometimes have a moderate scores, which could influence the overall match score.
+However 2 strings that are totally unrelated can sometimes have a moderate score, which could influence the overall match score.
 As already mentioned above, we therefore coerce any JW score 0.8 or lower to 0.
 This further simplifies our visualisation and calculation.
 
