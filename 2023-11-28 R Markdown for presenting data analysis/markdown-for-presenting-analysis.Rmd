@@ -1,0 +1,444 @@
+---
+title: "R Markdown for Presenting Data Analysis"
+output:
+  html_document:
+    theme: cosmo
+    css: www\custom.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("tidyverse")
+#install.packages("plotly")
+
+library(tidyverse)
+library(plotly)
+```
+
+# Introduction to R Markdown
+## Overview of R Markdown
+
+R Markdown is an open-source framework that integrates R code with Markdown, a lightweight markup language for formatting plain text. This combination allows you to create documents that blend code, visualizations, and explanatory text. It provides a simple and efficient way to communicate your data analysis process and results, fostering transparency and reproducibility.
+
+R Markdown supports various output formats, including HTML, PDF, and Word, making it versatile for different presentation needs. Whether you're sharing reports internally, publishing on the web, or collaborating with others, R Markdown adapts to your requirements.
+
+## Why use R Markdown for presenting data analysis
+
+1. **Seamless Integration:** R Markdown allows you to seamlessly integrate code and narrative. This integration not only streamlines your workflow but also ensures that your analysis is reproducible by others.
+
+2. **Dynamic Documents:** The ability to embed code directly into documents enables the creation of dynamic reports. When your data or analysis changes, your document can be easily updated with a simple knit.
+
+3. **Reproducibility:** R Markdown promotes reproducibility by capturing the entire analysis process in one document. Others can reproduce your analysis with the assurance that they are working with the same data and code.
+
+4. **Multiple Output Formats:** R Markdown supports multiple output formats, giving you the flexibility to generate polished reports in different layouts and styles, catering to your audience's preferences.
+
+5. **Efficiency:** Writing in Markdown is faster and more intuitive than writing raw HTML or LaTeX. This efficiency allows you to focus more on your analysis and insights rather than getting bogged down in formatting details.
+
+
+# Markdown Basics
+Now that we've set up our R Markdown document, let's explore the fundamentals of Markdown. Markdown is a lightweight markup language that provides a simple way to format plain text. It's an integral part of R Markdown, allowing you to structure and stylize your documents without the complexity of HTML or LaTeX.
+
+## Introduction to Markdown syntax
+Markdown uses a straightforward syntax that is easy to learn. It employs simple characters and symbols to indicate formatting. For instance, using `#` at the beginning of a line denotes a heading. Let's take a look at an example:
+
+# This is a Level 1 Heading
+## This is a Level 2 Heading
+### This is a Level 3 Heading
+
+## Formatting text (headings, lists, emphasis)
+Markdown allows you to format text in various ways. You can create lists, emphasize text, and more. Here's a quick overview:
+
+### Lists:
+- Item 1
+- Item 2
+  - Subitem 2.1
+- Item 3
+
+### Emphasis:
+*This text is italicized*
+
+**This text is bold**
+
+## Including code chunks and inline code
+One of the powerful features of R Markdown is the ability to include R code directly in your document. Code chunks are used for larger sections of code, while inline code is suitable for smaller snippets.
+
+### Code Chunks
+To include a code chunk, use three backticks (```) and specify the language (e.g., r for R):
+
+```{r}
+summary(cars)
+```
+This code will be executed when you knit your document, and the results will be embedded.
+
+### Inline Code
+To include inline code, use a single backtick (`) around your code:
+
+This is `inline code` within a sentence.
+
+Now, let's make it interactive. Suppose you want to create a dynamic list of numbers. You can use an R code chunk for this:
+
+```{r}
+numbers <- 1:5
+```
+
+`r numbers`
+
+In the above code chunk, we've created a sequence of numbers from 1 to 5. When you knit the document, this code will be executed, and the resulting list of numbers will be displayed.
+
+#R Code Chunks
+Now let's delve into one of the core features that make R Markdown powerful: R code chunks. These chunks allow you to seamlessly integrate your R code into the document, making your analysis dynamic and reproducible.
+
+##Inserting R code chunks
+To include an R code chunk, use three backticks (```) and specify the language as "r". You can then write your R code between the backticks. Here's an example:
+
+```{r}
+# This is an R code chunk
+summary(iris)
+```
+
+This chunk will execute the R code when you knit the document, and the results will be displayed right in your document.
+
+## Running Code and Displaying Results
+
+When you knit your R Markdown document, each code chunk is executed in order, and the results are automatically embedded in the document. This creates a seamless flow between your code and the narrative.
+
+For instance, consider the following code chunk:
+
+```{r}
+# Create a simple plot
+plot(1:10, col = "blue", pch = 16)
+```
+
+When you knit the document, this code will generate a plot, and the resulting plot will be displayed directly in your document.
+
+## Managing code chunk options (e.g., echo, results)
+R code chunks come with various options that allow you to customize their behavior. Two common options are `echo` and `results`.
+
+- **`echo` Option:**
+  The `echo` option controls whether the code itself is displayed in the final document. Setting `echo = FALSE` hides the code.
+
+```{r, echo=FALSE}
+  # This code will not be displayed in the document
+  summary(cars)
+```
+
+- **`results` Option:**
+The `results` option determines whether the results of the code chunk are displayed. Setting `results = 'hide'` hides the results.
+
+```{r, results='hide'}
+# This code will be executed, but results won't be displayed
+summary(cars)
+```
+
+## Example
+```{r, echo = FALSE, results='hide'}
+numbers <- 1:10
+sum <- sum(numbers)
+```
+
+The sum of the numbers 1 to 10 is `r sum`.
+
+When you knit the document, this code will execute, and the sum of numbers will be displayed in your document.
+
+# Data Analysis in R Markdown
+Now that we've covered the basics of R Markdown and explored the integration of code chunks, let's shift our focus to the heart of data analysis within R Markdown. This section will guide you through the process of importing and loading data, performing data wrangling and analysis, and seamlessly integrating R code with narrative text.
+
+## Importing and loading data
+One of the initial steps in any data analysis is getting your data into R. R Markdown provides a variety of ways to import and load data, and the choice often depends on the data format. In this example we are going to use the mtcars data built into r but the below code could be replaced with any other option to read data into R such as `read.csv()`.
+
+```{r, echo = FALSE, results='hide'}
+# load in the mtcars data as an object named my_data
+my_data <- mtcars
+```
+
+## Performing data wrangling and analysis
+Data wrangling is the process of cleaning and transforming raw data into a format suitable for analysis. R Markdown allows you to seamlessly integrate data wrangling steps within your document. For instance, let's say we want to filter our data to include only observations where a certain condition is met:
+
+```{r, echo = FALSE, results='hide'}
+# load in the mtcars data as an object named my_data
+filtered_data <- subset(my_data, mpg > 20)
+```
+Here, we use the `subset` function to filter the data based on a condition. These steps can be documented alongside your code, providing a comprehensive and reproducible record of your data processing.
+
+## Integrating R code with narrative text
+A unique strength of R Markdown is its ability to combine code and narrative text. This integration facilitates storytelling within your analysis. You can explain your thought process, interpret results, and guide your audience through the analysis journey. Here's an example:
+
+**The mean value of the `mpg` column is `r mean(filtered_data$mpg)`.**
+
+Here, we calculate the mean of the `mpg` column in the filtered data to include this information in our narrative text. When you knit the document, the code is executed, and the narrative seamlessly incorporates the results.
+
+# Visualization with ggplot2
+Now, let's turn our attention to the visualization aspect of data analysis using ggplot2. This powerful R package allows you to create static and interactive plots with ease. In this section, we'll explore how to integrate visualizations seamlessly into your R Markdown document and customize them for effective storytelling.
+
+## Creating static and interactive plots
+To create static plots using `ggplot2`, you can use an R code chunk to define the plot and then display it directly in your document. Let's consider a simple example where we want to visualize the relationship between two variables:
+
+```{r, echo = FALSE}
+ggplot(my_data, aes(x = mpg, y = wt)) +
+  geom_point(color = "blue") +
+  labs(title = "Scatter Plot of Miles per gallon (mpg) vs. Weight (wt)")
+```
+
+This code creates a scatter plot using `ggplot2`, customizes its appearance, and includes a title. When you knit your document, the plot will be embedded directly into your report.
+
+For interactive plots, you can use packages like `plotly` to add an extra layer of exploration to your visualizations. Here's an example:
+
+```{r, echo = FALSE}
+ggplotly(
+  ggplot(my_data, aes(x = mpg, y = wt)) +
+    geom_point(color = "blue") +
+    labs(title = "Interactive Scatter Plot of Miles per gallon (mpg) vs. Weight (wt)")
+)
+```
+
+In this example, we use `ggplotly()` to convert a `ggplot` object into an interactive plot using Plotly. This allows your audience to hover over points, zoom in, and pan around for a more dynamic exploration.
+
+## Customizing plots within R Markdown
+Customization is key to effective data visualization. With ggplot2, you can easily customize various aspects of your plots. Let's consider an example where we customize the appearance of a bar chart:
+
+```{r, echo = FALSE}
+ggplot(mtcars, aes(x = factor(cyl), fill = factor(cyl))) +
+  geom_bar(stat = "count", show.legend = FALSE) +
+  labs(title = "Customized Bar Chart for Car Cylinders",
+       x = "Number of Cylinders",
+       y = "Count of Cars") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+```
+
+This code snippet demonstrates how to customize the color, labels, and overall theme of a bar chart. You can adjust these parameters to best convey your message.
+
+# Statistical Reporting
+As we proceed with our exploration of R Markdown, we now focus on the crucial aspect of statistical reporting. This involves incorporating statistical summaries into your document, providing interpretations, and effectively communicating the results. R Markdown makes this process seamless, allowing you to blend statistical analyses with narrative explanations.
+
+## Incorporating statistical summaries
+In R Markdown, you can easily include statistical summaries using code chunks. For example, suppose you want to include a summary of the `mpg` variable in the `mtcars` dataset. You can use the summary function:
+
+```{r, echo = FALSE}
+# Statistical summary of the 'mpg' variable
+summary(mtcars$mpg)
+```
+
+When you knit your document, this code will execute, and the statistical summary will be incorporated into your report. You can also present the summary in a more formatted manner using R Markdown's Markdown syntax:
+
+```{r, echo = FALSE}
+# Displaying a formatted summary
+cat("The summary statistics for the 'mpg' variable are as follows:\n\n")
+summary(mtcars$mpg)
+```
+
+This code chunk combines narrative text with the statistical summary, creating a clear and concise presentation.
+
+## Interpretation and communication of results
+Beyond providing numerical summaries, it's crucial to interpret and communicate the results effectively. This often involves explaining the implications of your findings and their relevance to the broader context of your analysis. Let's consider an example where we perform a t-test on the `mpg` variable to compare fuel efficiency between cars with different engine types:
+
+```{r, echo = FALSE}
+# T-test to compare fuel efficiency by engine type (V/S)
+t_test_result <- t.test(mpg ~ vs, data = mtcars)
+
+# Displaying the t-test result
+t_test_result
+```
+
+In this example, the `vs` variable has two levels (0 and 1), indicating whether the car has a V/S engine. The t-test compares fuel efficiency (`mpg`) between cars with different engine types. When you knit your document, the result of the t-test will be displayed, allowing you to interpret and communicate the findings.
+
+t-value: The t-value is -4.6671. This value represents how many standard errors the sample mean is from the null hypothesis mean. In this case, the negative sign indicates that the mean fuel efficiency of cars with a V/S engine (group 1) is significantly lower than that of cars without a V/S engine (group 0).
+
+Degrees of Freedom (df): The degrees of freedom are approximately 22.716. This value accounts for the variability in the sample sizes and variances of the two groups.
+
+p-value: The p-value is 0.0001098. This is the probability of observing a t-statistic as extreme as the one computed from the sample data, assuming that the null hypothesis (no difference in means) is true. A p-value less than the typical significance level of 0.05 indicates that we reject the null hypothesis.
+
+Alternative Hypothesis: The alternative hypothesis states that the true difference in means between group 0 and group 1 is not equal to 0. The negative t-value aligns with this hypothesis, indicating a significant difference.
+
+95 Percent Confidence Interval: The 95 percent confidence interval for the true difference in means is -11.462508 to -4.418445. This interval provides a range of plausible values for the true difference.
+
+Sample Estimates: The mean fuel efficiency in group 0 (cars without a V/S engine) is 16.61667, and the mean in group 1 (cars with a V/S engine) is 24.55714. This suggests a substantial difference in fuel efficiency between the two groups.
+
+In summary, the results of the t-test provide strong evidence to reject the null hypothesis, indicating a significant difference in mean fuel efficiency between cars with and without a V/S engine. The negative t-value and the lower bound of the confidence interval being below 0 further support the conclusion that cars with a V/S engine tend to have lower fuel efficiency compared to those without.
+
+# Customizing the Document Appearance
+As we continue our journey with R Markdown, let's explore the various ways you can customize the appearance of your document. This includes theming and styling options, as well as adding custom CSS to give your document a polished and professional look.
+
+## Theming and styling options
+R Markdown provides several built-in themes that you can apply to your document to change its overall appearance. For example, you can use the theme option in the YAML front matter to apply a different theme.
+
+In this example, the `cosmo` theme is applied. You can explore and choose from various themes such as `cerulean`, `flatly`, `darkly`, and more. Experimenting with different themes can help you find the one that best suits your content and audience.
+
+## Adding custom CSS
+To apply custom styles to your document, you can use custom CSS. Create a file (e.g., `custom.css`) with your CSS rules and reference it in the YAML.
+
+In `custom.css`, you can include styles for various elements, such as fonts, colors, spacing, etc.
+
+# Reproducibility
+Ensuring reproducibility in your data analysis is a critical aspect of maintaining transparency and facilitating collaboration. Integrating R Markdown with version control, such as Git, adds another layer of robustness to your workflow, allowing you to track changes, collaborate seamlessly, and reproduce analyses reliably.
+
+## Ensuring reproducibility in your analysis
+Reproducibility is the ability to recreate your analysis from the raw data to the final results. R Markdown excels at promoting reproducibility by encapsulating both code and narrative in a single document. Here's a brief guide on ensuring reproducibility:
+
+- Use Code Chunks: Break down your analysis into manageable code chunks. Each chunk should represent a logical step in your analysis process.
+
+- Set Seed for Randomness: If your analysis involves random processes, set a seed to ensure that the results are reproducible. Use `set.seed()` at the beginning of your document.
+
+- Record Package Versions: Specify the versions of R packages used in your analysis. This ensures that others can reproduce your work with the same package versions. You can use the `sessionInfo()` function to display information about the R session, including package versions.
+
+- Data Versioning: If your analysis depends on external data, consider versioning the datasets to ensure that the data used in your analysis is consistent.
+
+# Collaboration and Sharing
+R Markdown documents are not only powerful for individual data analysis and reporting, but they also excel in collaborative environments. This section explores collaborative tools for R Markdown and the process of sharing R Markdown documents on platforms like GitHub or RStudio Connect.
+
+## Collaborative tools for R Markdown
+1. Version Control with Git:
+- Purpose: Version control allows multiple contributors to work on the same project simultaneously while keeping track of changes.
+- How to Use:
+  - Initialize a Git repository in your R Markdown project.
+  - Use Git for collaborative development, branching, and merging.
+  - Share the repository on platforms like GitHub for centralized collaboration.
+
+2. GitHub:
+- Purpose: GitHub is a web-based platform for version control and collaboration. It facilitates code review, issue tracking, and project management.
+- How to Use:
+  - Host your R Markdown project on GitHub.
+  - Collaborators can fork the repository, make changes, and create pull requests for review.
+  - Utilize GitHub Issues for discussions and bug tracking.
+
+3. GitLab, Bitbucket:
+- Alternatives to GitHub: GitLab and Bitbucket are alternative platforms that provide similar version control and collaboration features.
+
+## Sharing R Markdown documents on platforms like GitHub
+1. GitHub Repositories:
+- Purpose: GitHub repositories are a common way to share and collaborate on R Markdown projects.
+- How to Share:
+  - Host your R Markdown project on GitHub.
+  - Share the repository link with collaborators.
+  - Collaborators can clone the repository, make changes, and contribute back.
+
+2. GitHub Pages:
+- Purpose: GitHub Pages allows you to turn GitHub repositories into elegant websites.
+- How to Share:
+  - Host your R Markdown project on GitHub.
+  - Enable GitHub Pages in the repository settings.
+  - Access your document online via a generated GitHub Pages link.
+  
+## Best Practices for Collaboration and Sharing
+1. Document Structure:
+- Keep your R Markdown document organized with clear headings, sections, and comments.
+- Use meaningful file and folder names.
+
+2. Readme File:
+- Include a README.md file to provide an overview, instructions, and any necessary information about your project.
+
+3. Versioning:
+- Use semantic versioning (e.g., v1.0.0) for releases.
+- Clearly communicate changes in your document.
+
+4. Collaborative Editing:
+- Consider using collaborative editing tools or platforms (e.g., Google Docs) for simultaneous editing by multiple contributors.
+
+5. Communication:
+- Use tools like GitHub Issues, Slack, or email for communication among collaborators.
+- Clearly document decisions, changes, and future plans.
+
+6. Use of .gitignore:
+- Include a `.gitignore` file to specify files that should not be tracked by version control.
+
+By leveraging collaborative tools, version control, and sharing platforms, you can work seamlessly with others on R Markdown projects and make your analyses accessible to a broader audience. Whether through GitHub, RStudio Connect, or other collaborative platforms, these practices enhance transparency, reproducibility, and the overall impact of your R Markdown work
+
+# Tips and Best Practices
+Writing and running R Markdown documents efficiently requires attention to detail, good organization, and an understanding of potential issues. This section provides tips and best practices to enhance your R Markdown workflow, covering both efficiency tips and troubleshooting common issues.
+
+## Efficiency tips for writing and running R Markdown
+1. Chunk Organization:
+- Tip: Organize your code chunks logically and sequentially.
+- Why: A clear structure makes it easier to read, understand, and debug your R Markdown document.
+
+2. Parameterised Reports:
+- Tip: Use parameters in R Markdown to create parameterised reports.
+- Why: Parameterisation allows you to customize reports without modifying the source code.
+
+3. R Code Style:
+- Tip: Follow a consistent R code style, such as the [tidyverse style guide](https://style.tidyverse.org/).
+- Why: Consistency enhances readability and maintainability.
+
+4. Package Management:
+- Tip: Explicitly list and load required packages in your R Markdown document.
+- Why: Clear package management avoids confusion and ensures reproducibility.
+
+5. Use of Templates:
+- Tip: Create and use templates for standard documents.
+- Why: Templates save time and maintain consistency across reports.
+
+6. Dynamic Content:
+- Tip: Explore the use of dynamic content, such as interactive elements or dynamically generated tables.
+- Why: Dynamic content enhances user engagement and provides real-time information.
+
+7. Keyboard Shortcuts:
+- Tip: Familiarize yourself with RStudio keyboard shortcuts for quicker navigation and execution.
+- Why: Keyboard shortcuts boost efficiency in the RStudio IDE.
+
+8. Chunk Labels:
+- Tip: Label your code chunks using the {r label} syntax.
+- Why: Labeled chunks provide clarity and facilitate referencing specific chunks.
+
+## Troubleshooting common issues
+1. Knitting Failures:
+- Issue: Knitting fails with an error.
+- Troubleshooting:
+  - Check the error message for details.
+  - Review the last successfully executed chunk.
+  - Verify that required packages are installed and loaded.
+
+2. Missing Plots or Outputs:
+- Issue: Plots or outputs are not displayed.
+- Troubleshooting:
+  - Check for errors or warnings in the chunk producing the output.
+  - Ensure that the code to generate the output is executed.
+
+3. Package Version Conflicts:
+- Issue: Package version conflicts causing unexpected behavior.
+- Troubleshooting:
+  - Use sessionInfo() to check package versions.
+  - Consider using renv or packrat for package version control.
+
+4. Rendering Differences:
+- Issue: Output differs when knitting to different formats (HTML, PDF, etc.).
+- Troubleshooting:
+  - Adjust chunk options for specific output formats.
+  - Ensure that dependencies are compatible with the chosen output format.
+
+5. External File Paths:
+- Issue: Inconsistent file paths for external files (datasets, images, etc.).
+- Troubleshooting:
+  - Use relative paths for better portability.
+  - Check file path conventions based on the operating system.
+
+6. Cache and Dependencies:
+- Issue: Unexpected behavior due to cached results or dependencies.
+- Troubleshooting:
+  - Use knitr::opts_chunk$set(cache = FALSE) to disable caching during troubleshooting.
+  - Consider clearing the cache directory.
+
+7. Latex Errors (PDF Output):
+- Issue: Latex errors when knitting to PDF.
+- Troubleshooting:
+  - Review Latex error messages for specific issues.
+  - Ensure that Latex is installed and properly configured.
+
+8. Slow Rendering:
+- Issue: R Markdown document takes a long time to render.
+- Troubleshooting:
+  - Optimize code and chunk options for efficiency.
+  - Identify and address performance bottlenecks.
+
+9. Encoding Issues:
+- Issue: Encoding-related problems with special characters.
+- Troubleshooting:
+  - Ensure consistent encoding across your R Markdown document.
+  - Explicitly specify encoding if needed.
+
+10. Debugging:
+- Issue: Code is not producing the expected output.
+- Troubleshooting:
+  - Use browser() or debug() for interactive debugging.
+  - Review code step by step to identify the issue.
+
+By incorporating these tips and addressing common issues, you can streamline your R Markdown workflow and troubleshoot effectively. Regularly review your document structure, keep dependencies in check, and adopt a systematic approach to troubleshooting to ensure a smooth writing and rendering experience.
