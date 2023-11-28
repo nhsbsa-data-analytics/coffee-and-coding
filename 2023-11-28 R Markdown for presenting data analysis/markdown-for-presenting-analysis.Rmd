@@ -18,7 +18,7 @@ library(plotly)
 # Introduction to R Markdown
 ## Overview of R Markdown
 
-R Markdown is an open-source framework that integrates R code with Markdown, a lightweight markup language for formatting plain text. This combination allows you to create documents that blend code, visualizations, and explanatory text. It provides a simple and efficient way to communicate your data analysis process and results, fostering transparency and reproducibility.
+R Markdown is an open-source framework that integrates R code with Markdown, a lightweight markup language for formatting plain text. This combination allows you to create documents that blend code, visualisations, and explanatory text. It provides a simple and efficient way to communicate your data analysis process and results, fostering transparency and reproducibility.
 
 R Markdown supports various output formats, including HTML, PDF, and Word, making it versatile for different presentation needs. Whether you're sharing reports internally, publishing on the web, or collaborating with others, R Markdown adapts to your requirements.
 
