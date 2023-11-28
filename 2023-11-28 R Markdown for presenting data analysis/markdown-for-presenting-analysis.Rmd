@@ -18,7 +18,6 @@ library(plotly)
 # Introduction to R Markdown
 ## Overview of R Markdown
 
-R Markdown is an open-source framework that integrates R code with Markdown, a lightweight markup language for formatting plain text. This combination allows you to create documents that blend code, visualizations, and explanatory text. It provides a simple and efficient way to communicate your data analysis process and results, fostering transparency and reproducibility.
 
 R Markdown supports various output formats, including HTML, PDF, and Word, making it versatile for different presentation needs. Whether you're sharing reports internally, publishing on the web, or collaborating with others, R Markdown adapts to your requirements.
 
@@ -36,7 +35,7 @@ R Markdown supports various output formats, including HTML, PDF, and Word, makin
 
 
 # Markdown Basics
-Now that we've set up our R Markdown document, let's explore the fundamentals of Markdown. Markdown is a lightweight markup language that provides a simple way to format plain text. It's an integral part of R Markdown, allowing you to structure and stylize your documents without the complexity of HTML or LaTeX.
+Now that we've set up our R Markdown document, let's explore the fundamentals of Markdown. Markdown is a lightweight markup language that provides a simple way to format plain text. It's an integral part of R Markdown, allowing you to structure and stylise your documents without the complexity of HTML or LaTeX.
 
 ## Introduction to Markdown syntax
 Markdown uses a straightforward syntax that is easy to learn. It employs simple characters and symbols to indicate formatting. For instance, using `#` at the beginning of a line denotes a heading. Let's take a look at an example:
@@ -46,7 +45,7 @@ Markdown uses a straightforward syntax that is easy to learn. It employs simple 
 ### This is a Level 3 Heading
 
 ## Formatting text (headings, lists, emphasis)
-Markdown allows you to format text in various ways. You can create lists, emphasize text, and more. Here's a quick overview:
+Markdown allows you to format text in various ways. You can create lists, emphasise text, and more. Here's a quick overview:
 
 ### Lists:
 - Item 1
@@ -55,7 +54,7 @@ Markdown allows you to format text in various ways. You can create lists, emphas
 - Item 3
 
 ### Emphasis:
-*This text is italicized*
+*This text is italicised*
 
 **This text is bold**
 
@@ -112,7 +111,7 @@ plot(1:10, col = "blue", pch = 16)
 When you knit the document, this code will generate a plot, and the resulting plot will be displayed directly in your document.
 
 ## Managing code chunk options (e.g., echo, results)
-R code chunks come with various options that allow you to customize their behavior. Two common options are `echo` and `results`.
+R code chunks come with various options that allow you to customise their behavior. Two common options are `echo` and `results`.
 
 - **`echo` Option:**
   The `echo` option controls whether the code itself is displayed in the final document. Setting `echo = FALSE` hides the code.
@@ -167,11 +166,11 @@ A unique strength of R Markdown is its ability to combine code and narrative tex
 
 Here, we calculate the mean of the `mpg` column in the filtered data to include this information in our narrative text. When you knit the document, the code is executed, and the narrative seamlessly incorporates the results.
 
-# Visualization with ggplot2
-Now, let's turn our attention to the visualization aspect of data analysis using ggplot2. This powerful R package allows you to create static and interactive plots with ease. In this section, we'll explore how to integrate visualizations seamlessly into your R Markdown document and customize them for effective storytelling.
+# visualisation with ggplot2
+Now, let's turn our attention to the visualisation aspect of data analysis using ggplot2. This powerful R package allows you to create static and interactive plots with ease. In this section, we'll explore how to integrate visualisations seamlessly into your R Markdown document and customise them for effective storytelling.
 
 ## Creating static and interactive plots
-To create static plots using `ggplot2`, you can use an R code chunk to define the plot and then display it directly in your document. Let's consider a simple example where we want to visualize the relationship between two variables:
+To create static plots using `ggplot2`, you can use an R code chunk to define the plot and then display it directly in your document. Let's consider a simple example where we want to visualise the relationship between two variables:
 
 ```{r, echo = FALSE}
 ggplot(my_data, aes(x = mpg, y = wt)) +
@@ -179,9 +178,9 @@ ggplot(my_data, aes(x = mpg, y = wt)) +
   labs(title = "Scatter Plot of Miles per gallon (mpg) vs. Weight (wt)")
 ```
 
-This code creates a scatter plot using `ggplot2`, customizes its appearance, and includes a title. When you knit your document, the plot will be embedded directly into your report.
+This code creates a scatter plot using `ggplot2`, customises its appearance, and includes a title. When you knit your document, the plot will be embedded directly into your report.
 
-For interactive plots, you can use packages like `plotly` to add an extra layer of exploration to your visualizations. Here's an example:
+For interactive plots, you can use packages like `plotly` to add an extra layer of exploration to your visualisations. Here's an example:
 
 ```{r, echo = FALSE}
 ggplotly(
@@ -193,20 +192,20 @@ ggplotly(
 
 In this example, we use `ggplotly()` to convert a `ggplot` object into an interactive plot using Plotly. This allows your audience to hover over points, zoom in, and pan around for a more dynamic exploration.
 
-## Customizing plots within R Markdown
-Customization is key to effective data visualization. With ggplot2, you can easily customize various aspects of your plots. Let's consider an example where we customize the appearance of a bar chart:
+## Customising plots within R Markdown
+Customisation is key to effective data visualisation. With ggplot2, you can easily customise various aspects of your plots. Let's consider an example where we customise the appearance of a bar chart:
 
 ```{r, echo = FALSE}
 ggplot(mtcars, aes(x = factor(cyl), fill = factor(cyl))) +
   geom_bar(stat = "count", show.legend = FALSE) +
-  labs(title = "Customized Bar Chart for Car Cylinders",
+  labs(title = "customised Bar Chart for Car Cylinders",
        x = "Number of Cylinders",
        y = "Count of Cars") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
 ```
 
-This code snippet demonstrates how to customize the color, labels, and overall theme of a bar chart. You can adjust these parameters to best convey your message.
+This code snippet demonstrates how to customise the color, labels, and overall theme of a bar chart. You can adjust these parameters to best convey your message.
 
 # Statistical Reporting
 As we proceed with our exploration of R Markdown, we now focus on the crucial aspect of statistical reporting. This involves incorporating statistical summaries into your document, providing interpretations, and effectively communicating the results. R Markdown makes this process seamless, allowing you to blend statistical analyses with narrative explanations.
@@ -256,8 +255,8 @@ Sample Estimates: The mean fuel efficiency in group 0 (cars without a V/S engine
 
 In summary, the results of the t-test provide strong evidence to reject the null hypothesis, indicating a significant difference in mean fuel efficiency between cars with and without a V/S engine. The negative t-value and the lower bound of the confidence interval being below 0 further support the conclusion that cars with a V/S engine tend to have lower fuel efficiency compared to those without.
 
-# Customizing the Document Appearance
-As we continue our journey with R Markdown, let's explore the various ways you can customize the appearance of your document. This includes theming and styling options, as well as adding custom CSS to give your document a polished and professional look.
+# Customising the Document Appearance
+As we continue our journey with R Markdown, let's explore the various ways you can customise the appearance of your document. This includes theming and styling options, as well as adding custom CSS to give your document a polished and professional look.
 
 ## Theming and styling options
 R Markdown provides several built-in themes that you can apply to your document to change its overall appearance. For example, you can use the theme option in the YAML front matter to apply a different theme.
@@ -290,16 +289,16 @@ R Markdown documents are not only powerful for individual data analysis and repo
 1. Version Control with Git:
 - Purpose: Version control allows multiple contributors to work on the same project simultaneously while keeping track of changes.
 - How to Use:
-  - Initialize a Git repository in your R Markdown project.
+  - Initialise a Git repository in your R Markdown project.
   - Use Git for collaborative development, branching, and merging.
-  - Share the repository on platforms like GitHub for centralized collaboration.
+  - Share the repository on platforms like GitHub for centralised collaboration.
 
 2. GitHub:
 - Purpose: GitHub is a web-based platform for version control and collaboration. It facilitates code review, issue tracking, and project management.
 - How to Use:
   - Host your R Markdown project on GitHub.
   - Collaborators can fork the repository, make changes, and create pull requests for review.
-  - Utilize GitHub Issues for discussions and bug tracking.
+  - Utilise GitHub Issues for discussions and bug tracking.
 
 3. GitLab, Bitbucket:
 - Alternatives to GitHub: GitLab and Bitbucket are alternative platforms that provide similar version control and collaboration features.
@@ -321,7 +320,7 @@ R Markdown documents are not only powerful for individual data analysis and repo
   
 ## Best Practices for Collaboration and Sharing
 1. Document Structure:
-- Keep your R Markdown document organized with clear headings, sections, and comments.
+- Keep your R Markdown document organised with clear headings, sections, and comments.
 - Use meaningful file and folder names.
 
 2. Readme File:
@@ -344,16 +343,16 @@ R Markdown documents are not only powerful for individual data analysis and repo
 By leveraging collaborative tools, version control, and sharing platforms, you can work seamlessly with others on R Markdown projects and make your analyses accessible to a broader audience. Whether through GitHub, RStudio Connect, or other collaborative platforms, these practices enhance transparency, reproducibility, and the overall impact of your R Markdown work
 
 # Tips and Best Practices
-Writing and running R Markdown documents efficiently requires attention to detail, good organization, and an understanding of potential issues. This section provides tips and best practices to enhance your R Markdown workflow, covering both efficiency tips and troubleshooting common issues.
+Writing and running R Markdown documents efficiently requires attention to detail, good organisation, and an understanding of potential issues. This section provides tips and best practices to enhance your R Markdown workflow, covering both efficiency tips and troubleshooting common issues.
 
 ## Efficiency tips for writing and running R Markdown
-1. Chunk Organization:
-- Tip: Organize your code chunks logically and sequentially.
+1. Chunk organisation:
+- Tip: Organise your code chunks logically and sequentially.
 - Why: A clear structure makes it easier to read, understand, and debug your R Markdown document.
 
 2. Parameterised Reports:
 - Tip: Use parameters in R Markdown to create parameterised reports.
-- Why: Parameterisation allows you to customize reports without modifying the source code.
+- Why: Parameterisation allows you to customise reports without modifying the source code.
 
 3. R Code Style:
 - Tip: Follow a consistent R code style, such as the [tidyverse style guide](https://style.tidyverse.org/).
@@ -372,7 +371,7 @@ Writing and running R Markdown documents efficiently requires attention to detai
 - Why: Dynamic content enhances user engagement and provides real-time information.
 
 7. Keyboard Shortcuts:
-- Tip: Familiarize yourself with RStudio keyboard shortcuts for quicker navigation and execution.
+- Tip: Familiarise yourself with RStudio keyboard shortcuts for quicker navigation and execution.
 - Why: Keyboard shortcuts boost efficiency in the RStudio IDE.
 
 8. Chunk Labels:
@@ -426,7 +425,7 @@ Writing and running R Markdown documents efficiently requires attention to detai
 8. Slow Rendering:
 - Issue: R Markdown document takes a long time to render.
 - Troubleshooting:
-  - Optimize code and chunk options for efficiency.
+  - Optimise code and chunk options for efficiency.
   - Identify and address performance bottlenecks.
 
 9. Encoding Issues:
