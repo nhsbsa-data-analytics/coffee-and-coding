@@ -39,8 +39,11 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2023-12-               | TBC                              | TBC |   
-| 2023-11-28            | Graham Platten                    | R Markdown for presenting data analysis                       |   
+| 2024-03-               | Kayoung Goffe                    | TBC                                                         |   
+| 2024-02-               | Lucy Sherwin Robson              | TBC                                                         |   
+| 2024-01-               | Grace Libby                      | TBC                                                         |   
+| 2023-12-19             | Thomas Owen                      | Efficient programming in R                                  |   
+| 2023-11-28             | Graham Platen                    | R Markdown for presenting data analysis                     |   
 | 2023-10-25             | Adnan Shroufi                    | How to load and use `{addressMatchR}`                       |   
 | 2023-10-03  \*         | Mark McPherson                   | Automated testing in R                                      |
 | 2023-08-09             | Kayoung Goffe                    | Introduction to `{purrr}` in R                              | 
