@@ -1584,11 +1584,11 @@ quicker to execute.</p>
 <h2><span class="header-section-number">1.2</span> Loading in the
 packages</h2>
 <p>The first thing we need to do is load in all of the required
-packages. I like to use <code>pacman</code> to help me with this as it
+packages. I like to use <code>{pacman}</code> to help me with this as it
 will automatically install packages if they don’t already exist.</p>
 <pre class="r"><code>#Check if pacman is installed or not.
-#If it is missing install the package 
-if(!(&quot;pacman&quot; %in% installed.packages()))
+#If it is missing install the package
+if (!(&quot;pacman&quot; %in% installed.packages()))
 {
   install.packages(&#39;pacman&#39;)
 }
@@ -1596,15 +1596,12 @@ if(!(&quot;pacman&quot; %in% installed.packages()))
 #Load in the packages using the p_load() function
 pacman::p_load(&#39;microbenchmark&#39;,
                &#39;parallel&#39;,
-               &#39;compiler&#39;
-)
-
-pacman::p_load_gh(&quot;csgillespie/efficient&quot;)</code></pre>
+               &#39;compiler&#39;)</code></pre>
 </div>
 </div>
-<div id="examples-on-improving-your-codes-performance" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Examples on improving
-your code’s performance</h1>
+<div id="improving-your-codes-performance" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Improving your code’s
+performance</h1>
 <div id="growing-a-vector-the-cardinal-sin-of-writing-r-code" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Growing a vector (The
 cardinal sin of writing R code)</h2>
@@ -1638,7 +1635,7 @@ to each element of the vector.</p>
 <p>Finally <code>fun3()</code> uses one of the built-in R functions to
 generate a sequence.</p>
 <pre class="r"><code>#Loop through the numbers and on every iteration append the value to the end
-#On each iteration grow the vector  
+#On each iteration grow the vector
 fun1 = function(n) {
   vec = NULL
   
@@ -1662,9 +1659,9 @@ fun3 = function(n) {
   1:n
 }</code></pre>
 <p>To compare the performance of the three functions we will use the
-<code>microbenchmark</code> package. This package allows us to run each
-function a number of times and records the median time for execution to
-complete.</p>
+<code>{microbenchmark}</code> package. This package allows us to run
+each function a number of times and records the median time for
+execution to complete.</p>
 <p>Lets compare our three functions by creating a sequence of numbers
 between 1 and 1000. Notice in the code that we use the scientific
 notation of <code>1e3</code> as short hand for 1000.</p>
@@ -1675,9 +1672,9 @@ n = 1e3
 microbenchmark(fun1(n), fun2(n), fun3(n), times = 1, unit = &#39;s&#39;)</code></pre>
 <pre><code>## Unit: seconds
 ##     expr       min        lq      mean    median        uq       max neval
-##  fun1(n) 0.0172699 0.0172699 0.0172699 0.0172699 0.0172699 0.0172699     1
-##  fun2(n) 0.0026784 0.0026784 0.0026784 0.0026784 0.0026784 0.0026784     1
-##  fun3(n) 0.0000029 0.0000029 0.0000029 0.0000029 0.0000029 0.0000029     1</code></pre>
+##  fun1(n) 0.0157564 0.0157564 0.0157564 0.0157564 0.0157564 0.0157564     1
+##  fun2(n) 0.0045966 0.0045966 0.0045966 0.0045966 0.0045966 0.0045966     1
+##  fun3(n) 0.0000042 0.0000042 0.0000042 0.0000042 0.0000042 0.0000042     1</code></pre>
 <p>When we only need to create a sequence of values up to 1000 all three
 functions run in less than 1 second.</p>
 <p>The fastest function to run, <code>fun3()</code>, took advantage of
@@ -1695,10 +1692,14 @@ to denote this <code>n=1e5</code>.</p>
 
 microbenchmark(fun1(n), fun2(n), fun3(n), times = 1, unit = &#39;s&#39;)</code></pre>
 <pre><code>## Unit: seconds
-##     expr       min        lq      mean    median        uq       max neval
-##  fun1(n) 8.3643291 8.3643291 8.3643291 8.3643291 8.3643291 8.3643291     1
-##  fun2(n) 0.0027083 0.0027083 0.0027083 0.0027083 0.0027083 0.0027083     1
-##  fun3(n) 0.0008039 0.0008039 0.0008039 0.0008039 0.0008039 0.0008039     1</code></pre>
+##     expr        min         lq       mean     median         uq        max
+##  fun1(n) 13.0984014 13.0984014 13.0984014 13.0984014 13.0984014 13.0984014
+##  fun2(n)  0.0040933  0.0040933  0.0040933  0.0040933  0.0040933  0.0040933
+##  fun3(n)  0.0011286  0.0011286  0.0011286  0.0011286  0.0011286  0.0011286
+##  neval
+##      1
+##      1
+##      1</code></pre>
 <p>Our most inefficient function now takes several seconds to run
 whereas the other two still only take a fraction of a second. The
 fastest function now runs over <strong>8800 times faster</strong> than
@@ -1710,16 +1711,16 @@ processes.</p>
 memory or use a built-in function.</strong></p>
 </div>
 </div>
-<div id="accessing-data-in-a-dataframe." class="section level2" number="2.2">
+<div id="accessing-data-in-a-data-frame." class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> Accessing data in a
-dataframe.</h2>
+data frame.</h2>
 <p>One of the most common things someone using R may want to do is
 access some data from a table. Thanks to the flexibility of R there are
 several ways of accessing data from a table. Again, some methods are
 more efficient than other.</p>
 <p>Suppose we have a small data frame of numbers and letters that we
 want to extract data from.</p>
-<pre class="r"><code>df=data.frame(v=1:4,name=letters[1:4])
+<pre class="r"><code>df = data.frame(v = 1:4, name = letters[1:4])
 
 print(df)</code></pre>
 <pre><code>##   v name
@@ -1743,13 +1744,13 @@ that the third method is the most efficient.</p>
                df[3, &#39;name&#39;],
                df$name[3], times = 1, unit = &#39;micro&#39;)</code></pre>
 <pre><code>## Unit: microseconds
-##           expr   min    lq  mean median    uq   max neval
-##       df[3, 2] 104.4 104.4 104.4  104.4 104.4 104.4     1
-##  df[3, &quot;name&quot;]  33.0  33.0  33.0   33.0  33.0  33.0     1
-##     df$name[3]   7.9   7.9   7.9    7.9   7.9   7.9     1</code></pre>
+##           expr  min   lq mean median   uq  max neval
+##       df[3, 2] 15.3 15.3 15.3   15.3 15.3 15.3     1
+##  df[3, &quot;name&quot;] 63.8 63.8 63.8   63.8 63.8 63.8     1
+##     df$name[3]  3.6  3.6  3.6    3.6  3.6  3.6     1</code></pre>
 <p>The reason that the third approach runs 10 times quicker than the
 slowest is not immediately obvious.</p>
-<p>A dataframe is a useful object as it can contain data of different
+<p>A data frame is a useful object as it can contain data of different
 data types. For example, in our data frame it has a column of numbers
 and a column of characters. This is great for us because all of the data
 is stored in the same object/place. But this comes at the cost of
@@ -1764,7 +1765,7 @@ speed boost) and then filtered.</p>
 <div id="using-matrices" class="section level2" number="2.3">
 <h2><span class="header-section-number">2.3</span> Using matrices</h2>
 <p>Even when a single data type is present within the data frame the
-speed penalty still remains. This is because when using a dataframe R
+speed penalty still remains. This is because when using a data frame R
 always has to check for the presence of different data types.</p>
 <p>When we only have numeric data we should be storing it as a matrix
 rather than a data frame. Again, you may ask what the point is and why
@@ -1772,7 +1773,7 @@ learn this new way of storing data?</p>
 <p>The answer again can be illustrated through an example. We start off
 by creating two identical objects with the only difference being that
 one is a data frame and the other a matrix.</p>
-<pre class="r"><code>df=data.frame(a=1:4,b=1:4,c=6:9)
+<pre class="r"><code>df = data.frame(a = 1:4, b = 1:4, c = 6:9)
 
 df</code></pre>
 <pre><code>##   a b c
@@ -1780,7 +1781,7 @@ df</code></pre>
 ## 2 2 2 7
 ## 3 3 3 8
 ## 4 4 4 9</code></pre>
-<pre class="r"><code>mat=as.matrix(df)
+<pre class="r"><code>mat = as.matrix(df)
 
 mat</code></pre>
 <pre><code>##      a b c
@@ -1791,16 +1792,16 @@ mat</code></pre>
 <p>Benchmarking their performance we can see that the matrix is 10 times
 quicker when selecting a column and 36 times quicker when selecting a
 row.</p>
-<pre class="r"><code>microbenchmark(df[, 2],mat[, 2],times=1)</code></pre>
+<pre class="r"><code>microbenchmark(df[, 2], mat[, 2], times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##      expr  min   lq mean median   uq  max neval
-##   df[, 2] 27.8 27.8 27.8   27.8 27.8 27.8     1
-##  mat[, 2]  3.4  3.4  3.4    3.4  3.4  3.4     1</code></pre>
-<pre class="r"><code>microbenchmark(df[2, ],mat[2, ],times=1)</code></pre>
+##   df[, 2] 28.8 28.8 28.8   28.8 28.8 28.8     1
+##  mat[, 2]  3.5  3.5  3.5    3.5  3.5  3.5     1</code></pre>
+<pre class="r"><code>microbenchmark(df[2,], mat[2,], times = 1)</code></pre>
 <pre><code>## Unit: microseconds
-##      expr  min   lq mean median   uq  max neval
-##   df[2, ] 60.5 60.5 60.5   60.5 60.5 60.5     1
-##  mat[2, ]  3.2  3.2  3.2    3.2  3.2  3.2     1</code></pre>
+##      expr   min    lq  mean median    uq   max neval
+##   df[2, ] 117.2 117.2 117.2  117.2 117.2 117.2     1
+##  mat[2, ]   5.7   5.7   5.7    5.7   5.7   5.7     1</code></pre>
 </div>
 <div id="vectorising-code" class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Vectorising code</h2>
@@ -1810,32 +1811,31 @@ function to every element at the same time.</p>
 to add the same number to every element. We could do it like this:</p>
 <pre class="r"><code>#Create a sequence from 1 to 100,000
 #Notice we are using the built-in function to create the sequence.
-x=1:1e5
+x = 1:1e5
 
 #create a function that adds the number 1 to every element of a vector
-add_one=function(x){
-  
+add_one = function(x) {
   #loop through every index of a vector and add the number 1
-  for(i in seq_len(length(x))){
-    x[i]=x[i]+1
-  }  
+  for (i in seq_len(length(x))) {
+    x[i] = x[i] + 1
+  }
 }</code></pre>
 <p>Or we could take advantage of R’s vectorisation and simply write it
 like this:</p>
 <pre class="r"><code>#Create a sequence from 1 to 100,000
 #Notice we are using the built-in function to create the sequence.
-x=1:1e5
+x = 1:1e5
 
-x=x+1</code></pre>
+x = x + 1</code></pre>
 <p>In this example taking advantage of R’s vectorisation results in
 around a 48 fold speed boost.</p>
-<pre class="r"><code>x=1:1e5
+<pre class="r"><code>x = 1:1e5
 
-microbenchmark(add_one(x),x+1,unit=&#39;micro&#39;,times=1)</code></pre>
+microbenchmark(add_one(x), x + 1, unit = &#39;micro&#39;, times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##        expr    min     lq   mean median     uq    max neval
-##  add_one(x) 6132.1 6132.1 6132.1 6132.1 6132.1 6132.1     1
-##       x + 1  251.0  251.0  251.0  251.0  251.0  251.0     1</code></pre>
+##  add_one(x) 9452.6 9452.6 9452.6 9452.6 9452.6 9452.6     1
+##       x + 1  198.3  198.3  198.3  198.3  198.3  198.3     1</code></pre>
 <p>The reason for the speed boost is fairly straight forward. In our
 custom function to complete execution R has to call the +, [], []=
 functions a total of 100,000 times each. Even though the cost of doing
@@ -1850,57 +1850,53 @@ highest score wins the round. If we play N rounds can we figure out what
 our chance of winning is? If we wanted to write this in code we could
 write it as:</p>
 <pre class="r"><code>#Simulate dice throwing game
-dice_throwing_game=function(N){
-  
+dice_throwing_game = function(N) {
   #set counter of games won to zero
-  times_won=0
+  times_won = 0
   
   #loop through every game...
-  for(i in seq_len(N)){
-    
-    #simulate a dice throw for player 1 
-    player1=sample(c(1,2,3,4,5,6),1)
+  for (i in seq_len(N)) {
+    #simulate a dice throw for player 1
+    player1 = sample(c(1, 2, 3, 4, 5, 6), 1)
     
     #simulate a dice throw for player 2
-    player2=sample(c(1,2,3,4,5,6),1)
+    player2 = sample(c(1, 2, 3, 4, 5, 6), 1)
     
     #if the dice roll for player 1 is greater than player 2 add one to the counter
-    if(player1&gt;player2){
-      
-      times_won=times_won+1
+    if (player1 &gt; player2) {
+      times_won = times_won + 1
       
     }
   }
   
   #divide the number of games won by the total games
-  times_won/N
+  times_won / N
 }</code></pre>
 <p>Instead we could vectorise the code and simulate the N rounds in a
 single function call and compare every round with a single function
 call.</p>
-<pre class="r"><code>dice_throwing_game_vec=function(N){
-  
+<pre class="r"><code>dice_throwing_game_vec = function(N) {
   #simulate all games for player 1
-  player1_rolls=sample(1:6,N,replace = TRUE)
+  player1_rolls = sample(1:6, N, replace = TRUE)
   
   #simulate all games for player 2
-  player2_rolls=sample(1:6,N,replace = TRUE)
+  player2_rolls = sample(1:6, N, replace = TRUE)
   
   #compute how often player 1 wins and divide by the total
-  sum(player1_rolls&gt;player2_rolls)/N  
+  sum(player1_rolls &gt; player2_rolls) / N
 }</code></pre>
 <pre class="r"><code>#Simulate 100,000 games
-N=1e5
+N = 1e5
 
 #Benchmark both approaches
-microbenchmark(dice_throwing_game(N),dice_throwing_game_vec(N),times=1)</code></pre>
+microbenchmark(dice_throwing_game(N), dice_throwing_game_vec(N), times = 1)</code></pre>
 <pre><code>## Unit: milliseconds
 ##                       expr       min        lq      mean    median        uq
-##      dice_throwing_game(N) 1037.5041 1037.5041 1037.5041 1037.5041 1037.5041
-##  dice_throwing_game_vec(N)    9.4061    9.4061    9.4061    9.4061    9.4061
+##      dice_throwing_game(N) 1353.3446 1353.3446 1353.3446 1353.3446 1353.3446
+##  dice_throwing_game_vec(N)   13.7277   13.7277   13.7277   13.7277   13.7277
 ##        max neval
-##  1037.5041     1
-##     9.4061     1</code></pre>
+##  1353.3446     1
+##    13.7277     1</code></pre>
 </div>
 </div>
 <div id="introducing-the-apply-family-of-functions" class="section level2" number="2.5">
@@ -1918,32 +1914,32 @@ will only consider two, <code>apply()</code> and
 you want to repeat something to all of the columns or rows. For example,
 getting the column and row means of a matrix can be done by running the
 below code:</p>
-<pre class="r"><code>df=data.frame(a=1:4,b=1:4,c=6:9)
+<pre class="r"><code>df = data.frame(a = 1:4, b = 1:4, c = 6:9)
 
-mat=as.matrix(df)
+mat = as.matrix(df)
 
 #get the column means
-apply(mat,2,mean)</code></pre>
+apply(mat, 2, mean)</code></pre>
 <pre><code>##   a   b   c 
 ## 2.5 2.5 7.5</code></pre>
 <pre class="r"><code>#get the row means
-apply(mat,1,mean)</code></pre>
+apply(mat, 1, mean)</code></pre>
 <pre><code>## [1] 2.666667 3.666667 4.666667 5.666667</code></pre>
 <p>This is not only quicker to run than a traditional for loop but is
 quicker to write and can be easier to read.</p>
 <p>The next function we will look at is the sapply function. This
 function is very similar to a for loop, returning a vector or matrix of
 results.</p>
-<pre class="r"><code>dice_roll=vector(length=100)
+<pre class="r"><code>dice_roll = vector(length = 100)
 
-for(i in 1:100){
-  
-  dice_roll[i]=sample(1:6,1)
+for (i in 1:100) {
+  dice_roll[i] = sample(1:6, 1)
 }
 
 
 
-dice_roll_apply=sapply(1:100,function(i) sample(1:6,1))</code></pre>
+dice_roll_apply = sapply(1:100, function(i)
+  sample(1:6, 1))</code></pre>
 </div>
 <div id="caching-results" class="section level2" number="2.6">
 <h2><span class="header-section-number">2.6</span> Caching results</h2>
@@ -1956,28 +1952,44 @@ cache the results?</p>
 <p>By saving the value to a variable we can reduce the number of
 function calls and so speed up the loop.</p>
 <pre class="r"><code>#Load in a large matrix of values
-data(&quot;ex_mat&quot;, package = &quot;efficient&quot;)
+ex_mat=readRDS(&#39;./data/example_matrix.rds&#39;)
 
-#Notice that we have 1000 rows and 100 columns
+ex_mat_csv=as.matrix(read.csv(&#39;./data/example_matrix.csv&#39;))
+
+
+microbenchmark(readRDS(&#39;./data/example_matrix.rds&#39;),
+               as.matrix(read.csv(&#39;./data/example_matrix.csv&#39;)),times=1,unit=&#39;s&#39;)</code></pre>
+<pre><code>## Unit: seconds
+##                                              expr       min        lq      mean
+##              readRDS(&quot;./data/example_matrix.rds&quot;) 0.0055018 0.0055018 0.0055018
+##  as.matrix(read.csv(&quot;./data/example_matrix.csv&quot;)) 0.0871200 0.0871200 0.0871200
+##     median        uq       max neval
+##  0.0055018 0.0055018 0.0055018     1
+##  0.0871200 0.0871200 0.0871200     1</code></pre>
+<pre class="r"><code>#Notice that we have 1000 rows and 100 columns
 dim(ex_mat)</code></pre>
 <pre><code>## [1] 1000  100</code></pre>
 <pre class="r"><code>#compute the table standard deviation
-cached_sd=sd(ex_mat)
+cached_sd = sd(ex_mat)
 
 #Benchmark the calculation times using cached vs uncached results.
-microbenchmark(apply(ex_mat,2,function(i) mean(i)/sd(ex_mat)),
-               apply(ex_mat,2,function(i) mean(i)/cached_sd))</code></pre>
-<pre><code>## Unit: microseconds
-##                                              expr     min       lq      mean
-##  apply(ex_mat, 2, function(i) mean(i)/sd(ex_mat)) 41458.3 46626.95 56153.351
-##   apply(ex_mat, 2, function(i) mean(i)/cached_sd)   880.2   961.00  1363.435
-##   median       uq      max neval cld
-##  52395.5 60515.80 154804.2   100  a 
-##   1065.0  1248.85   7660.4   100   b</code></pre>
+microbenchmark(apply(ex_mat, 2, function(i)
+  mean(i) / sd(ex_mat)),
+  apply(ex_mat, 2, function(i)
+    mean(i) / cached_sd),times= 1)</code></pre>
+<pre><code>## Unit: milliseconds
+##                                              expr     min      lq    mean
+##  apply(ex_mat, 2, function(i) mean(i)/sd(ex_mat)) 86.6935 86.6935 86.6935
+##   apply(ex_mat, 2, function(i) mean(i)/cached_sd)  3.2608  3.2608  3.2608
+##   median      uq     max neval
+##  86.6935 86.6935 86.6935     1
+##   3.2608  3.2608  3.2608     1</code></pre>
 </div>
 <div id="parallel-computing" class="section level2" number="2.7">
 <h2><span class="header-section-number">2.7</span> Parallel
 Computing</h2>
+<p><strong>If you are running this on Posit you wont be able to complete
+Section 2.7. The free version is limited to a single core.</strong></p>
 <p>In recent years the processing speed of a CPU has tapered off to a
 near stand still. The reason? The quicker a CPU processes information
 the more heat it generates.</p>
@@ -1995,12 +2007,10 @@ processing.</p>
 running our code on a single core.</p>
 <p>Luckily we can use some packages to help us access the other cores
 and give our code a big speed boost.</p>
-<p>In the R package <code>parallel</code> we can use the function
+<p>In the R package <code>{parallel}</code> we can use the function
 <code>detectCores()</code> to see how many cores we have on our
 machines.</p>
-<p><strong>If you are running this on Posit you wont be able to complete
-Section 2.7. The free version is limited to a single core.</strong></p>
-<pre class="r"><code>paste0(&#39;Number of cores: &#39;,detectCores())</code></pre>
+<pre class="r"><code>paste0(&#39;Number of cores: &#39;, detectCores())</code></pre>
 <pre><code>## [1] &quot;Number of cores: 8&quot;</code></pre>
 <p>On my laptop there are a total of 8 cores which in theory means I can
 make a piece of code run eight times faster. However we usually reserve
@@ -2027,66 +2037,62 @@ zero.</p>
 <p>Can we run this code and simulate the dice throwing game in
 parallel?</p>
 <pre class="r"><code>#Dice rolling game
-dice_game=function(n_rolls=100){
-  
+dice_game = function(n_rolls = 100) {
   #intial score
-  total=0
+  total = 0
   
   #simulate rolls of a dice
-  dice_rolls=sample(1:6,n_rolls,replace=T)
+  dice_rolls = sample(1:6, n_rolls, replace = T)
   
   #add the first two rolls
-  total=sum(dice_rolls[1:2])
+  total = sum(dice_rolls[1:2])
   
   #for every remaining roll...
-  for(i in 3:n_rolls){
-    
+  for (i in 3:n_rolls) {
     #check to see if it is the same as the previous two rolls
-    if(dice_rolls[i]==dice_rolls[i-1] &amp;&amp; dice_rolls[i]==dice_rolls[i-2]){
-      
+    if (dice_rolls[i] == dice_rolls[i - 1] &amp;&amp;
+        dice_rolls[i] == dice_rolls[i - 2]) {
       #if it is reset the total to 0
-      total=0
+      total = 0
       
     }
     else{
-    
-    #otherwise add the score to the total
-    total=total+dice_rolls[i]
-    
+      #otherwise add the score to the total
+      total = total + dice_rolls[i]
+      
     }
     
-    if(total&gt;=200){
-      
+    if (total &gt;= 200) {
       #&quot;Congratulations you are a winner!&quot;
       return(1)
     }
     
-
+    
   }
   
-    #&quot;Sorry you didn&#39;t win this time&quot;
-    return(0)
+  #&quot;Sorry you didn&#39;t win this time&quot;
+  return(0)
   
 }</code></pre>
-<p>We can’t run this code in parallel because it depends on the previous
-iterations. The constraint that 3 consecutive rolls with the same number
-resets the score to 0 prevents us from running the code in parallel.</p>
-<p>What about if we want to simulate this game many times and then
+<p>We <strong>can’t</strong> run this code in parallel because it
+depends on the previous iterations. The constraint that 3 consecutive
+rolls with the same number resets the score to 0 prevents us from
+running the code in parallel.</p>
+<p>But what about if we want to simulate this game many times and then
 estimate how often we win. Can we run this in parallel?</p>
-<pre class="r"><code>N_games=1e5
+<pre class="r"><code>N_games = 1e5
 
 #create a preallocated vector
-game_win_or_lose=vector(length=N_games)
+game_win_or_lose = vector(length = N_games)
 
 #for every game...
-for(i in seq_len(N_games)){
-  
+for (i in seq_len(N_games)) {
   #simulate the game with 100 dice rolls
-  game_win_or_lose[i]=dice_game(100)
+  game_win_or_lose[i] = dice_game(100)
 }
 
 mean(game_win_or_lose)</code></pre>
-<pre><code>## [1] 0.49495</code></pre>
+<pre><code>## [1] 0.49486</code></pre>
 <p>To run code in parallel we will use the parallel package. As we want
 to get the results back as a vector we will use the
 <code>parSapply()</code> function.</p>
@@ -2097,8 +2103,8 @@ gets its own copy.</p>
 cluster to free up the used resources.</p>
 <pre class="r"><code>n.cores &lt;- detectCores()
 
-#setup a cluster 
-clust &lt;- makeCluster(n.cores-1)
+#setup a cluster
+clust &lt;- makeCluster(n.cores - 1)
 
 
 # Export the dice_game() function to the cluster
@@ -2108,31 +2114,29 @@ clusterExport(clust, &quot;dice_game&quot;)
 res &lt;- parSapply(clust, 1:100, function(i) dice_game())
 
 mean(res)</code></pre>
-<pre><code>## [1] 0.51</code></pre>
+<pre><code>## [1] 0.43</code></pre>
 <pre class="r"><code>#Close down the cluster
 stopCluster(clust)</code></pre>
 <p>But how much of a speed boost does this give us? We would expect it
 to be 7 times quicker if we are using 7 cores.</p>
-<pre class="r"><code>clust &lt;- makeCluster(n.cores-1)
+<pre class="r"><code>clust &lt;- makeCluster(n.cores - 1)
 
 # Export the play() function to the cluster
 clusterExport(clust, &quot;dice_game&quot;)
 
-microbenchmark(
-for(i in seq_len(N_games)){
-  
-  game_win_or_lose[i]=dice_game(100)
+microbenchmark(for (i in seq_len(N_games)) {
+  game_win_or_lose[i] = dice_game(100)
 },
-parSapply(clust, seq_len(N_games), function(i) dice_game()),
-times=1
-)</code></pre>
+parSapply(clust, seq_len(N_games), function(i)
+  dice_game()),
+times = 1)</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                                                      expr
 ##  for (i in seq_len(N_games)) {     game_win_or_lose[i] = dice_game(100) }
 ##               parSapply(clust, seq_len(N_games), function(i) dice_game())
 ##        min        lq      mean    median        uq       max neval
-##  2361.1866 2361.1866 2361.1866 2361.1866 2361.1866 2361.1866     1
-##   720.3773  720.3773  720.3773  720.3773  720.3773  720.3773     1</code></pre>
+##  2498.9584 2498.9584 2498.9584 2498.9584 2498.9584 2498.9584     1
+##   713.1406  713.1406  713.1406  713.1406  713.1406  713.1406     1</code></pre>
 <pre class="r"><code>stopCluster(clust)</code></pre>
 <p>In actuality we only see about a 3.4 fold speed up. This is because
 each core needs to talk to each other and bring the data back once
@@ -2150,7 +2154,7 @@ running slowly, programs not responding or crashing.</p>
 pre-compiled into byte code. This allows the function to be run outside
 of R by a very fast interpreter.</p>
 <p>If we create a custom function we could get a speed boost by simply
-compiling the code. To do this we use the <code>compiler</code>
+compiling the code. To do this we use the <code>{compiler}</code>
 package.</p>
 <p>Suppose we want to compute the mean of a vector. We could use the
 native <code>mean()</code> function. Instead we will write an
@@ -2158,8 +2162,9 @@ inefficient custom function.</p>
 <pre class="r"><code>mean_r = function(x) {
   m = 0
   n = length(x)
-  for (i in seq_len(n))
+  for (i in seq_len(n)) {
     m = m + x[i] / n
+  }
   m
 }</code></pre>
 <p>We can then pre-compile our custom function and see how well it
@@ -2171,12 +2176,12 @@ compiling code doesn’t always result in a performance improvement.</p>
 <pre class="r"><code>#Let&#39;s generate random data
 x = rnorm(1000)
 
-microbenchmark(mean_r(x),cmp_mean_r(x),mean(x),times=1)</code></pre>
+microbenchmark(mean_r(x), cmp_mean_r(x), mean(x), times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##           expr    min     lq   mean median     uq    max neval
-##      mean_r(x) 2216.4 2216.4 2216.4 2216.4 2216.4 2216.4     1
-##  cmp_mean_r(x)   36.4   36.4   36.4   36.4   36.4   36.4     1
-##        mean(x)   13.6   13.6   13.6   13.6   13.6   13.6     1</code></pre>
+##      mean_r(x) 3713.4 3713.4 3713.4 3713.4 3713.4 3713.4     1
+##  cmp_mean_r(x)   42.0   42.0   42.0   42.0   42.0   42.0     1
+##        mean(x)   17.2   17.2   17.2   17.2   17.2   17.2     1</code></pre>
 </div>
 </div>
 <div id="writing-code-that-can-be-understood" class="section level1" number="3">
@@ -2195,9 +2200,10 @@ line. Take the below table as an example. Here I have quickly created
 the data without any consideration that others will need to understand
 it.</p>
 <p>Can you tell what the data is supposed to represent?</p>
-<pre class="r"><code>df=data.frame(c1=1:12,
-              c2=c(4.6,6.5,7.5,8.9,12.8,14.9,18.1,18.3,14.3,12.7,8.9,3.5),
-              c3=c(4.9,6.2,6.8,8.4,12.3,16.7,16.1,16.2,NA,NA,NA,NA)
+<pre class="r"><code>df = data.frame(
+  c1 = 1:12,
+  c2 = c(4.6, 6.5, 7.5, 8.9, 12.8, 14.9, 18.1, 18.3, 14.3, 12.7, 8.9, 3.5),
+  c3 = c(4.9, 6.2, 6.8, 8.4, 12.3, 16.7, 16.1, 16.2, NA, NA, NA, NA)
 )
 
 
@@ -2218,9 +2224,10 @@ df</code></pre>
 <p>What about now? In the below example I have given the table a more
 appropriate name and changed the column names to something more
 descriptive.</p>
-<pre class="r"><code>avg_england_temp=data.frame(&#39;Month Number&#39;=1:12,
-              &#39;Air Temperature 2022&#39;=c(4.6,6.5,7.5,8.9,12.8,14.9,18.1,18.3,14.3,12.7,8.9,3.5),
-              &#39;Air Temperature 2023&#39;=c(4.9,6.2,6.8,8.4,12.3,16.7,16.1,16.2,NA,NA,NA,NA)
+<pre class="r"><code>avg_england_temp = data.frame(
+  &#39;Month Number&#39; = 1:12,
+  &#39;Air Temperature 2022&#39; = c(4.6, 6.5, 7.5, 8.9, 12.8, 14.9, 18.1, 18.3, 14.3, 12.7, 8.9, 3.5),
+  &#39;Air Temperature 2023&#39; = c(4.9, 6.2, 6.8, 8.4, 12.3, 16.7, 16.1, 16.2, NA, NA, NA, NA)
 )
 
 
@@ -2246,17 +2253,17 @@ variables</h3>
 <p>When creating multi-word variables it is important to use a naming
 convention that is easy to understand. Using Camel Case, Snake Case or
 Dot Case are good examples of naming conventions.</p>
-<pre class="r"><code>avgglobaltemp=10
+<pre class="r"><code>avgglobaltemp = 10
 
 #Example of Camel Case
-avgGlobalTemp=10
+avgGlobalTemp = 10
 
 #Example of Snake Case
-avg_global_temp=10
+avg_global_temp = 10
 
 #Example of Dot Case
 
-avg.global.temp=10</code></pre>
+avg.global.temp = 10</code></pre>
 <p>Hopefully you can agree that any of the three naming conventions are
 better than no naming convention at all.</p>
 </div>
@@ -2272,7 +2279,7 @@ enough comments to understand logic behind the code.</p>
 <pre class="r"><code>if(sample(0:36,1)==sample(0:36,1)){print(&quot;You&#39;re a Winner&quot;)}else{&quot;You&#39;ve Lost&quot;}</code></pre>
 <pre><code>## [1] &quot;You&#39;ve Lost&quot;</code></pre>
 <p>Is it clear what the code is doing?</p>
-<pre class="r"><code>#simulate a game of roulette 
+<pre class="r"><code>#simulate a game of roulette using the sample function 
 if(sample(0:36,1)==sample(0:36,1)){print(&quot;You&#39;re a Winner&quot;)}else{&quot;You&#39;ve Lost&quot;}</code></pre>
 <pre><code>## [1] &quot;You&#39;ve Lost&quot;</code></pre>
 <p>We have a good level of comments to make it clear what the code is
@@ -2326,8 +2333,8 @@ for(i in 1:12){
   else{
     final_result=0}
   }</code></pre>
-<p>As a shortcut you can highlight your code and press “Ctrl + Alt + A”
-to automatically reformat the code.</p>
+<p>As a shortcut you can highlight your code and press
+<code>Ctrl + Shift + A</code> to automatically reformat the code.</p>
 </div>
 </div>
 <div id="final-remarks" class="section level1" number="4">
