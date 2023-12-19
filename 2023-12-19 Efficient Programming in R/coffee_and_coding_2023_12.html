@@ -1672,9 +1672,9 @@ n = 1e3
 microbenchmark(fun1(n), fun2(n), fun3(n), times = 1, unit = &#39;s&#39;)</code></pre>
 <pre><code>## Unit: seconds
 ##     expr       min        lq      mean    median        uq       max neval
-##  fun1(n) 0.0157564 0.0157564 0.0157564 0.0157564 0.0157564 0.0157564     1
-##  fun2(n) 0.0045966 0.0045966 0.0045966 0.0045966 0.0045966 0.0045966     1
-##  fun3(n) 0.0000042 0.0000042 0.0000042 0.0000042 0.0000042 0.0000042     1</code></pre>
+##  fun1(n) 0.0156062 0.0156062 0.0156062 0.0156062 0.0156062 0.0156062     1
+##  fun2(n) 0.0040642 0.0040642 0.0040642 0.0040642 0.0040642 0.0040642     1
+##  fun3(n) 0.0000059 0.0000059 0.0000059 0.0000059 0.0000059 0.0000059     1</code></pre>
 <p>When we only need to create a sequence of values up to 1000 all three
 functions run in less than 1 second.</p>
 <p>The fastest function to run, <code>fun3()</code>, took advantage of
@@ -1693,9 +1693,9 @@ to denote this <code>n=1e5</code>.</p>
 microbenchmark(fun1(n), fun2(n), fun3(n), times = 1, unit = &#39;s&#39;)</code></pre>
 <pre><code>## Unit: seconds
 ##     expr        min         lq       mean     median         uq        max
-##  fun1(n) 13.0984014 13.0984014 13.0984014 13.0984014 13.0984014 13.0984014
-##  fun2(n)  0.0040933  0.0040933  0.0040933  0.0040933  0.0040933  0.0040933
-##  fun3(n)  0.0011286  0.0011286  0.0011286  0.0011286  0.0011286  0.0011286
+##  fun1(n) 12.9687244 12.9687244 12.9687244 12.9687244 12.9687244 12.9687244
+##  fun2(n)  0.0040855  0.0040855  0.0040855  0.0040855  0.0040855  0.0040855
+##  fun3(n)  0.0010941  0.0010941  0.0010941  0.0010941  0.0010941  0.0010941
 ##  neval
 ##      1
 ##      1
@@ -1745,9 +1745,9 @@ that the third method is the most efficient.</p>
                df$name[3], times = 1, unit = &#39;micro&#39;)</code></pre>
 <pre><code>## Unit: microseconds
 ##           expr  min   lq mean median   uq  max neval
-##       df[3, 2] 15.3 15.3 15.3   15.3 15.3 15.3     1
-##  df[3, &quot;name&quot;] 63.8 63.8 63.8   63.8 63.8 63.8     1
-##     df$name[3]  3.6  3.6  3.6    3.6  3.6  3.6     1</code></pre>
+##       df[3, 2] 50.3 50.3 50.3   50.3 50.3 50.3     1
+##  df[3, &quot;name&quot;] 14.4 14.4 14.4   14.4 14.4 14.4     1
+##     df$name[3]  3.3  3.3  3.3    3.3  3.3  3.3     1</code></pre>
 <p>The reason that the third approach runs 10 times quicker than the
 slowest is not immediately obvious.</p>
 <p>A data frame is a useful object as it can contain data of different
@@ -1755,9 +1755,9 @@ data types. For example, in our data frame it has a column of numbers
 and a column of characters. This is great for us because all of the data
 is stored in the same object/place. But this comes at the cost of
 processing speed.</p>
-<p>The first two methods filter by the row first and then the column. By
-filtering by the row first the interm we filter the data but are still
-bound to a data frame object and its associated speed penalty.</p>
+<p>The first two methods filter by the row first and then the column.
+When filtering by the row first the interim object created is a
+dataframe and so is still has the associated speed penalty.</p>
 <p>The third approach selects the column first, which results in a
 single data type. This can be converted into a vector (which gives a
 speed boost) and then filtered.</p>
@@ -1795,13 +1795,13 @@ row.</p>
 <pre class="r"><code>microbenchmark(df[, 2], mat[, 2], times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##      expr  min   lq mean median   uq  max neval
-##   df[, 2] 28.8 28.8 28.8   28.8 28.8 28.8     1
-##  mat[, 2]  3.5  3.5  3.5    3.5  3.5  3.5     1</code></pre>
+##   df[, 2] 42.8 42.8 42.8   42.8 42.8 42.8     1
+##  mat[, 2] 10.5 10.5 10.5   10.5 10.5 10.5     1</code></pre>
 <pre class="r"><code>microbenchmark(df[2,], mat[2,], times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##      expr   min    lq  mean median    uq   max neval
-##   df[2, ] 117.2 117.2 117.2  117.2 117.2 117.2     1
-##  mat[2, ]   5.7   5.7   5.7    5.7   5.7   5.7     1</code></pre>
+##   df[2, ] 105.0 105.0 105.0  105.0 105.0 105.0     1
+##  mat[2, ]  10.2  10.2  10.2   10.2  10.2  10.2     1</code></pre>
 </div>
 <div id="vectorising-code" class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Vectorising code</h2>
@@ -1834,8 +1834,8 @@ around a 48 fold speed boost.</p>
 microbenchmark(add_one(x), x + 1, unit = &#39;micro&#39;, times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##        expr    min     lq   mean median     uq    max neval
-##  add_one(x) 9452.6 9452.6 9452.6 9452.6 9452.6 9452.6     1
-##       x + 1  198.3  198.3  198.3  198.3  198.3  198.3     1</code></pre>
+##  add_one(x) 9462.8 9462.8 9462.8 9462.8 9462.8 9462.8     1
+##       x + 1  195.7  195.7  195.7  195.7  195.7  195.7     1</code></pre>
 <p>The reason for the speed boost is fairly straight forward. In our
 custom function to complete execution R has to call the +, [], []=
 functions a total of 100,000 times each. Even though the cost of doing
@@ -1892,11 +1892,11 @@ N = 1e5
 microbenchmark(dice_throwing_game(N), dice_throwing_game_vec(N), times = 1)</code></pre>
 <pre><code>## Unit: milliseconds
 ##                       expr       min        lq      mean    median        uq
-##      dice_throwing_game(N) 1353.3446 1353.3446 1353.3446 1353.3446 1353.3446
-##  dice_throwing_game_vec(N)   13.7277   13.7277   13.7277   13.7277   13.7277
+##      dice_throwing_game(N) 1349.8027 1349.8027 1349.8027 1349.8027 1349.8027
+##  dice_throwing_game_vec(N)   14.8271   14.8271   14.8271   14.8271   14.8271
 ##        max neval
-##  1353.3446     1
-##    13.7277     1</code></pre>
+##  1349.8027     1
+##    14.8271     1</code></pre>
 </div>
 </div>
 <div id="introducing-the-apply-family-of-functions" class="section level2" number="2.5">
@@ -1961,11 +1961,11 @@ microbenchmark(readRDS(&#39;./data/example_matrix.rds&#39;),
                as.matrix(read.csv(&#39;./data/example_matrix.csv&#39;)),times=1,unit=&#39;s&#39;)</code></pre>
 <pre><code>## Unit: seconds
 ##                                              expr       min        lq      mean
-##              readRDS(&quot;./data/example_matrix.rds&quot;) 0.0055018 0.0055018 0.0055018
-##  as.matrix(read.csv(&quot;./data/example_matrix.csv&quot;)) 0.0871200 0.0871200 0.0871200
+##              readRDS(&quot;./data/example_matrix.rds&quot;) 0.0055438 0.0055438 0.0055438
+##  as.matrix(read.csv(&quot;./data/example_matrix.csv&quot;)) 0.0836814 0.0836814 0.0836814
 ##     median        uq       max neval
-##  0.0055018 0.0055018 0.0055018     1
-##  0.0871200 0.0871200 0.0871200     1</code></pre>
+##  0.0055438 0.0055438 0.0055438     1
+##  0.0836814 0.0836814 0.0836814     1</code></pre>
 <pre class="r"><code>#Notice that we have 1000 rows and 100 columns
 dim(ex_mat)</code></pre>
 <pre><code>## [1] 1000  100</code></pre>
@@ -1979,11 +1979,11 @@ microbenchmark(apply(ex_mat, 2, function(i)
     mean(i) / cached_sd),times= 1)</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                              expr     min      lq    mean
-##  apply(ex_mat, 2, function(i) mean(i)/sd(ex_mat)) 86.6935 86.6935 86.6935
-##   apply(ex_mat, 2, function(i) mean(i)/cached_sd)  3.2608  3.2608  3.2608
+##  apply(ex_mat, 2, function(i) mean(i)/sd(ex_mat)) 88.5986 88.5986 88.5986
+##   apply(ex_mat, 2, function(i) mean(i)/cached_sd)  3.2757  3.2757  3.2757
 ##   median      uq     max neval
-##  86.6935 86.6935 86.6935     1
-##   3.2608  3.2608  3.2608     1</code></pre>
+##  88.5986 88.5986 88.5986     1
+##   3.2757  3.2757  3.2757     1</code></pre>
 </div>
 <div id="parallel-computing" class="section level2" number="2.7">
 <h2><span class="header-section-number">2.7</span> Parallel
@@ -2092,7 +2092,7 @@ for (i in seq_len(N_games)) {
 }
 
 mean(game_win_or_lose)</code></pre>
-<pre><code>## [1] 0.49486</code></pre>
+<pre><code>## [1] 0.49236</code></pre>
 <p>To run code in parallel we will use the parallel package. As we want
 to get the results back as a vector we will use the
 <code>parSapply()</code> function.</p>
@@ -2114,7 +2114,7 @@ clusterExport(clust, &quot;dice_game&quot;)
 res &lt;- parSapply(clust, 1:100, function(i) dice_game())
 
 mean(res)</code></pre>
-<pre><code>## [1] 0.43</code></pre>
+<pre><code>## [1] 0.44</code></pre>
 <pre class="r"><code>#Close down the cluster
 stopCluster(clust)</code></pre>
 <p>But how much of a speed boost does this give us? We would expect it
@@ -2135,8 +2135,8 @@ times = 1)</code></pre>
 ##  for (i in seq_len(N_games)) {     game_win_or_lose[i] = dice_game(100) }
 ##               parSapply(clust, seq_len(N_games), function(i) dice_game())
 ##        min        lq      mean    median        uq       max neval
-##  2498.9584 2498.9584 2498.9584 2498.9584 2498.9584 2498.9584     1
-##   713.1406  713.1406  713.1406  713.1406  713.1406  713.1406     1</code></pre>
+##  2496.0576 2496.0576 2496.0576 2496.0576 2496.0576 2496.0576     1
+##   690.9461  690.9461  690.9461  690.9461  690.9461  690.9461     1</code></pre>
 <pre class="r"><code>stopCluster(clust)</code></pre>
 <p>In actuality we only see about a 3.4 fold speed up. This is because
 each core needs to talk to each other and bring the data back once
@@ -2179,9 +2179,9 @@ x = rnorm(1000)
 microbenchmark(mean_r(x), cmp_mean_r(x), mean(x), times = 1)</code></pre>
 <pre><code>## Unit: microseconds
 ##           expr    min     lq   mean median     uq    max neval
-##      mean_r(x) 3713.4 3713.4 3713.4 3713.4 3713.4 3713.4     1
-##  cmp_mean_r(x)   42.0   42.0   42.0   42.0   42.0   42.0     1
-##        mean(x)   17.2   17.2   17.2   17.2   17.2   17.2     1</code></pre>
+##      mean_r(x) 3186.0 3186.0 3186.0 3186.0 3186.0 3186.0     1
+##  cmp_mean_r(x)   42.2   42.2   42.2   42.2   42.2   42.2     1
+##        mean(x)   14.8   14.8   14.8   14.8   14.8   14.8     1</code></pre>
 </div>
 </div>
 <div id="writing-code-that-can-be-understood" class="section level1" number="3">

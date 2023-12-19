@@ -211,7 +211,7 @@ The reason that the third approach runs 10 times quicker than the slowest is not
 
 A data frame is a useful object as it can contain data of different data types. For example, in our data frame it has a column of numbers and a column of characters. This is great for us because all of the data is stored in the same object/place. But this comes at the cost of processing speed.
 
-The first two methods filter by the row first and then the column. By filtering by the row first the interm we filter the data but are still bound to a data frame object and its associated speed penalty.
+The first two methods filter by the row first and then the column. When filtering by the row first the interim object created is a dataframe and so is still has the associated speed penalty.
 
 The third approach selects the column first, which results in a single data type. This can be converted into a vector (which gives a speed boost) and then filtered.
 
