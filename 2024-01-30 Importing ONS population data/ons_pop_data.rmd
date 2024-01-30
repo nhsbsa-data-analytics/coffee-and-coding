@@ -1,0 +1,257 @@
+---
+title: "ONS population data"
+author: "Grace Libby"
+date: "2024-01-30"
+output: html_document
+---
+
+## 1. Population data from ONS
+
+The Office for National Statistics (ONS) publishes a wide range of datasets related to the population of the UK. These datasets are available from the ONS website and can be joined to other data. 
+
+## 2. Importing data 
+
+First, load the required packages for the session.
+
+```{r}
+packages_to_install = c("devtools",
+                        "dplyr",
+                        "highcharter",
+                        "onsr",
+                        "readxl",
+                        "sf",
+                        "tidyverse",
+                        "utils")
+install.packages(setdiff(packages_to_install, rownames(installed.packages())))
+
+library(devtools)
+library(dplyr)
+library(highcharter)
+library(onsr)
+library(readxl)
+library(sf)
+library(tidyverse)
+library(utils)
+
+# optional installation of onsr package as development version
+#install.packages("devtools")
+#devtools::install_github("kvasilopoulos/onsr")
+
+```
+
+### 2.1 Importing using file name
+
+If we already know which file we want to use and where to find it on the ONS website, we can just copy the file link and use this to download the data. We'll just save this in the global environment by assigning it a name, but you could also specify a file path to save it to. This won't be very reproducible, especially if the dataset is regularly updated, but it's a quick way to get started.
+
+This code is based on xls files, so needs adjustment if the file is an xlsx, csv, or other file type. For an xlsx file this is simple as you'd still use the readxl package, and switch from `read_xls()` to `read_xlsx()`.
+
+```{r}
+
+ons_pop_fun <-
+  function(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2021/ukpopestimatesmid2021on2021geographyfinal.xls") {
+    temp1 <- tempfile()
+    nat_pop_url <-
+      utils::download.file(url,
+                           temp1,
+                           mode = "wb")
+    
+    pop_all <- readxl::read_xls(
+      temp1,
+      sheet = "MYE2 - Persons",
+      range = "B9:D12",
+      col_names = c("country", "geography", "population")
+    )
+  }
+
+nat_pop_2021 <- ons_pop_fun()
+
+```
+
+Let's add an option to filter the data to a specific geography type, and an error message to show the options if an invalid argument is set. 
+
+```{r}
+
+ons_pop_fun <-
+  function(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2021/ukpopestimatesmid2021on2021geographyfinal.xls", geography_type) {
+    poss_geo <-
+      c(
+        "County",
+        "Country",
+        "London Borough",
+        "Metropolitan County",
+        "Metropolitan District",
+        "Non-metropolitan District",
+        "Region",
+        "Unitary Authority"
+      )
+    
+    if (!(geography_type %in% poss_geo)) {
+      stop(
+        "geography_type must be one value from the following options: County, Country, London Borough, Metropolitan County, Metropolitan District, Non-metropolitan District, Region, Unitary Authority"
+      )
+    }
+    
+    temp1 <- tempfile()
+    nat_pop_url <-
+      utils::download.file(url,
+                           temp1,
+                           mode = "wb")
+    
+    pop_all <- readxl::read_xls(
+      temp1,
+      sheet = "MYE2 - Persons",
+      range = "B9:D360",
+      col_names = c("area", "geography", "population")
+    )
+    
+    pop_eng_21 <- pop_all |>
+      dplyr::filter(geography == geography_type)
+  }
+
+print(ons_pop_fun(geography_type = "Country"))
+
+```
+
+
+### 2.2 Importing using an API 
+
+If we're not sure which specific file we want from the website, we can use the API available for ONS data. An API is a tool through which a data request is sent. You can use the API directly, as described on this [blogpost from ONS](https://digitalblog.ons.gov.uk/2021/02/15/how-to-access-data-from-the-ons-beta-api/), but it might be complicated if you're not familiar with how to make and send requests.
+
+However, we can also use R packages to make the requests, which is useful if you want to keep your code all in one place as a reproducible analytical pipeline (RAP). Note that there are a couple of different packages you can use, but we'll be looking at the onsr package authored by Kostas Vasilopoulos.
+
+APIs usually have rate limits on how many requests you can make in a short space of time, so care should be taken when automating code in R to make requests. If you make an error in the code which results in repeated attempts to make a request, you might have access to the API limited for a set time.
+
+The onsR package is a helpful wrapper for using the ONS API. You can get the package directly through CRAN, or you can install the development version by using devtools. The package's code is available online in the [onsr GitHub repository](https://github.com/kvasilopoulos/onsr/). 
+
+We can run the `ons_ids` function to find out what datasets are currently available via the API. 
+
+```{r}
+
+ons_ids()
+
+```
+
+To actually get the data, we use the `ons_get` function with the ID of our chosen data. Just swap out the ID if you want to look at something different than the mid-year population estimates. 
+
+```{r}
+
+ons_get(id = "mid-year-pop-est")
+
+```
+
+We can also set the edition and other arguments within the function. If the edition isn't specified, it will default to the latest edition available in the API. Let's set the edition as the mid-2021 estimates and save this data in our global environment. Then we can check if the total population for England in 2021 is the same as in the previous import methods.
+
+```{r}
+
+midyear_pop <-
+  ons_get(id = "mid-year-pop-est", edition = "mid-2021-april-2022-geography")
+
+#filter for total population of England in 2021
+eng_pop_2021 <- midyear_pop |>
+  dplyr::filter(Geography == "ENGLAND",
+                Sex == "All",
+                Age == "Total")
+
+print(eng_pop_2021)
+
+#use ons_get_obs() function to get this as a single observation instead of the whole dataset
+#ons_get_obs(
+#  "mid-year-pop-est",
+#  time = "2021",
+#  geography = "ENGLAND",
+#  age = "All",
+#  sex = "Total"
+#)
+
+```
+
+The population matches the value for England in the data we got from using the file link, which is to be expected as they're from the same source dataset!
+
+## 3. Using population data
+
+Once you have your data, you can do some basic data exploration in R. If we're interested in exploring a given variable per number of population, we can join the population data to other data. 
+
+You'll need to consider what population data will best match the other data you have. For example, if your other data is disease incidence by region, it would make more sense to use the regional population as a denominator rather than the national population. If you're exploring the uptake of a service that's only available to a set age range, you should consider only using the base population of people in that age range.
+
+We can also use population data to calculate a standardised rate, for example a standardised mortality rate.
+
+The datasets on ONS are generally improving over time but releases can have inconsistent naming conventions or formatting. As seen earlier similar data can be found across multiple datasets. It's worth regularly checking through the website if you have the most recent version of a dataset, in case any revisions or corrections have been made.
+
+Although national population estimates for the devolved nations across the UK have been harmonised, not every population dataset is comparable across UK countries. For example, Scotland uses a different type of output area that contains a different minimum number of households compared to England. 
+
+## 4. Plotting population data on a map
+
+Using the mid-year population estimates we accessed through the osnr package, we can look at different levels. The population across England might vary by age, so for example we could find out if different regions have a higher or lower number of people aged above the minimum state pension age. Start by filtering to region level, and aggregate the population by age into two age groups for people aged 65 and younger, or people aged over 65. When performing aggregations, it's worth checking to see if the total population still sums up to the same number as before. As usual, this could be automated more if code is going to be part of a RAP.
+
+```{r}
+
+region_pop <- midyear_pop |>
+  dplyr::filter(
+    Geography %in% c(
+      "NORTH EAST",
+      "NORTH WEST",
+      "YORKSHIRE AND THE HUMBER",
+      "EAST MIDLANDS",
+      "WEST MIDLANDS",
+      "EAST",
+      "LONDON",
+      "SOUTH EAST",
+      "SOUTH WEST"
+    ),
+    Age != "Total",
+    Sex == "All"
+  ) |>
+  dplyr::mutate(Age = as.numeric(gsub("[^0-9.-]", "", Age))) |>
+  dplyr::mutate(age_group = dplyr::case_when(Age <= 65 ~ "65 or under",
+                                             TRUE ~ "Over 65")) |>
+  dplyr::group_by(Geography, age_group) |>
+  dplyr::mutate(age_pop = sum(v4_0)) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(Geography) |>
+  dplyr::mutate(total_pop = sum(v4_0)) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(avg_num_per_1000_pop = ((age_pop / total_pop) * 1000)) |>
+  dplyr::select(RGN21CD = `administrative-geography`, age_group, age_pop, total_pop, avg_num_per_1000_pop) |>
+  dplyr::distinct(RGN21CD, age_group, .keep_all = TRUE)
+
+eng_pop_2021_check <- region_pop |>
+  dplyr::summarise(nat_pop = sum(age_pop))
+
+```
+
+Now, we'll get the file with the map boundaries from the Open Geography Portal. There is a geoJSON link available on the webpage for the regional boundaries we want, which we can copy to put in the `sf_read` function. This can also be done using an API through API packages if needed.
+
+The [boundaries on the Open Geography Portal](https://www.ons.gov.uk/methodology/geography/geographicalproducts/digitalboundaries) are usually available in different levels. For most data visualisation work, the BUC ("ultra generalised") level will show the shape of each area but takes some of the finer details away. This will help with loading times for any maps made from it. If zooming in to smaller areas, such as if you were plotting LSOAs, the other levels might also need investigating. Since boundaries change over time, again you'll need to think about which version is most appropriate for the other data you're adding to it. 
+
+From the glimpse, the region names in our population data are different to the boundaries data. We'll need to join on the region code instead.
+
+```{r}
+
+sf_region <-
+  sf::st_read(
+    "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_December_2021_EN_BUC_2022/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
+    quiet = TRUE
+  )
+
+glimpse(sf_region)
+
+sf_region_pop <-
+  dplyr::left_join(sf_region, region_pop, by = c("RGN21CD"))
+
+```
+
+You can plot the boundaries to check you've downloaded the geoJSON file correctly.
+
+```{r}
+
+plot(sf::st_geometry(sf_region))
+
+
+```
+
+(Code for plotting this as a map using highcharter will be added in the near future)
+
+
+## 5. Resources (To be updated after the session)
+
+* [ONS guide to population statistics and sources](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/methodologies/populationstatisticsandsourcesguide)
