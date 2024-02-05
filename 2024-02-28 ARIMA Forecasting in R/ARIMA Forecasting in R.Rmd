@@ -1,0 +1,53 @@
+---
+title: |
+  ![](BSA_report_header.jpg){width=100%}  
+    
+  ARIMA Forecasting in R
+#author: ""
+#date: "2024-28-02"
+
+output: 
+  html_document:
+    css: "style/style.css"
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 16px;
+   font-family: sans-serif;
+}
+</style>
+<html lang="en">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Blurb on ARIMA modelling/Forecasting
+
+# Load Packages and Data
+
+We will install the following packages for this session:
+
+```{r load packages, messages = FALSE, include = TRUE}
+#install.packages("tidyverse")
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+```
+
+Next, we import our dataset. Maybe use dataset from ODP on prescribing?
+
+# ```{r load data}
+# data <- read_csv("data_raw.csv")
+# data <- as.data.frame(data)
+# glimpse(data)
+# ```
