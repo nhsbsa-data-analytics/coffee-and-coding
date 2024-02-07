@@ -31,23 +31,103 @@ body, td {
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-Blurb on ARIMA modelling/Forecasting
+In this session we will cover using ARIMA models (Auto regressive integrated moving average models) with time series data in R. This session will give you insight in to where you might want to use these types of models and why, but importantly it will also cover where these models are not suitable. We will then cover how to fit models to your data sets and check their validity. Finally we will cover forecasting your time series so you can make predictions on the future of your data.
+
+Please be aware that ARIMA models are not the only type of models out there for forecasting your time series data, there are others such as exponential smoothing models and time series regression models. These other models will not be covered in today's session.
 
 # Load Packages and Data
 
-We will install the following packages for this session:
+We will install the following packages for this session. fpp3 is the forecasting package we will use in this session, loading this package in will automatically load in other useful packages such as dplyr and ggplot2 as well as tsibble and fable which are the packages used for applying the ARIMA models. Please note there are many other packages available to help you with ARIMA modelling and forecasting such as the forecast package and the astsa package to name a few.
 
 ```{r load packages, messages = FALSE, include = TRUE}
 #install.packages("tidyverse")
-library(tidyverse)
+library(fpp3)
 library(knitr)
 library(kableExtra)
+library(nhsbsaR)
 ```
 
-Next, we import our dataset. Maybe use dataset from ODP on prescribing?
+Another package which was loaded in with the fpp3 package was tsibbledata which contains the data we will use to run through some examples in our session today. The data pre-loaded within this package is ready to use in modelling and forecasting, but be aware when using your own datasets that you may need to do some work to make sure the data is in the right format, for instance you will want to check that your time variable is set as such in your data by using as.Date() for example.
 
-# ```{r load data}
-# data <- read_csv("data_raw.csv")
-# data <- as.data.frame(data)
-# glimpse(data)
-# ```
+# Stationarity
+
+ARIMA models should only be fitted to a stationary series. For stationary data, statistical properties (such as the mean or variance) should not depend on the time at which you are observing the data. This means series with seasonality or trends are not stationary.
+```{r stationary data}
+# white noise which is stationary
+plot.ts(rnorm(500, 0, 1))
+
+# google stock data which is non-stationary
+gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |> 
+  ggplot(aes(x = Date, y = Close)) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+## Differencing 
+Differencing is where you calculate the difference between an observation and the one before it. Once a time series has been differenced it will be shorter than the original series by 1 observation since there is no previous observation to calculate the first observations difference. Differencing your data can stabilise the mean as it removes the difference in levels of your data.
+
+```{r differencing data}
+# differenced google data which is now stationary
+gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |> 
+  ggplot(aes(x = Date, y = difference(Close))) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+## Transformations 
+If your series has an unstable variance, then applying a transformation to your data such as taking the log of the series can stabilise this.
+```{r transforming data}
+# antidiabetic drug data which has seasonality and an increasing mean and variance
+antidiabetic <- PBS |> 
+  filter(ATC2 == "A10") |> 
+  summarise(Cost = sum(Cost)/1e6)
+
+# plot monthly cost data
+antidiabetic|> 
+  ggplot(aes(x = Month, y = Cost)) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+
+# plot log transformed data
+antidiabetic|> 
+  ggplot(aes(x = Month, y = log(Cost))) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+Be aware there are other types of transformations which we will not cover in this session.
+
+## Seasonal differencing
+If your series has seasonality in it then you can apply seasonal differencing to it to stabilise the mean. In this method instead of taking the difference between an observation and its previous, you now take the difference between an observation and its previous observation from the same 'season'. So if your data was monthly then you would take the difference between an observation and the observation from 12 months ago. Doing this will leave your new series shorter than the original by the number of seasons you have.
+
+```{r seasonal differencing data}
+# plot log transformed and seasonaly differenced data
+antidiabetic|> 
+  ggplot(aes(x = Month, y = difference(log(Cost), 12))) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+It can be necessary to apply a second round of differencing to your data if it still looks non-stationary after transforming and differencing once. 
+
+## ACF Plots
+One way beyond visual inspection to check if your data is stationary is to plot the ACF (autocorrelation function). If your series is stationary, the ACF plot should quickly drop to very small values around zero. If your series is non-stationary, the first line in the plot tends to be large and positive and the ACF will decrease slowly.
+
+```{r ACF plots}
+# acf plot of non-stationary antidiabetic series
+antidiabetic|> 
+  ACF(Cost) |> 
+  autoplot()
+
+# acf plot of non-stationary google stock series
+gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |>
+  ACF(difference(Close)) |> 
+  autoplot()
+```
+
+There are other more formal ways to check stationarity of your series which we will not cover. These are statistical hypothesis tests such as the Augmented Dickey Fuller test or the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test. These tests are built in to the fable package and can be called using unitroot_kpss() for example. These tests will assess whether differencing is needed.
+
+# Non-seasonal ARIMA models
