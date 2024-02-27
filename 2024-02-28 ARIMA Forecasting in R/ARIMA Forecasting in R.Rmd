@@ -1,0 +1,264 @@
+---
+title: |
+  ![](BSA_report_header.jpg){width=100%}  
+    
+  ARIMA Forecasting in R
+#author: ""
+#date: "2024-28-02"
+
+output: 
+  html_document:
+    css: "style/style.css"
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 16px;
+   font-family: sans-serif;
+}
+</style>
+<html lang="en">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+In this session we will cover using ARIMA models (Autoregressive integrated moving average models) with time series data in R. This session will give you insight in to where you might want to use these types of models and why, but importantly it will also cover where these models are not suitable. We will then cover how to fit models to your data sets and check their validity. Finally we will cover forecasting your time series so you can make predictions on the future of your data.
+
+Please be aware that ARIMA models are not the only type of models out there for forecasting your time series data, there are others such as exponential smoothing models and time series regression models. These other models will not be covered in today's session.
+
+This session will follow the process laid out in the book [Forecasting: Principals and Practice](https://otexts.com/fpp3/arima.html). This book goes in to a great amount of detail on modelling and forecasting and I cannot recommend it enough as a great place to get further information on everything covered in today's session.
+
+# Load Packages and Data
+
+We will install the following packages for this session. `fpp3` is the forecasting package we will use in this session, loading this package in will automatically load in other useful packages such as `dplyr` and `ggplot2` as well as `tsibble` and `fable` which are the packages used for applying the ARIMA models. Please note there are many other packages available to help you with ARIMA modelling and forecasting such as the `forecast` package and the `astsa` package to name a few.
+
+```{r load packages, messages = FALSE, include = TRUE}
+library(fpp3)
+library(nhsbsaR)
+```
+
+Another package which was loaded in with the `fpp3` package was `tsibbledata` which contains the data we will use to run through some examples in our session today. The data pre-loaded within this package is ready to use in modelling and forecasting, but be aware when using your own datasets that you may need to do some work to make sure the data is in the right format, for instance you will want to make sure your data is saved as a [tsibble object](https://otexts.com/fpp3/tsibbles.html).
+
+# ARIMA models
+
+We already mentioned that ARIMA is short for Autoregressive integrated moving average. This can be broken down in to 3 components of the model:
+
+* AR: Autoregressive - this component of the model tells us how our observation at the current time-step is dependent upon previous observations.
+* I: Integrated - in the context of ARIMA models this is referring to the reverse of differencing
+* MA: Moving average - this component of the model tells us how our observation at the current time-step is dependent upon previous forecast errors.
+
+In R, the modelling package we are looking at, `Fable`, will automatically handle the majority of steps needed for optimum model selection. But it is useful for us to understand the process which it is following and importantly which parts require our intervention.
+
+# Stationarity
+
+The first step before we start applying ARIMA models in R, is to visually inspect our series and check that it is suitable for applying models to. Ultimately ARIMA models require a stationary time-series. For stationary data, statistical properties (such as the mean or variance) should not depend on the time at which you are observing the data. This means series with seasonality or trends are not stationary.
+```{r stationary data}
+# white noise which is stationary
+plot.ts(rnorm(500, 0, 1))
+
+# google stock data which is non-stationary
+gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |> 
+  ggplot(aes(x = Date, y = Close)) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+## Differencing 
+Differencing is where you calculate the difference between an observation and the one before it. Once a time series has been differenced it will be shorter than the original series by 1 observation since there is no previous observation to calculate the first observations difference. Differencing your data can stabilise the mean as it removes the difference in levels of your data.
+
+`Fable` will handle the differencing of your time-series data but we will still look to see what is being done...
+
+```{r differencing data}
+# differenced google data which is now stationary
+gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |> 
+  ggplot(aes(x = Date, y = difference(Close))) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+## Seasonal differencing
+If your series has seasonality in it then you can apply seasonal differencing to it to stabilise the mean. In this method instead of taking the difference between an observation and its previous, you now take the difference between an observation and its previous observation from the same 'season'. So if your data was monthly then you would take the difference between an observation and the observation from 12 months ago. Doing this will leave your new series shorter than the original by the number of seasons you have.
+
+```{r seasonal differencing data}
+# antidiabetic drug data which has seasonality and an increasing mean and variance
+antidiabetic <- PBS |> 
+  filter(ATC2 == "A10") |> 
+  summarise(Cost = sum(Cost)/1e6)
+
+# plot monthly cost data
+antidiabetic|> 
+  ggplot(aes(x = Month, y = Cost)) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+
+# plot seasonaly differenced data
+antidiabetic|> 
+  ggplot(aes(x = Month, y = difference(Cost, 12))) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+## Transformations 
+If your series has an unstable variance, then applying a transformation to your data such as taking the log of the series can stabilise this.
+
+`Fable` will not transform your data for you, so IF this is necessary then before you can model your data you will need to apply the required transformation.
+```{r transforming data}
+# plot log transformed and seasonally differenced data
+antidiabetic|> 
+  ggplot(aes(x = Month, y = difference(log(Cost), 12))) + 
+  geom_line() + 
+  nhsbsaR::theme_nhsbsa_gg()
+```
+
+Be aware there are other possible transformations which we will not cover in this session. Logging your data is in fact a special case of a wider family of transformations called Box-Cox transformations and it may be you need to apply a different variation of a Box-Cox transformation. Also note that it can be necessary to apply a second round of differencing to your data if it still looks non-stationary after transforming and differencing once. 
+
+
+## ACF Plots
+One way beyond visual inspection to check if your data is stationary is to plot the ACF (autocorrelation function). The ACF plot shows how points on average relate to previous (lagged) points in the series. If your series is stationary, the ACF plot should quickly drop to very small values around zero. If your series is non-stationary, the first line in the plot tends to be large and positive and the ACF will decrease slowly.
+
+```{r ACF plots}
+# acf plot of non-stationary antidiabetic series
+antidiabetic|> 
+  ACF(Cost) |> 
+  autoplot()
+
+# acf plot of differenced stationary google stock series
+gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |>
+  ACF(difference(Close)) |> 
+  autoplot()
+```
+
+There are other more formal ways to check stationarity of your series which we will not cover. These are statistical hypothesis tests such as the Augmented Dickey Fuller test or the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test. These tests are built in to the fable package and can be called using `unitroot_kpss()` for example. These tests will assess whether differencing is needed.
+
+# Non-seasonal ARIMA models in R
+In R, the ARIMA models are classed as ARIMA(p,d,q) models. Where:
+
+* p is the order of the autoregressive component, it is the number of significant lagged observations that an observation depends on.
+* d is the number of differences applied to the time series.
+* q is the order of the moving average component, it is the number of significant lagged forecast errors that an observation depends on.
+
+## Building ARIMA model
+
+The `ARIMA()` function within the fable package will automatically choose the best p, d and q for your data. It is important to note that Fable will default to a step-wise approach to parameter selection. In the step-wise approach an algorithm is used to cleverly step through models but this means not all possible models are tested. The step-wise approach can be of benefit if you want to save running time in your code, but if you want all models to be tested make sure to add the parameter `stepwise = FALSE` in to your model.
+
+```{r arima model}
+# get Central African Republic Exports data
+CAF_data <- global_economy |>
+  filter(Code == "CAF")
+
+# plot the data
+CAF_data |> autoplot(Exports)
+
+# no obvious change in variance so no transformation needed, now look at differenced data
+CAF_data |> gg_tsdisplay(difference(Exports), plot_type = "partial")
+# Note the pacf is the partial auto correlation function. The pacf shows us the average relationship 
+# between a point and it's lagged value, while controlling for the effect of the other shorter lags.
+
+# let ARIMA function choose model
+chosen_model <- CAF_data |>
+  model(model_sw = ARIMA(Exports))
+
+report(chosen_model)
+
+# let ARIMA function choose model but use stepwise=FALSE
+chosen_model_no_sw <- CAF_data |>
+  model(model_no_sw = ARIMA(Exports, stepwise = FALSE))
+
+report(chosen_model_no_sw)
+```
+
+## Selecting and verifying model
+
+In the above example the ARIMA function found two models for us, but which one should we choose?
+
+```{r arima verification}
+# use glance function to see model outputs
+glance(chosen_model)
+
+glance(chosen_model_no_sw)
+```
+
+The most interesting column for us in this output is the AICc. When comparing models we want to chose the model which minimises the AICc. From the two models we have above, the model where we turned off step-wise searching has a lower AICc value so this is the optimum model. 
+
+IMPORTANT NOTE: AICc can not be used to compare models which have different levels of differencing. So in both models we were comparing d=1 in the model output meaning both have been differenced only once. If either of those models had d not equal to 1 then we could not have compared the model fit using the AICc!
+
+Next we will check the residuals of this chosen model. The residuals are the errors that exist between your observed and modeled values. 
+
+```{r residuals}
+# use gg_tsresiduals to see model residuals
+chosen_model_no_sw |> gg_tsresiduals()
+```
+
+When looking at the above plots we ideally want to see that the residuals look like white noise, with no significant spikes in the acf plot and that the histogram looks mostly like normal data.
+
+Other tests such as Portmanteau tests can be carried out on the residuals to test their normality, but we will not cover these in this session today.
+
+# Forecasting
+Once you have chosen and checked your model you are ready to forecast future values of your time series...
+
+```{r forecasting}
+# use forecast to predict future values, use h for number of future prediction terms you want
+chosen_model_no_sw |> 
+  forecast(h = 5) |> 
+  autoplot(CAF_data)
+```
+
+# Seasonal ARIMA models in R
+In R, seasonal ARIMA models are classed as ARIMA(p,d,q)(P,D,Q)m models. Where:
+
+* p is the order of the autoregressive component, it is the number of significant lagged observations that an observation depends on.
+* d is the number of differences applied to the time series.
+* q is the order of the moving average component, it is the number of significant lagged forecast errors that an observation depends on.
+* P is the order of the seasonal autoregressive component, it is the number of significant lagged seasonal observations that an observation depends on.
+* D is the number of seasonal differences applied to the time series.
+* Q is the order of the seasonal moving average component, it is the number of significant lagged seasonal forecast errors that an observation depends on.
+* m is the seasonal period (so for monthly data m=12, quarterly m=4 and so on...)
+
+`Fable` will automatically choose the best p, d, q, P, D, and Q for your data.
+
+```{r seasonal model}
+# going back to seasonal drug data 
+antidiabetic |> autoplot(Cost)
+
+# remembering we need to log this to stabilise the variance (Fable will do the differencing for us)
+antidiabetic |> autoplot(log(Cost))
+
+#check the acf plot of the differenced data
+antidiabetic |> gg_tsdisplay(difference(log(Cost), 12), lag_max = 36, plot_type = "partial")
+
+# let ARIMA function choose model but use stepwise=FALSE
+ad_model <- antidiabetic |>
+  model(ad_model = ARIMA(log(Cost), stepwise = FALSE))
+
+# see output on chosen model
+report(ad_model)
+
+#chosen model is an ARIMA(3,0,0)(0,1,2)[12] w/ drift
+glance(ad_model)
+
+# have a look at the residuals
+ad_model |> gg_tsresiduals()
+
+# if we did want to look at the ljung box test results we would use this code
+# augment(ad_model) |>  features(.innov, ljung_box, lag = 36, dof = 5)
+# this test returns a p-value greater than 0.05 which means the residuals pass the normality test
+
+# now forecast the data
+ad_model |> 
+  forecast(h = 24) |> 
+  autoplot(antidiabetic)
+```
+
+Note: If we wanted to test this model more rigourously before forecasting with it or we wanted to compare it with a model with a different level of differencing we could have split our data up in to training and testing data. To do this we would stop our series short at the end and keep the last bit we chopped from the series as a test data set and use the rest as a training set up on which we would build our model. Once built we can then forecast the period covered in the test data set and look at the errors incurred. When comparing models you can compare which model gives the smallest RMSE (root mean squared errors) on the test set.
