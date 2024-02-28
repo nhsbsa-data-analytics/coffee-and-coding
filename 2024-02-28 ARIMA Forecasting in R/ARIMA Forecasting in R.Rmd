@@ -42,8 +42,22 @@ This session will follow the process laid out in the book [Forecasting: Principa
 We will install the following packages for this session. `fpp3` is the forecasting package we will use in this session, loading this package in will automatically load in other useful packages such as `dplyr` and `ggplot2` as well as `tsibble` and `fable` which are the packages used for applying the ARIMA models. Please note there are many other packages available to help you with ARIMA modelling and forecasting such as the `forecast` package and the `astsa` package to name a few.
 
 ```{r load packages, messages = FALSE, include = TRUE}
-library(fpp3)
+# Install packages
+#install.packages("devtools")
+#install.packages("urca")
+#install.packages("fpp3")
+ 
+# Load devtools package so nhsbsaR can be instlled
+#library(devtools)
+ 
+# Install nhsbsaR package using devtools via github – if options appear to update other libraries, select the options to update them all
+#devtools::install_github("nhsbsa-data-analytics/nhsbsaR")
+ 
+# Load packages
 library(nhsbsaR)
+library(fpp3)
+library(urca)
+# urca package is just needed to run the fable package on Posit Cloud
 ```
 
 Another package which was loaded in with the `fpp3` package was `tsibbledata` which contains the data we will use to run through some examples in our session today. The data pre-loaded within this package is ready to use in modelling and forecasting, but be aware when using your own datasets that you may need to do some work to make sure the data is in the right format, for instance you will want to make sure your data is saved as a [tsibble object](https://otexts.com/fpp3/tsibbles.html).
