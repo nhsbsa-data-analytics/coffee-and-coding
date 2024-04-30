@@ -1,0 +1,2229 @@
+---
+title: |
+  ![](BSA_report_header_long.jpg){width=100%} 
+  
+  Writing your own tailor-made user-built functions in R
+  
+author: "Larissa Conradt"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+editor_options:
+  markdown:
+    wrap: 100
+---
+
+<!-- -*- mode: gfm -*- -->
+
+<!-- /* Defining text styles */ -->
+
+```{=html}
+<style type="text/css">
+  body{
+  font-family: Helvetica;
+  font-size: 14pt;
+  line-height: 24pt;
+  text-align: justify;
+}
+/* Headers */
+h2{
+  font-family: Helvetica;
+  font-size: 18pt;
+  line-height: 24pt;
+  font-weight: bold;
+}
+h3{
+  font-family: Helvetica;
+  font-size: 16pt;
+  line-height: 24pt;
+}
+h4{
+  font-family: Helvetica;
+  font-size: 12pt;
+  color: grey;
+}
+h5{
+  font-family: Helvetica;
+  font-size: 14pt;
+  line-height: 21pt;
+}
+h6{
+  font-family: Helvetica;
+  font-size: 12pt;
+  line-height: 18pt;
+  font-weight: bold;
+}
+</style>
+```
+```{=html}
+<style>
+.math {
+  font-size: 11pt;
+}
+</style>
+
+
+<style>
+div.boxi {
+  background-color: #E0FFFF;
+  color: #000000; font-size:
+  18px; text-align:left;
+  vertical-align: middle;
+  padding: 0 10px;
+  80px
+}
+div.box2 {
+  background-color: #FFFFE0;
+  color: #000000; font-size:
+  18px; text-align:left;
+  vertical-align: middle;
+  padding: 0 10px;
+  80px
+}
+
+</style>
+
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<br/>
+
+## Overview
+
+#### 1. Why write an R function?
+
+#### 2. R user defined [**function syntax**]{style="color: blue;"}
+
+#### 3. Simplistic function without arguments
+
+#### 4. Function input : [**The arguments**]{style="color: red;"}
+
+#### [..........]{style="color: white;"}4.1. Simple function with [**one argument**]{style="color: red;"}
+
+#### [..........]{style="color: white;"}4.2. Function with [**several arguments**]{style="color: red;"}
+
+#### [..........]{style="color: white;"}4.3. Order of [**arguments**]{style="color: red;"}
+
+#### [..........]{style="color: white;"}4.4. [**Default values**]{style="color: #FF69B4;"}
+
+#### [..........]{style="color: white;"}4.5. Additional (flexible) [**arguments**]{style="color: red;"}
+
+#### [..........]{style="color: white;"}4.6. Fool-prooving your function with respect to [**argument inputs**]{style="color: red; "}
+
+#### [..........]{style="color: white;"}4.7. [**Local**]{style="color: #FF69B4;"} and [**global**]{style="color: #76EEC6;"} arguments in R
+
+#### 5. Function outputs: [**return**]{style="color: orange;"}
+
+#### 6. Check which [**user defined functions**]{style="color: blue;"} are available within your working environment
+
+#### 7. Create your own [**functions library**]{style="color: #9932CC;"}
+
+#### 8. Suggested websites on R functions
+
+### Preview for potential future C & C
+
+#### 9. Recursive Functions (in preparation)
+
+#### 10. Anonymous (inline / lambda) functions (in preparation)
+
+#### 11. Infix (operator) functions (in preparation)
+
+#### 12. Miscellaneous
+
+#### [..........]{style="color: white;"}12.1. What happens if you use the name of a common R function?
+
+#### [..........]{style="color: white;"}12.2. Functions as arguments of a function (in preparation)
+
+#### [..........]{style="color: white;"}12.3. Vector argument inputs (in preparation)
+
+#### 13. [**Function outputs**]{style="color: orange;"}: change a [**global object value**]{style="color: #76EEC6;"}
+
+<br/>
+
+<br/>
+
+## 1. Why write an R function?
+
+<br/>
+
+What is an R function? <br/> R has got a lot of in-built functions which help enormously with
+coding. <br/> A basic but important example is the function **sum()** <br/>
+
+```{r  rfuns1 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+num_vect <- c(2, 3, 4, 5, 6, 7, 8, 1, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6)
+
+# Add all the numbers together
+
+# my_sum <- num_vect[1] + num_vect[2] + num_vect[3]  + num_vect[4]  + num_vect[5] + ....
+
+
+```
+
+<br/>
+
+The in-built R function **sum()**:
+
+<br/>
+
+```{r  rfuns2 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+# R in-built function
+sum(num_vect)
+
+
+```
+
+<br/>
+
+-   If you have a subroutine which you wish to use repeatedly in different places within your code,
+    or which you wish to use in different code files, it can be very practical to write an R
+    function that contains the subroutine. <br/>
+-   [**You can then easily call-up the function every time you require the
+    subroutine.**]{style="color: #DEB887;"} <br/>
+-   By including argument options in your function, you can also easily re-run the same subroutine
+    for different argument combinations. <br/>
+-   [**An R function can save you a lot of coding and make your code more concise, clearer and
+    better structured.**]{style="color: #DEB887;"} <br/>
+-   You can easily share functions with other co-workers or across the organisation. <br/>
+-   [**Using QA-ed and well-tested functions can also help to reduce errors in your
+    code.**]{style="color: #DEB887;"}
+
+<br/>
+
+::: box2
+<br/>
+
+|   **Consider writing a function whenever you've copied and pasted a block of code more than twice**
+
+<br/> <br/>
+:::
+
+<br/>
+
+## 2. R function syntax
+
+<br/>
+
+|                        [**function_name**]{style="color: blue;"}    \<--    function( [**arguments**]{style="color: red;"} )
+|                                                       {
+|                                                       [**function body code**]{style="color: orange;"}
+|                                                       }
+
+<br/>
+
+::: boxi
+<br/>
+
+1.  Choose a [**function_name**]{style="color: blue; "} that is different from the names of common
+    functions already existing in R <br/> Otherwise your new function overwrites the existing
+    function of the same name. Ideally, the [**function_name**]{style="color: blue;"} should be
+    concise, clear and meaningful to give an idea what the functions does. <br/>
+
+2.  Assign your R object [**function_name**]{style="color: blue; "} as a **function()** <br/>
+
+3.  You can choose [**arguments**]{style="color: red;"} for your function. For each argument, you
+    add a argument name in your syntax: <br/> **function ([arg1, arg2, arg3,
+    ...]{style="color: red;"})**. <br/> However, your function does not necessarily have to have
+    arguments. In which case you leave the space within the brackets empty: **function()**. <br/>
+
+4.  In the [**function body**]{style="color: orange;"}, you write the code for what your function is
+    supposed to do <br/>
+
+5.  It might be a good idea to add a brief **description** as a "\# comment" to your function, so
+    that you know what it is doing. <br/>
+
+<br/>
+:::
+
+<br/>
+
+## 3. Simplistic function without arguments
+
+<br/> Let's start with a very simple function called [**simple_fun**]{style="color: blue;"} that has
+no arguments and just provides the string "tiger". <br/>
+
+<br/>
+
+```{r  simp1 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+simple_fun <- function() 
+{
+
+# Description: this function provides the string "tiger"
+  
+    "tiger" 
+}
+
+
+```
+
+<br/>
+
+The [**simple_fun**]{style="color: blue;"} is now stored in an R object of class 'function'. If you
+want to look at it again, you can just call the object [**simple_fun**]{style="color: blue;"}.
+
+<br/>
+
+```{r  simp2 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+simple_fun    
+
+class(simple_fun)
+
+```
+
+<br/>
+
+If you want to apply the function [**simple_fun**]{style="color: blue;"}, you have to add the
+brackets (including the function arguments where appropriate):
+[**simple_fun()**]{style="color: blue;"} and you will get the function output.
+
+<br/>
+
+```{r  simp3 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+
+simple_fun() 
+
+class(simple_fun())  
+
+
+```
+
+<br/>
+
+You can easily assign the function output to a new R object.
+
+<br/>
+
+```{r  simp4 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+b <- simple_fun()
+
+b 
+
+
+```
+
+<br/> <br/>
+
+## 4. Function input : [The arguments]{style="color: red;"}
+
+<br/>
+
+### 4.1. Simple function with [**one argument**]{style="color: red;"}
+
+<br/>
+
+The following function [**arg1_fun**]{style="color: blue;"} has got [**one
+argument**]{style="color: red;"} and provides different animal strings dependent on the value passed
+to [**argument 'int1'**]{style="color: red;"}.
+
+<br/>
+
+```{r  onearg1 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+arg1_fun <- function(int1) 
+{
+
+# Description: depending on argument int1, this function provides the string: 
+  # 1 = "tiger", 2 = "kangeroo" or 3 = "dolphin"
+  
+  c("tiger", "kangeroo", "dolphin")[int1]
+  
+}
+
+```
+
+```{r  onearg2 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+arg1_fun
+
+
+arg1_fun(1)   
+
+
+arg1_fun(2)   
+
+
+arg1_fun(3)  
+
+
+b <- arg1_fun(2)
+
+
+b
+
+
+```
+
+<br/>
+
+What happens if the argument input [**int1**]{style="color: red;"} is out of range?
+
+<br/>
+
+```{r  onearg4 , warning=FALSE , echo = TRUE, class.output="bg-danger"}
+
+arg1_fun(6)
+
+```
+
+<br/> <br/>
+
+## 4.2. Function with [several arguments]{style="color: red;"}
+
+<br/>
+
+The following function has got [**four arguments**]{style="color: red;"} and draws different types
+of spirals.
+
+<br/>
+
+```{r  spir1 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+spiral_fun <- function(size, shape, log_boolean, log_shape) 
+{
+
+# Description: this function draws a spiral 
+# Archimedean spiral: log_boolean = FALSE, shape = 1
+# Logarythmic spiral: log_boolean = TRUE (e.g., log_shape = 0.1)
+# Hyperbolic spiral: shape = -1
+# Fermat spiral: shape = 0.5  
+# Lituus spiral: shape = -0.5  
+  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, type = 'l')
+  
+}
+
+
+```
+
+<br/>
+
+Let's see what [**spiral_fun**]{style="color: blue;"} does.
+
+<br/>
+
+```{r  spir2a , warning=FALSE , echo = TRUE, class.output = "bg-warning"}
+
+# spiral_fun()
+
+# Error in spiral_fun() : 
+#   argument "size" is missing, with no default
+
+```
+
+<br/>
+
+The function [**spiral_fun**]{style="color: blue;"} requires [**four
+arguments**]{style="color: red;"}. Then can you use the function to easily draw different types of
+spirals.
+
+<br/>
+
+```{r  spir2 , warning=FALSE , echo = TRUE, class.output = "bg-warning"}
+
+
+spiral_fun(2, 1, FALSE, 0.1)        # Archimedean
+
+spiral_fun(2, 0.5, FALSE, 0.1)      # Fermat
+
+spiral_fun(10, -1, FALSE, 0.1)      # Hyperbolic
+
+spiral_fun(10, -0.5, FALSE, 0.1)    # Lituus
+
+spiral_fun(10, -0.5, TRUE, 0.1)     # Logarithmic
+
+
+```
+
+<br/>
+
+::: box2
+<br/>
+
+Note that [**argument values**]{style="color: red;"} should be of the required class as defined in
+your function [**spiral_fun**]{style="color: blue;"}: <br/>
+
+[**size**]{style="color: red;"} is numeric, [**shape**]{style="color: red;"} is numeric,
+[**log_boolean**]{style="color: red;"} is logic, [**log_shape**]{style="color: red;"} is numeric.
+<br/>
+
+<br/>
+:::
+
+<br/>
+
+<br/>
+
+```{r  spir3 , warning=FALSE , echo = TRUE, class.output = "bg-danger"}
+
+# spiral_fun("t", -0.5, TRUE, 0.1) 
+# Error in (1 - log_boolean) * size : 
+#   non-numeric argument to binary operator
+
+
+```
+
+<br/>
+
+<br/>
+
+## 4.3. Order of [arguments]{style="color: red;"}
+
+<br/>
+
+If you give [**argument input values**]{style="color: red;"} to a function without their [**argument
+names**]{style="color: red;"}, then you have to make sure the values for the
+[**arguments**]{style="color: red;"} are given in the same sequence as in your original function
+definition: [**spiral_fun**]{style="color: blue;"}**([size, shape, log_boolean,
+log_shape]{style="color: red;"})**. <br/>
+
+<br/> Otherwise R will not know which of the values is meant to be the
+[**size**]{style="color: red;"}, which the [**shape**]{style="color: red;"}, etc.. <br/> <br/>
+However, if you also supply the [**argument names**]{style="color: red;"}, you can give the values
+for the [**arguments**]{style="color: red;"} in any sequence. <br/> <br/> It is, therefore, often a
+good idea to provide [**argument names**]{style="color: red;"} when calling functions with several
+[**arguments**]{style="color: red;"}. <br/> <br/> It makes coding simpler, more reliable and also
+easier to understand if somebody else reads your code.
+
+<br/>
+
+```{r  spir4 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+
+spiral_fun(shape = -0.5, log_boolean = FALSE, log_shape = 0.1, size = 1) 
+
+
+spiral_fun(-0.5, FALSE, 0.1, 1) 
+
+
+```
+
+<br/>
+
+You can also pass [**argument values**]{style="color: red;"} to an R object
+[**"arguments_list"**]{style="color: red;"} of class "list", and then use
+[**arguments_list**]{style="color: red;"} as argument input in your function. However, you have to
+do this by using the inbuilt R function **do.call()** with the following syntax: <br/>
+
+|                           **do.call ( [function_name]{style="color: blue;"}, [arguments_list]{style="color: red;"} )**
+
+<br/>
+
+```{r  spir5 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+
+Archimedan <- list(size = 2, shape = 1, log_boolean = FALSE, log_shape = 0.1)
+
+do.call(spiral_fun, Archimedan)
+
+```
+
+<br/>
+
+## 4.4. [Default values]{style="color: #FF69B4;"}
+
+<br/>
+
+You might wish to have [**default values**]{style="color: #FF69B4;"} for some or all of your
+[**arguments**]{style="color: red;"}. <br/>
+
+You can do that by stating those [**default values**]{style="color: #FF69B4;"} when you first define
+the function. <br/>
+
+In the following, the function [**spiral_fun**]{style="color: blue;"} is given the [**default
+values**]{style="color: #FF69B4;"} **"FALSE"** and **"0.1"** for its arguments
+[**log_boolean**]{style="color: red;"} and [**log_shape**]{style="color: red;"}, respectively.\
+<br/>
+
+```{r  spir6 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+spiral_fun <- function(size, shape, log_boolean = FALSE, log_shape = 0.1) 
+{
+
+# Description: this function draws a spiral 
+# Archimedean spiral: log_boolean = FALSE, shape = 1
+# Logarythmic spiral: log_boolean = TRUE (e.g., log_shape = 0.1)
+# Hyperbolic spiral: shape = -1
+# Fermat spiral: shape = 0.5  
+# Lituus spiral: shape = -0.5  
+  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, type = 'l')
+  
+}
+
+
+```
+
+<br/>
+
+You now no longer have to supply values for the arguments [**log_boolean**]{style="color: red;"} and
+[**log_shape**]{style="color: red;"} as the function has now [**default
+values**]{style="color: #FF69B4;"} available for those arguments. <br/>
+
+However, you can any time overwrite those [**default values**]{style="color: #FF69B4;"} when you
+call you function. <br/> <br/>
+
+```{r  spir7 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+spiral_fun(size = 1, shape = 2) 
+
+spiral_fun(size = 1, shape = 2, log_boolean = TRUE, log_shape = 0.2)
+
+# spiral_fun(log_boolean = TRUE, log_shape = 0.2)
+# Error in spiral_fun(log_boolean = TRUE, log_shape = 0.2) : 
+#   argument "size" is missing, with no default
+  
+```
+
+<br/>
+
+## 4.5. Additional (flexible) [arguments]{style="color: red;"}
+
+<br/> You might want to leave the possibility open to hand additional arguments and argument values
+to your function. <br/>
+
+You can leave this possibility open by adding [**...**]{style="color: red; font-size: 20pt; "} in
+your arguments list when defining your function, as follows. <br/>
+
+If you do this, you must not forget to also indicate with
+[**...**]{style="color: red; font-size: 20pt; "} in your [**function body
+code**]{style="color: orange;"} where those additional arguments will have to be inserted. <br/>
+<br/>
+
+```{r  spir8 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+spiral_fun_extra <- function(size = 1, shape = 0.5, log_boolean = FALSE, log_shape = 0.2, ...) 
+{
+
+# Description: this function draws a spiral 
+# Archimedean spiral: log_boolean = FALSE, shape = 1
+# Logarythmic spiral: log_boolean = TRUE (e.g., log_shape = 0.1)
+# Hyperbolic spiral: shape = -1
+# Fermat spiral: shape = 0.5  
+# Lituus spiral: shape = -0.5  
+  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, ...)
+  
+}
+
+
+```
+
+<br/>
+
+You can now add additional argument values to the function, but you do not have to. <br/> <br/>
+
+```{r  spir9 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+spiral_fun_extra()   # no additional argument values passed 
+
+spiral_fun_extra(type='l')  # one additional argument values passed 
+
+spiral_fun_extra(col='red')  # one additional argument values passed  
+
+spiral_fun_extra(col='purple', type = 'l', lwd = 8)  # three additional argument values passed 
+
+spiral_fun_extra(col='orange', type = 'o', lwd = 1, xlab = "West-East", ylab = "South-North", 
+                  main = "My beautiful spiral", asp = 1, col.lab = 4, col.main = 6,
+                  xaxt = "n", yaxt = "n", axes = FALSE)  # 13 additional argument values passed
+
+
+```
+
+<br/>
+
+## 4.6. Fool-prooving your function with respect to [argument inputs]{style="color: red; font-size: 20pt; "}
+
+<br/>
+
+What happens if you provide, for example, a non-numeric value for the numeric argument
+"[**size**]{style="color: red; "}" in your function? <br/>
+
+```{r  spir11 , warning=FALSE , echo = TRUE, class.source="bg-danger"}
+
+# spiral_fun(size = "t")
+
+# Error in (1 - log_boolean) * size : 
+#   non-numeric argument to binary operator
+
+
+```
+
+<br/>
+
+[**If there is an inappropriate input into your function, your code might stop running
+altogether.**]{style="color: #DEB887;"} <br/>
+
+Sometimes, this might be what you want, because the stopping might alert you to some fundamental
+errors in your code. <br/>
+
+[**However, sometimes, you might wish to run your code, even if there is the occasional
+inappropriate input into your function.**]{style="color: #DEB887;"} <br/>
+
+Therefore, you might wish to include into your [**function body code**]{style="color: orange;"} some
+code that returns error messages if the [**argument input**]{style="color: red; "} is inappropriate.
+
+<br/>
+
+::: boxi
+<br/> 1. Provide default values for your function [**arguments**]{style="color: red; "} <br/> 2.
+Write a routine in your [**function body code**]{style="color: orange; "} that deals with
+[**argument input**]{style="color: red; "} errors <br/>
+
+<br/>
+:::
+
+<br/>
+
+```{r  spir12 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+spiral_fun <- function(size = 1, shape = 1, log_boolean = FALSE, log_shape = 0.1) 
+{
+
+# Description: this function draws a spiral 
+# Archimedean spiral: log_boolean = FALSE, shape = 1
+# Logarythmic spiral: log_boolean = TRUE (e.g., log_shape = 0.1)
+# Hyperbolic spiral: shape = -1
+# Fermat spiral: shape = 0.5  
+# Lituus spiral: shape = -0.5 
+  
+if (!is.numeric(size) | !is.numeric(shape) | !is.numeric(log_shape) 
+    | !is.logical(log_boolean) | !(min(log_boolean %in% c(0,1))) |
+    length(size) + length(shape) + length(log_boolean) + length(log_shape) > 4)
+{
+  print("Warning: Provided argument(s) of wrong class or length, function reverts to default values")
+  size = 1
+  shape = 1
+  log_boolean = FALSE
+  log_shape = 0.1
+  
+}
+  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, type = 'l')
+  
+}
+
+
+```
+
+<br/>
+
+What happens now if you provide a non-numeric value for [**size**]{style="color: red; "}? <br/>
+
+```{r  spir13 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+spiral_fun(size = "t")
+
+spiral_fun(size = c(1, 2, 10))
+
+```
+
+<br/>
+
+Alternatively, you might wish to only give a warning and not execute the function at all. <br/>
+<br/>
+
+```{r  spir14 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+spiral_fun <- function(size = 1, shape = 1, log_boolean = FALSE, log_shape = 0.1) 
+{
+
+# Description: this function draws a spiral 
+# Archimedean spiral: log_boolean = FALSE, shape = 1
+# Logarythmic spiral: log_boolean = TRUE (e.g., log_shape = 0.1)
+# Hyperbolic spiral: shape = -1
+# Fermat spiral: shape = 0.5  
+# Lituus spiral: shape = -0.5 
+  
+if (!is.numeric(size) | !is.numeric(shape) | !is.numeric(log_shape) 
+    | !is.logical(log_boolean) | !(min(log_boolean) %in% c(0,1)) |
+    length(size) + length(shape) + length(log_boolean) + length(log_shape) > 4)
+{
+  print("Warning: Provided argument(s) of wrong class or length, function will not be executed")
+}
+else {  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, type = 'l')
+}
+  
+}
+
+
+```
+
+<br/>
+
+What happens now if you provide a non-numeric value for [**size**]{style="color: red; "}? <br/>
+
+```{r  spir15 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+spiral_fun(size = "t")
+
+spiral_fun(log_boolean = c(TRUE, FALSE))
+
+```
+
+<br/>
+
+There are many further ways to fool-proof your function argument input. <br/>
+
+<br/> You could consider including code in your function that limits the **range** of your argument
+inputs. <br/>
+
+<br/> For example, for the simple one-argument function [**arg1_fun**]{style="color: blue; "} at the
+beginning, you might want to limit the **input range** of the argument
+[**int1**]{style="color: red; "} to integer values **between 1 and 3**. <br/>
+
+<br/> Or you might to wish to give more detailed warnings. For example **which argument** is the
+problem, or whether argument **class or length** is the problem. <br/>
+
+<br/> .. and so on .. <br/>
+
+<br/>
+
+::: box2
+<br/>
+
+|     You can include all kinds of fool-proofing for your [**argument inputs**]{style="color: red; "} within your [**function body code**]{style="color: orange; "}
+
+<br/> <br/>
+:::
+
+<br/>
+
+<br/>
+
+<br/>
+
+## 4.7. [Local]{style="color: #FF69B4;"} and [global]{style="color: #76EEC6;"} arguments in R
+
+<br/>
+
+The arguments which we have talked about so far, were all [**local
+arguments**]{style="color: #FF69B4;"}. <br/>
+
+That is, the arguments were all either given as **input arguments** to the function (e.g.,
+"**size**", "**shape**",...); or they were defined **within** the function body code (e.g., "**x**",
+"**y**",...). <br/>
+
+However, your function can also use [**global arguments**]{style="color: #76EEC6;"}. [**Global
+arguments**]{style="color: #76EEC6;"} are sitting in the main
+("[**global**]{style="color: #76EEC6;"}") body of your code **outside** of functions or function
+inputs. <br/>
+
+Let's have a look at the following function. <br/> <br/>
+
+```{r  spir16 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+spiral_fun_no_size <- function(shape = 1, log_boolean = FALSE, log_shape = 0.1) 
+{
+
+# Description: this function draws a spiral 
+  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, type = 'l')
+  
+}
+
+
+```
+
+<br/>
+
+If I now call the function [**spiral_fun_no_size**]{style="color: blue;"}, R cannot find a value for
+the argument **size** [**locally**]{style="color: #FF69B4;"}, either in the function arguments
+**spiral_fun_no_size([shape, log_boolean , log_shape]{style="color: red;"})** nor within the
+[**function body code**]{style="color: orange;"}.
+
+<br/>
+
+```{r  spir17 , warning=FALSE , echo = TRUE, class.source="bg-danger"}
+
+
+# spiral_fun_no_size()
+
+# Error in spiral_fun_no_size() : object 'size' not found
+
+
+```
+
+<br/>
+
+However, I can set a value for **argument size** (e.g., size = 10)
+[**globally**]{style="color: #76EEC6;"} within the main body of my code and outside of my function
+[**spiral_fun_no_size**]{style="color: blue;"}. <br/> <br/>
+
+```{r  spir18 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+size = 10
+
+spiral_fun_no_size()
+
+
+```
+
+<br/>
+
+::: box2
+<br/>
+
+Generally, if you call a function, R **first** searches for a [**local
+value**]{style="color: #FF69B4;"} for all the arguments required by the function. <br/>
+
+<br/> If R cannot find a [**local value**]{style="color: #FF69B4;"}, R **then** looks for a
+[**global value**]{style="color: #76EEC6;"} (e.g., a value provided in the main body of the code
+before the function is called). <br/>
+
+<br/>
+:::
+
+<br/>
+
+<br/>
+
+## 5. Function outputs: [return]{style="color: orange;"}
+
+<br/>
+
+The following function [**text_fun**]{style="color: blue;"} has as first argument a text string
+[**text1**]{style="color: red;"}. <br/>
+
+It counts and cleans [**text1**]{style="color: red;"} of non-letter characters; and formats it into
+lines of length [**l_width**]{style="color: red;"}. <br/>
+
+It also counts number of words and characters and creates a [**wordcloud**]{style="color: orange;"}.
+<br/>
+
+Its potential outputs are: <br/>
+
+<br/>
+
+|                Number of error characters [**no_errors**]{style="color: orange;"}
+
+<br/>
+
+|                Number of characters [**no_chars**]{style="color: orange;"}
+
+<br/>
+
+|                Number of words [**no_words**]{style="color: orange;"}
+
+<br/>
+
+|                Cleaned text [**text_clean**]{style="color: orange;"}
+
+<br/>
+
+|                Formatted text for printing [**text_formatted**]{style="color: orange;"}
+
+<br/>
+
+|                Wordcloud [**word_cloud**]{style="color: orange;"}
+
+<br/>
+
+<br/>
+
+```{r  txtfun1 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+# install.packages("stringi")
+# install.packages("wordcloud")
+# install.packages("tm")
+
+
+text_fun <- function(text1, l_width){
+  
+# Description: the function (i) cleans the text of non-letter characters and superfluous spaces;
+# (ii) counts the original errors in the text, the number of characters and the number of words;
+# (iii) formats the text into lines for a finer print out;
+# and (iv) provides a word cloud  
+ 
+  
+## (i) text cleaning
+  
+# list of special characters to be removed from the text  
+special_chars = c("@", "#", "$", "%", "=", "+", "£", "*", "(", ")", "/", "\\", as.character(c(0:9)))
+
+# removing special characters from the text
+text_clean <- gsub("  ", " ", stringi::stri_replace_all_fixed(str = text1, pattern = special_chars, 
+                              replacement = rep("", length(special_chars)), vectorize_all=FALSE))
+
+## (ii) text statistics
+
+# calculating the number of errors, words and final characters in the text
+no_errors <- nchar(text1) - nchar(text_clean)
+no_chars <- nchar(text_clean)
+no_words <- lengths(gregexpr("\\W+", text_clean)) + 1   # counts the instances of non-alphanumeric seperations 
+                                                       # between 'batches' of (1+) alphanumerics
+
+## (iii) text formatting
+
+# break line every 30 characters
+text_formatted <- strwrap(text_clean, l_width)
+#writeLines(text_formatted)
+
+
+
+## (iv) wordcloud
+
+text_cloud <- gsub("[[:punct:]]", "", tolower(text_clean))
+v_temp <- sort(rowSums(as.matrix(tm::TermDocumentMatrix(tm::tm_map(tm::Corpus(tm::VectorSource(text_cloud)), 
+                                         tm::removeWords, tm::stopwords("english"))))),decreasing=TRUE)
+## function in function
+
+word_cloud <- function(v = v_temp){
+set.seed(12135)
+wordcloud::wordcloud(words = data.frame(word = names(v),freq=v)$word, freq = data.frame(word = names(v),
+          freq=v)$freq, min.freq = 1, random.order=FALSE, rot.per=0.35, 
+         # colors = brewer.pal("Set2"))
+         colors = c("#87CEFA", "#DA70D6","#B22222", "#698B22", "#FFD700") 
+         )
+}
+
+}
+
+
+
+```
+
+```{r  txtfun2 , warning=FALSE , echo = FALSE, class.source="bg-success"}
+
+tyger_text <- "Tyg3er Tyger, burn33ing br/ight, I(n the fo$rests *of the ni%ght; What immortal hand or eye, Could fr++ame thy fearful s8ymmetry? In w£ha=t dis9tant  dee$ps or skies. Burnt th++e fir/e of thine eyes? On wha7t  win1gs d$are he aspire? What the ha@nd, da/re seize the fire? And0  what shoulder, & wh0at art, Cou$ld t+w@ist the sin*ews   of thy heart? And%% when th\\y heart began to be=at. Wh)at dr55ead hand? & wh*at d/read $feet? What the   hammer? what the2 ch%ain, In what fur@nace 45was thy bra\\in? W%hat t(he anvil? w*hat dread grasp. 243Dare its deadly terr2ors clasp? Wh(en the s@tars th\\rew down t9heir   spe/ars An$d water'd+0 heaven with their tears: D=id he sm@ile his w$ork  to see? Did he who m*ade the Lamb make th66ee? Ty%ger Tyger bur£ning bright, In th$e fores*ts of the night: What immor(tal  han7d or ey//e, Dare fra=me thy f5earful sym\\metry?"
+
+
+
+```
+
+<br/>
+
+Let's have a look what the function does. <br/>
+
+<br/>
+
+```{r  txtfun3 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+tyger_text
+
+```
+
+<br/>
+
+```{r  txtfun4 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+text_fun(text1 = tyger_text, l_width = 30)
+
+
+```
+
+<br/>
+
+<br/>
+
+<br/>
+
+|                                                 [**??**]{style="color: #00F5FF;font-size: 120pt"}
+
+<br/>
+
+<br/>
+
+::: box2
+<br/>
+
+|            By default, the R functions will [**return**]{style="color: orange;"} the last evaluated object inside it.
+
+<br/>
+
+|            But nothing more, unless you **explicitly** tell your R function to do so.
+
+<br/>
+
+|            You can tell R explicitely what to return by using [**return()**]{style="color: orange;"} within your R function.
+
+<br/> <br/>
+:::
+
+<br/>
+
+Let's modify our function [**text_fun**]{style="color: blue;"} by including
+[**return**]{style="color: orange;"} instructions.
+
+<br/>
+
+```{r  txtfun5 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+# install.packages("stringi")
+# install.packages("wordcloud")
+# install.packages("tm")
+
+
+text_fun <- function(text1, l_width){
+  
+# Description: the function (i) cleans the text of non-letter characters and superfluous spaces;
+# (ii) counts the original errors in the text, the number of characters and the number of words;
+# (iii) formats the text into lines for a finer print out;
+# and (iv) provides a word cloud  
+ 
+  
+## (i) text cleaning
+  
+# list of special characters to be removed from the text  
+special_chars = c("@", "#", "$", "%", "=", "+", "£", "*", "(", ")", "/", "\\", as.character(c(0:9)))
+
+# removing special characters from the text
+text_clean <- gsub("  ", " ", stringi::stri_replace_all_fixed(str = text1, pattern = special_chars, 
+                              replacement = rep("", length(special_chars)), vectorize_all=FALSE))
+
+## (ii) text statistics
+
+# calculating the number of errors, words and final characters in the text
+no_errors <- nchar(text1) - nchar(text_clean)
+no_chars <- nchar(text_clean)
+no_words <- lengths(gregexpr("\\W+", text_clean)) + 1   # counts the instances of non-alphanumeric seperations 
+                                                       # between 'batches' of (1+) alphanumerics
+
+## (iii) text formatting
+
+# break line every 30 characters
+text_formatted <- strwrap(text_clean, l_width)
+#writeLines(text_formatted)
+
+
+
+## (iv) wordcloud
+
+text_cloud <- gsub("[[:punct:]]", "", tolower(text_clean))
+v_temp <- sort(rowSums(as.matrix(tm::TermDocumentMatrix(tm::tm_map(tm::Corpus(tm::VectorSource(text_cloud)), 
+                                         tm::removeWords, tm::stopwords("english"))))),decreasing=TRUE)
+
+## function in function
+word_cloud <- function(v = v_temp){
+set.seed(12135)
+wordcloud::wordcloud(words = data.frame(word = names(v),freq=v)$word, freq = data.frame(word = names(v),
+          freq=v)$freq, min.freq = 1, random.order=FALSE, rot.per=0.35, 
+         # colors = brewer.pal("Set2"))
+         colors = c("#87CEFA", "#DA70D6","#B22222", "#698B22", "#FFD700") 
+         )
+}
+
+
+return(c(Errors = no_errors, Characters = no_chars, Words = no_words))
+
+
+}
+
+
+
+```
+
+<br/>
+
+Let's have a look what the function does now. <br/>
+
+<br/>
+
+```{r  txtfun6 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+text_fun(text1 = tyger_text, l_width = 30)
+
+```
+
+<br/>
+
+<br/>
+
+The [**return()**]{style="color: orange;"} is especially useful when you want to <br/>
+
+-   [**return more than one output object**]{style="color: #DEB887;"} <br/>
+-   execute further code within your function after the creation of your output object <br/>
+-   [**make your output object conditional**]{style="color: #DEB887;"} <br/>
+
+<br/>
+
+<br/>
+
+::: box2
+<br/>
+
+|            It is good practice to use [**return()**]{style="color: orange;"} in R functions for greater clarity and to decrease the risk of errors.
+
+<br/>
+
+|            Using [**return**]{style="color: orange;"}, R functions can [**return**]{style="color: orange;"} all types of R objects.
+
+<br/>
+
+|            However, you can [**return**]{style="color: orange;"} only return **one** object at a time.
+
+<br/>
+
+|            If you want to [**return**]{style="color: orange;"} several objects of different classes, you can put them in a object of class **"list"**.
+
+<br/>
+
+<br/>
+:::
+
+<br/>
+
+Let's modify our function [**text_fun**]{style="color: blue;"} by including
+[**return**]{style="color: orange;"} instructions to return all of the outputs we might be
+interested in.
+
+<br/>
+
+```{r  txtfun7 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+# install.packages("stringi")
+# install.packages("wordcloud")
+# install.packages("tm")
+
+
+text_fun <- function(text1, l_width){
+  
+# Description: the function (i) cleans the text of non-letter characters and superfluous spaces;
+# (ii) counts the original errors in the text, the number of characters and the number of words;
+# (iii) formats the text into lines for a finer print out;
+# and (iv) provides a word cloud  
+ 
+  
+## (i) text cleaning
+  
+# list of special characters to be removed from the text  
+special_chars = c("@", "#", "$", "%", "=", "+", "£", "*", "(", ")", "/", "\\", as.character(c(0:9)))
+
+# removing special characters from the text
+text_clean <- gsub("  ", " ", stringi::stri_replace_all_fixed(str = text1, pattern = special_chars, 
+                              replacement = rep("", length(special_chars)), vectorize_all=FALSE))
+
+## (ii) text statistics
+
+# calculating the number of errors, words and final characters in the text
+no_errors <- nchar(text1) - nchar(text_clean)
+no_chars <- nchar(text_clean)
+no_words <- lengths(gregexpr("\\W+", text_clean)) + 1   # counts the instances of non-alphanumeric seperations 
+                                                       # between 'batches' of (1+) alphanumerics
+
+## (iii) text formatting
+
+# break line every 30 characters
+text_formatted <- strwrap(text_clean, l_width)
+#writeLines(text_formatted)
+
+
+
+## (iv) wordcloud
+
+text_cloud <- gsub("[[:punct:]]", "", tolower(text_clean))
+v_temp <- sort(rowSums(as.matrix(tm::TermDocumentMatrix(tm::tm_map(tm::Corpus(tm::VectorSource(text_cloud)), 
+                                         tm::removeWords, tm::stopwords("english"))))),decreasing=TRUE)
+## function in function
+word_cloud <- function(v = v_temp){
+set.seed(12135)
+wordcloud::wordcloud(words = data.frame(word = names(v),freq=v)$word, freq = data.frame(word = names(v),
+          freq=v)$freq, min.freq = 1, random.order=FALSE, rot.per=0.35, 
+         # colors = brewer.pal("Set2"))
+         colors = c("#87CEFA", "#DA70D6","#B22222", "#698B22", "#FFD700") 
+         )
+}
+
+
+## return output
+
+return(list(Original_text = text1, Errors = no_errors, Text_new = text_clean, Characters = no_chars, 
+            Words = no_words, Text_nice = text_formatted, 
+            Cloud = word_cloud))
+
+
+}
+
+
+
+```
+
+<br/>
+
+Let's have a look what the function does now. <br/>
+
+<br/>
+
+```{r  txtfun8 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+text_fun(text1 = tyger_text, l_width = 30)
+
+
+```
+
+<br/>
+
+We can assign the function output to a new R object.\
+<br/>
+
+```{r  txtfun9 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+tyger_new <- text_fun(text1 = tyger_text, l_width = 30)
+
+class(tyger_new)
+
+summary(tyger_new)
+
+
+```
+
+<br/>
+
+```{r  txtfun10 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+# tyger_text
+
+writeLines(tyger_new$Text_nice)
+
+
+
+```
+
+<br/>
+
+```{r  txtfun11 , warning=FALSE , echo = FALSE, fig.show='hide', class.source="bg-warning"}
+
+plot(0, type="n", xlab="", ylab="",
+     axes = FALSE)
+
+```
+
+<br/>
+
+```{r  txtfun12 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+# replayPlot(tyger_new$Cloud)
+
+tyger_new$Cloud()
+
+
+
+```
+
+<br/>
+
+<br/> <br/>
+
+## 6. Check which [user defined functions]{style="color: blue;"} are available within your working environment
+
+<br/>
+
+It might from time to time be useful to have a look at a list of all the user defined functions
+available within your working environment. The command **lsf.str()** will list them for you. <br/>
+<br/>
+
+```{r funcheck, echo=TRUE, class.source="bg-success"}
+
+# list all available user defined functions in your working environment:
+
+lsf.str()
+
+
+```
+
+<br/> <br/>
+
+## 7. Create your own [functions library]{style="color: #9932CC;"}
+
+<br/>
+
+Once you have written your tailor-made function, you can save and store it in an R file. <br/> <br/>
+
+It is wise to give the file that contains your function a meaningful name like
+[**function_name.R**]{style="color: #9932CC;"}. <br/>
+
+<br/>
+
+When you write a new R script, you can easily include your function into your new syntax.
+
+<br/> <br/> If the source file is saved in the same working directory in which the new script is
+written and run, you can simply include the function with the command
+[**source(function_name.R)**]{style="color: #9932CC;"}
+
+<br/>
+
+```{r demo1, echo=TRUE, class.source="bg-success"}
+
+# Note: 
+# I have saved a function "my_demo_fun" in a file called "my_demo_fun.R". However, the Rmarkdown presentation 
+# cannot access the directory where I have saved the file. When trying to run source("my_demo_fun.R") from the 
+# presententation Rmarkdown file, it will return an error message:
+# Error in my_demo_fun() : could not find function "my_demo_fun"
+# However, if you copy the file "my_demo_fun.R" into your own working directory and run the command 
+# source("my_demo_fun.R") from that working directory, it will work
+
+
+
+# If the source file "my_demo_fun.R" is saved in the same working directory in which the new script is written and run, one can simply include the function "my_demo_fun" with the following command: 
+
+source("my_demo_fun.R")
+
+
+```
+
+<br/>
+
+```{r demo2, echo=TRUE, class.source="bg-warning"}
+
+
+set.seed(232)
+
+my_demo_fun()
+
+my_demo_fun
+
+
+```
+
+<br/>
+
+If the function source file [**"my_demo_fun.R"**]{style="color: #9932CC;"} is saved in a different
+working directory from that in which the new script is written and run, you can include the function
+[**"my_demo_fun"**]{style="color: #9932CC;"} by including the respective working directory in your
+command.
+
+<br/>
+
+<br/>
+
+```{r demo3, echo=TRUE, class.source="bg-success"}
+
+# Note: 
+# The following will not run in the presentation Rmarkdown file, because the presentation Rmarkdown
+# code cannot access my working library
+
+
+
+# If the source file "my_demo_fun.R" is saved in a different working directory from that in which the new script is written and run, you can include the function "my_demo_fun" by including the respective working directory in your command: 
+
+
+source("C:/Users/conra-l/Documents/DALL/R_Function_Library/spiral_fun_1.R")
+
+
+
+```
+
+<br/>
+
+```{r demo4, echo=TRUE, class.source="bg-warning"}
+
+
+spiral_fun_1()
+
+spiral_fun_1(col1 = "orange", type = 'l', log_boolean = TRUE)
+
+spiral_fun_1
+
+
+```
+
+<br/>
+
+You can also have more than one function in an R syntax file within your function library. The
+source file "NHS_demo_funs.R" contains four functions. If you source it, all four functions become
+available in your code.
+
+<br/>
+
+```{r demo5, echo=TRUE, Warning = FALSE, class.source="bg-success"}
+
+# Note: 
+# The following will not run in the presentation Rmarkdown file, because the presentation Rmarkdown
+# code cannot access my working library
+
+
+# The source file "NHS_demo_funs.R" contains four functions. If I source it, all four functions become available in my code. 
+
+source("C:/Users/conra-l/Documents/DALL/R_Function_Library/NHS_demo_funs.R")
+
+
+## list all available functions in NHS_demo_funs.R
+#     note that for lsf.str() you have to specify an environment, not a file path
+
+test.env <- new.env()
+sys.source("C:/Users/conra-l/Documents/DALL/R_Function_Library/NHS_demo_funs.R", envir = test.env)
+lsf.str(envir=test.env)
+rm(test.env)
+
+
+```
+
+<br/>
+
+We can now run these four functions. <br/>
+
+Data visualisation. <br/>
+
+In reports, we often use tables and charts with similar formats in different sections. <br/> Writing
+functions that automatically format our visual presentations might save a lot of time.
+
+<br/>
+
+```{r demo6, echo=TRUE, , warning=FALSE, class.source="bg-warning"}
+
+# NHS_Palette
+
+
+##      Data visualisation:
+
+#       Frequently used table and chart formats
+
+
+key_stats_box(values = c("64%", "1,347", "1 in 12"), 
+              description = c("of crows live in nest-deprived areas", 
+                                  "bakers open their shops before 8am", 
+                                  "dogs does not clean his teeth in the morning"))
+
+
+key_stats_box(values = c("1 in 200", "3.7%", "2.7M"), 
+              description = c("squirrels hates nuts", 
+                                  "apples are eaten by worms", 
+                                  "hedgehogs do not like cat food"))
+
+
+Core20_chart(my_core20_table, my_crows_title)
+
+Core20_chart(my_core20_table_2, my_hedgehog_title)
+
+
+
+```
+
+<br/>
+
+Data cleaning and mapping <br/>
+
+The following function checks whether a given NHS number is in the correct format.
+
+<br/>
+
+```{r demo7, echo=TRUE, , warning=FALSE, class.source="bg-warning"}
+
+
+##      Data cleaning and mapping:
+
+#       Formats (EHIC/GHIC, NHS numbers, NI numbers)
+
+NHS_number_format("123 456 7890")
+
+NHS_number_format("123AAB4567")
+
+NHS_number_format("12345")
+
+
+```
+
+<br/>
+
+The following functions offers the option to map the LSOA code to the code, name or imd rank of
+Wards, SICBLs, ICBs, LADs or NHS regions in Engand.
+
+<br/>
+
+```{r demo8, echo=TRUE, , warning=FALSE, class.source="bg-warning"}
+
+
+##      Data cleaning and mapping:
+
+#       Mapping, Geography
+
+LSOA_mapping("E01013481")
+
+LSOA_mapping("E01013481", my_search = "Ward name")
+
+LSOA_mapping("E01013481", my_search = "NHS region IMD rank")
+
+LSOA_mapping("XYZ1013481", my_search = "Ward name")
+
+LSOA_mapping("E01013481", my_search = "Name of my cat")
+
+```
+
+<br/>
+
+<br/> <br/>
+
+## 8. Useful websites
+
+<br/>
+
+::: box2
+<br/>
+
+<https://r-coder.com/function-r/?utm_content=cmp-true>
+
+<https://rstudio.github.io/r-manuals/r-intro/Writing-your-own-functions.html>
+
+<https://www.datamentor.io/r-programming/function>
+
+<https://www.geeksforgeeks.org/functions-in-r-programming/?ref=lbp>
+
+<https://www.datamentor.io/r-programming/function>
+
+<https://r4ds.had.co.nz/functions.html>
+
+<http://adv-r.had.co.nz/Functions.html>
+
+<https://adv-r.hadley.nz/functions.html>
+
+<https://www.datacamp.com/tutorial/functions-in-r-a-tutorial>
+
+<https://www.dataquest.io/blog/r-functions-tutorial/>
+
+<br/>
+:::
+
+<br/>
+
+<br/>
+
+<br/>
+
+# Preview of potential further C & C
+
+<br/>
+
+## 9. Example: Recursive Function in R (still in preparation)
+
+<br/>
+
+A recursive function is a function or routine that repeatedly calls itself.
+
+<br/>
+
+```{r recur1, echo=TRUE, class.source="bg-success"}
+
+
+fact_rec <- function(n){
+  
+  # factorial of integer n
+  
+  if (n == 0) 
+    return(1)
+  else 
+    return(n * fact_rec(n-1))
+}
+
+
+```
+
+<br/>
+
+The function calculates the fatorial of an integer n <br/> Namely: n \* (n-1) \* (n-2) \* .... \* 1
+
+<br/>
+
+```{r recur2, echo=TRUE, class.source="bg-warning"}
+
+
+fact_rec(3)
+fact_rec(6)
+fact_rec(14)
+
+```
+
+<br/>
+
+Recursive functions are a very powerful tool. <br/> You can with relatively little code generate
+relatively complex calculations. <br/> The following function calculates fractal triangles. <br/>
+Note that most of the code is required to initiate the R graphics and draw the triangle, not to
+compute the actual triangles.
+
+<br/>
+
+```{r triangle1, echo=TRUE, class.source="bg-success"}
+
+
+FracTriangle_rec <- function(x = 0, y = 0, len = 0.2, farbT = blues9[7])
+{
+  # Description: This function is a recursive function that calculates and draws a fractal equally-sided triangle
+  
+  if (len > 0.002)
+    {
+    draw_triangle(x, y, len, 
+          farb = farbT)
+    len = len * 0.5
+    FracTriangle_rec(x, y + len * sqrt(3)/2, len, farbT)
+    FracTriangle_rec(x - len, y - len * sqrt(3)/2, len, farbT)
+    FracTriangle_rec(x + len, y - len * sqrt(3)/2, len, farbT)
+  }
+}
+
+
+## Graphic helper functions
+
+# Plot initiation function
+
+initiate_triangle <- function(x = 0, y = 0, len = 0.2, my_title = "Fractal triangle", stretch = 1)
+  {
+  
+  # Description: this function initiates a plot for drawing a equally-sided triangle around origin (x,y) with side length len
+  
+  l_corner = c(x - 0.8 * len, y - 0.8 * len) * stretch
+  r_corner = c(x + len, y + sqrt(3)/2 * len) * stretch
+  
+  plot(c(l_corner[1], r_corner[1]),c(l_corner[2], r_corner[2]), xlab = "", ylab = "", col = "white",
+                  main = my_title, asp = 1, col.main = 1,
+                  xaxt = "n", yaxt = "n", axes = FALSE)
+  }
+
+# Traingle drawing function
+
+ draw_triangle <- function(x = 0, y = 0, len = 0.2, farb = blues9[7])
+     {
+   
+   # adds to a plot an equally-sided triangle with middle point(x,y) and side legnth len 
+   
+     lines(c(x - 0.5 * len, x), c(y - 0.5 * len, y + sqrt(3)/4 * len), col = farb)
+     lines(c(x - 0.5 * len, x + 0.5 * len), c(y - 0.5 * len, y - 0.5 * len), col = farb)
+     lines(c(x + 0.5 * len, x), c(y - 0.5 * len, y + sqrt(3)/4 * len), col = farb)
+     }
+
+
+```
+
+<br/>
+
+This is the result.
+
+<br/>
+
+```{r triangle2, echo=TRUE, class.source="bg-warning"}
+
+Laenge = 0.2
+
+initiate_triangle(len = Laenge)
+FracTriangle_rec(len = Laenge)
+
+
+```
+
+<br/>
+
+<br/>
+
+```{r triangle3, echo=TRUE, class.source="bg-warning"}
+
+Laenge = 0.1
+
+initiate_triangle(x = , y = , len = Laenge, my_title = "", stretch = 2)
+FracTriangle_rec(len = Laenge)
+FracTriangle_rec(x = 1.5 * Laenge, y = sqrt(3)/2 * Laenge, len = Laenge, farbT = "red2")
+FracTriangle_rec(x = -1.5 * Laenge, y = sqrt(3)/2 * Laenge, len = Laenge, farbT = "green4")
+
+```
+
+<br/>
+
+Here is another demonstration of the power of recursive functions, calculating and drawing fractal
+trees.
+
+<br/>
+
+```{r tree1, echo=TRUE, class.source="bg-success"}
+
+
+# Fractal tree
+
+tree_rec <- function(origin = complex(real = 0, imaginary = 0),
+                     branch = complex(real = 0, imaginary = 0.5),
+                     angle = pi/6 , scale = 0.8, rec_factor = 3)
+  {
+
+  # Description: this function draws a fractal tree with different coulors from palette 'Pairwise'
+    
+  if (rec_factor > 0) {
+            lines(c(Re(origin), Re(branch)), c(Im(origin), Im(branch)), lwd = 3, 
+                  col = RColorBrewer::brewer.pal(n = 12, name = "Paired")[as.integer(rec_factor)])
+            branch_l = branch + scale * (branch-origin) * exp(complex(real = 0, imaginary = 1) * angle)
+            branch_r = branch + scale * (branch-origin) * exp(complex(real = 0, imaginary = -1) * angle)
+            tree_rec(branch,branch_l,angle,scale,rec_factor-1)
+            tree_rec(branch,branch_r,angle,scale,rec_factor-1)
+    }
+
+}
+
+
+# Plot initiation function
+
+initiate_tree <- function(l_corner = c(-2, 2), r_corner = c(0, 2), my_title = "My beautiful fractal tree")
+  {
+  
+  # Description: this function initiates a plot for drawing 
+  
+  plot(l_corner,r_corner, xlab = "", ylab = "", col = "white",
+                  main = my_title, asp = 1, col.main = 6,
+                  xaxt = "n", yaxt = "n", axes = FALSE)
+  }
+
+
+
+
+```
+
+<br/>
+
+<br/>
+
+```{r tree2, echo=TRUE, class.source="bg-warning"}
+
+
+initiate_tree()
+tree_rec(rec_factor = 7)
+
+
+
+initiate_tree(my_title = "My beautiful fractal tree No 2")
+tree_rec(angle = pi/9, scale = 0.7, rec_factor = 8)
+
+
+
+forest_pos <- c(complex(real = -0.5, imaginary = 0.3), complex(real = -1, imaginary = 0), complex(real = 0.5, imaginary = 0.5), 
+                complex(real = 0.7, imaginary = 0.2), complex(real = 0, imaginary = 0))
+forest_stem <- forest_pos + complex(real = 0, imaginary = 0.6)
+
+
+initiate_tree(l_corner = c(-2.5,3), r_corner = c(0,3), my_title = "My beautiful fractal forest")
+
+for (i in 1: length(forest_pos))
+{
+tree_rec(rec_factor = 12, scale = 0.8, origin = forest_pos[i], branch = forest_stem[i])
+}
+
+
+```
+
+<br/>
+
+### The great power in recursive algorithms (functions) lie in the break down of a problem into smaller problems.
+
+<br/> <br/>
+
+**Examples of use of recursive functions within the health sector** (these are only notes of topics
+to be developed; the work is still in preparation): <br/> Markow Chains (Discrete-Time Markov Models
+for Spread of an Infectious Disease) <br/> Queueing theory (hospital beds, appointments) <br/>
+Decision trees (e.g., in diagnositics) <br/> Time series (forecasting) <br/>
+
+<br/>
+
+```{r disease1, echo=TRUE, class.source="bg-success"}
+
+
+  
+
+
+```
+
+<br/>
+
+<br/>
+
+## 10. Anonymous (inline  lambda) functions
+
+<br/>
+
+```{r anonym1, echo=TRUE, class.source="bg-success"}
+
+  x <- 3
+  y <- 2
+
+  assign(paste0("Number_", x, "_", y), (function(x,y) x*y + x/y)(x, y))
+
+  paste0(paste0("Number_", x, "_", y, ": "), get(paste0("Number_", x, "_", y)))
+  
+  assign(paste0("Test_", x, "_", y), (\(x,y) x^y )(x, y))
+  
+  paste0(paste0("Test_", x, "_", y, ": "), get(paste0("Test_", x, "_", y)))
+  
+  
+  (function(x,y){x*y + x/y})(2,5)
+  
+  
+  `{` <- function(...)
+  base::`{`(
+    if (length(sys.calls()) >= 4 &&
+        identical(as.character(sys.call()[[1]]), "{") &&
+        identical(as.character(sys.call(-4)[[1]]), "{"))
+      base::`{`(fn <- new('function'),
+        formals(fn) <- alist(x=), body(fn) <- sys.call(), fn)
+    else eval.parent(substitute(base::`{`(...)))
+  )
+  
+
+```
+
+<br/>
+
+<br/>
+
+## 11. Infix Functions (expressions)
+
+<br/> <br/> <br/>
+
+```{r infix1, echo=TRUE, class.source="bg-success"}
+
+'%Greater%' <- function(a, b)
+{
+  if(a > b) print(a)
+  else if(b > a) print(b)
+  else print("equal")
+}
+5 %Greater% 7
+2300 %Greater% 67
+
+  
+
+
+```
+
+<br/>
+
+<br/>
+
+## 12. Miscellaneous
+
+### 12.1. What happens if you use the name of a common R function?
+
+<br/>
+
+```{r ovwrt1, echo=TRUE, class.source="bg-warning"}
+
+sum(3,2)  
+
+
+```
+
+<br/>
+
+Let's write a user defined function which uses as function name **sum** <br/>
+
+```{r ovwrt2, echo=TRUE, class.source="bg-success"}
+
+sum <- function(p1,p2) {"rrr"}
+
+ 
+```
+
+<br/>
+
+What happens now when I call function **sum**? <br/>
+
+```{r ovwrt3, echo=TRUE, class.source="bg-danger"}
+
+
+sum(3,2) 
+
+
+```
+
+<br/>
+
+By simply removing my user defined function object, R reverts to the in-built version of the
+function **sum** <br/>
+
+```{r ovwrt4, echo=TRUE, class.source="bg-warning"}
+
+rm(sum) 
+
+sum(3,2) 
+
+```
+
+<br/>
+
+<br/>
+
+### 12.2. A function as argument of a function
+
+fun \<- function(x, fun2){ return(fun2(x)) }
+
+<br/>
+
+<br/>
+
+### 12.3. Input arguments as vectors
+
+The argument input for [**int1**]{style="color: red;"} can also be a vector, in which case the
+output will also be a vector.
+
+<br/>
+
+```{r  onearg3 , warning=FALSE , echo = TRUE, class.output="bg-warning"}
+
+
+intvec <- c(1,1,3,2,1)
+
+
+arg1_fun(intvec)
+
+
+
+```
+
+<br/>
+
+<br/> <br/>
+
+For the simple function [**arg1_fun**]{style="color: blue;"} the input values for argument
+[**int1**]{style="color: red;"} can be given as a vector, because a vector input makes still sense
+within in the function body code. <br/>
+
+For many functions that is possible. However, for more complex functions with [**several argument
+inputs**]{style="color: red;"}, this is often no longer possible or sensible (it depends on what the
+function body code does in detail). <br/>
+
+For example, in the case of the function [**spiral_fun**] {style="color: blue;"}, supplying a vector
+for some of the [**argument values**]{style="color: red;"}, might give you quite funky outputs, but
+they are certainly no longer spirals, and the function [**spiral_fun**]{style="color: blue;"} is not
+intended to be used in this manner.
+
+<br/>
+
+```{r  spir10a , warning=FALSE , echo = FALSE, class.source="bg-success"}
+
+spiral_fun <- function(size, shape, log_boolean, log_shape) 
+{
+
+# Description: this function draws a spiral 
+# Archimedean spiral: log_boolean = FALSE, shape = 1
+# Logarythmic spiral: log_boolean = TRUE (e.g., log_shape = 0.1)
+# Hyperbolic spiral: shape = -1
+# Fermat spiral: shape = 0.5  
+# Lituus spiral: shape = -0.5  
+  
+  phy = c(2 *pi * c(1:360) / 45)
+  r = (1-log_boolean) * size * phy ^ shape + log_boolean * size * exp(phy * log_shape)
+  x = r * cos(phy)
+  y = r * sin(phy)
+  plot(x, y, type = 'l')
+  
+}
+
+
+```
+
+<br/>
+
+<br/>
+
+```{r  spir10 , warning=FALSE , echo = TRUE, class.output="bg-danger"}
+
+
+spiral_fun(c(1,2,10), -0.5, TRUE, 0.1) 
+
+spiral_fun(10, -0.5 , c(TRUE, FALSE), 0.1) 
+
+
+```
+
+<br/>
+
+You might therefore want to 'fool-prove' the function inside the [**function body
+code**]{style="color: orange;"} against vector inputs.
+
+<br/>
+
+<br/>
+
+## 13. Function outputs: change a [**global object value**]{style="color: #76EEC6;"}
+
+<br/>
+
+Remember, [**global arguments**]{style="color: #76EEC6;"} are 'sitting' in the main
+([**"global"**]{style="color: #76EEC6;"}) body of your code **outside** of functions or function
+inputs. <br/>
+
+<br/> To change the [**global value**]{style="color: #76EEC6;"} of an R object from **inside** a
+function, you can use the "double assignment operator" ([**\<\<--**]{style="color: #76EEC6;"})
+within your function. <br/>
+
+<br/> As an example, let's look at a global R object [**number_legs_dog**]{style="color: #76EEC6;"}
+of class integer, which holds a value for the number of legs of a dog. <br/>
+
+<br/>
+
+```{r  exmpl1 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+number_legs_dog <- 4
+
+number_legs_dog
+
+
+```
+
+<br/>
+
+The following function returns as the number of legs of a dog the integer **7**.
+
+<br/>
+
+```{r  exmpl2 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+dog_fun <- function(){
+  number_legs_dog <- 7
+  print(paste0("number_legs_dog = ", number_legs_dog))
+}
+
+
+```
+
+<br/>
+
+Let's run the function, and see what happens.
+
+<br/>
+
+```{r  exmpl3 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+dog_fun()
+
+
+```
+
+<br/>
+
+Let's also check the value of our [**global value**]{style="color: #76EEC6;"} of **number_legs_dog**
+
+<br/>
+
+```{r  exmpl4 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+number_legs_dog
+
+
+```
+
+<br/>
+
+The [**global value**]{style="color: #76EEC6;"} of **number_legs_dog** has not changed from **4**.
+
+<br/>
+
+Let's now introduce the double assignment operator [**\<\<--**]{style="color: #76EEC6;"} into our
+function [**dog_fun**]{style="color: blue;"}.
+
+<br/>
+
+```{r  exmpl5 , warning=FALSE , echo = TRUE, class.source="bg-success"}
+
+
+## Using the double assignment operator to change the variable globally
+dog_fun <- function(){
+  number_legs_dog <<- 7
+  print(paste0("number_legs_dog = ", number_legs_dog))
+}
+
+
+```
+
+<br/>
+
+Let's check the [**global value of number_legs_dog**]{style="color: #76EEC6;"} again.
+
+<br/>
+
+```{r  exmpl6 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+number_legs_dog
+
+```
+
+<br/>
+
+The [**global value of number_legs_dog**]{style="color: #76EEC6;"} has still not changed from **4**.
+
+<br/>
+
+Now let's run the new version of the **new** function [**dog_fun**]{style="color: blue;"}:
+
+<br/>
+
+```{r  exmpl7 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+dog_fun()
+
+
+```
+
+<br/>
+
+And check the [**global value**]{style="color: #76EEC6;"} again of **number_legs_dog**:
+
+<br/>
+
+```{r  exmpl8 , warning=FALSE , echo = TRUE, class.source="bg-warning"}
+
+
+number_legs_dog
+
+
+```
+
+<br/>
+
+After running the new function [**dog_fun**]{style="color: blue;"} that uses the "double assignment
+operator", the [**global value**]{style="color: #76EEC6;"} of **number_legs_dog** has now changed
+from **4** to **7**.
+
+<br/>
+
+<br/>
+
+::: box2
+<br/>
+
+<br/>
+
+|                                                       [**Danger!!!**]{style="color: #76EEC6; font-size: 40pt"}
+
+<br/>
+
+<br/>
+:::
