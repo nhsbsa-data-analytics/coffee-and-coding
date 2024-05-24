@@ -1,0 +1,173 @@
+---
+title: "Creating R packages"
+author: "Mark McPherson"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Introduction
+
+This session of Coffee & Coding is intended as a quick introduction to R packages. First we will look at what a package is and the benefits of creating one. Following this many of the development tools that can aid in writing a package will be introduced. Finally, a 'toy' package will be built that uses these tools and demonstrates the considerations to be made when writing an R package.
+
+### What is an R package?
+
+An R package is a collection of code (and potentially data) that is organised in a specific structure. R packages are best created following certain conventions. By using these conventions it is possible to leverage tools to automate some of the development tasks.
+
+You may be familiar with the **C**omprehensive **R** **A**rchive **N**etwork (CRAN). This is the source of most of the R packages you will work with. There are currently `r format(nrow(available.packages()), big.mark=",")` packages on CRAN. The bar for a package to be listed, and remain on, CRAN is set quite high. Luckily, you don't need to submit a package to CRAN in order to distribute it. Packages can be shared in several ways. The best way of making a package available is to create a GitHub repository for it.
+
+### Why would you want to create an R package?
+
+A well-written R package benefits all sorts of people. You code can be used by others, without needing to 'see' and understand it. It will have documentation describing everything that can be done with the package and how to use it. Also, if someone wants to re-use and build upon your code, following standard package development conventions will reduce the effort needed. There will be tests that are run automatically, which will help you debug issues during development. You will also be able to leverage tools to automate some of the development tasks.
+
+If you perform data analysis in R, writing a package to ingest data, run analysis code and produce outputs will lead to a nice side benefit. You may have heard the term [**R**eproducible **A**nalytical **P**ipeline (RAP)](https://nhsdigital.github.io/rap-community-of-practice/introduction_to_RAP/what_is_RAP/). According to NHS Digital, a RAP is
+
+> RAP is a set of principles and working practices that help you create faster, more robust, and more transparent analytical processes.
+
+A well written R package for your analysis, that is openly available on GitHub, meets a lot of the desired properties of a RAP.
+
+**Baseline (aka Bronze) RAP** `r emo::ji("3rd_place_medal")` - minimum requirements to be a RAP:
+
+Comes for 'free'
+
+|        `r emo::ji("white_check_mark")` Data produced by code in an open-source language (R)
+|        `r emo::ji("white_check_mark")` Code is version controlled (git)
+|        `r emo::ji("white_check_mark")` Code is published in the open (GitHub)
+
+<br>
+Little extra effort
+
+|        `r emo::ji("ballot_box_with_check")` Code is linked to from accompanying publication (simple!)
+|        `r emo::ji("ballot_box_with_check")` README.md file that details steps a user must follow to reproduce the code (can be challenging when data used is not publicly available)
+
+<br>
+Small to moderate extra effort
+
+|        `r emo::ji("ballot_box_with_check")` Code has been peer reviewed (as it should be, package or not)
+
+<hr style="border: none; background-color: grey; height: 2px;">
+
+**Silver RAP** `r emo::ji("2nd_place_medal")` - implementing best practice:
+
+Comes for 'free'
+
+|        `r emo::ji("white_check_mark")` Code is well-documented including user guidance and function documentation (helped by `{roxygen2}`)
+|        `r emo::ji("white_check_mark")` Code is well-organised following standard directory format
+|        `r emo::ji("white_check_mark")` Reusable functions and/or classes are used where appropriate
+|        `r emo::ji("white_check_mark")` Code adheres to agreed coding standards (`{styler}` and `{lintr}` can be integrated into workflow and Continuous Integration (CI) on GitHub)
+|        `r emo::ji("white_check_mark")` Repository includes dependency information (`DESCRIPTION` file)
+
+<br>
+Moderately extra effort, supported by package development tools
+
+|        `r emo::ji("ballot_box_with_check")` Pipeline includes a testing framework (with `{testthat}`)
+|        `r emo::ji("ballot_box_with_check")` Explanation of code structure & methodology (distinct from 'usage' documentation, one way is to write package vignettes, or it could be part of an analysis write-up)
+
+<br>
+Little direct cross-over with package development
+
+|        Outputs are produced by code with minimal manual intervention (CI)
+|        Logs are automatically recorded by the pipeline to ensure outputs are as expected
+|        Data is handled and output in a [Tidy data format](https://vita.had.co.nz/papers/tidy-data.pdf)
+
+<hr style="border: none; background-color: grey; height: 2px;">
+
+**Gold RAP** `r emo::ji("1st_place_medal")` - analysis as a product:
+
+Comes for 'free'
+
+|        `r emo::ji("white_check_mark")` Code is fully packaged
+
+<br>
+Little extra effort
+
+|        `r emo::ji("ballot_box_with_check")` Repository automatically runs tests etc. via CI/CD (GitHub Actions)
+|        `r emo::ji("ballot_box_with_check")` Changes to the RAP are clearly signposted (such as a changelog and release notes)
+
+<br>
+Little direct cross-over with package development
+
+|        Process runs based on event-based triggers (e.g., new data in database) or on a schedule.
+
+## Tools
+
+Writing an R package does come with additional overhead during development. The good news is that a lot of this can be automated and managed with various tools in the R package ecosystem. Some of these are even built into or offer addins for Rstudio.
+
+### devtools
+
+[`{devtools}`](https://devtools.r-lib.org/) is akin to `{tidyverse}`. Whereas the latter allows for quickly loading packages used for data exploration and visualization, `library(devtools)` will load packages used for package development. The sub-packages include `{usethis}`, `{roxygen2}` and `{testthat}`, among others.
+
+### usethis
+
+[`{usethis}`](https://usethis.r-lib.org/index.html) automates repetitive tasks that arise during package development. Some use cases include:
+
+- initial creation of a new R package
+- creation of various files such as licenses, R files and associated test setup
+
+### roxygen2
+
+[`{roxygen2}`](https://roxygen2.r-lib.org/) generates package documentation and metadata from comments in your code. The comments can include tags for specific sections of a function's documentation, such as:
+
+- @param - describe the purpose of a function argument and what format it should be
+- @export - tells roxygen2 that a function can be called by a user of the package
+- @examples - provides examples to show how to use the function
+
+### testthat
+
+[`{testthat}`](https://testthat.r-lib.org/) is the most popular unit testing package for R and is used by thousands of CRAN packages.
+
+- Provides functions that make it easy to describe what you expect a function to do.
+- Easily integrates into package development workflows.
+- Displays test progress visually, showing a pass, fail, or error for every expectation.
+
+### styler
+
+[`{styler}`](https://www.tidyverse.org/blog/2017/12/styler-1.0.0/) formats R code according to a style guide. By default, it uses the [Tidyverse style guide](https://style.tidyverse.org/). Has an addin for Rstudio to:
+
+- style individual R and Rmd files
+- styles all R and/or Rmd files in a directory
+- styles the source files of an R package
+
+### lintr
+
+[`{lintr}`](https://lintr.r-lib.org/) performs static code analysis. It is great to use in combination with `{styler}`, as the default Tidyverse style will (99% of the time) fix any issues highlighted by `{lintr}`. Has an addin for Rstudio, with similar options to `{styler}`.
+
+### covr
+
+[`{covr}`](https://covr.r-lib.org/) will help you see exactly which parts of your code are covered by tests. This allows you to easily improve test coverage.
+
+### R CMD check
+
+[`R CMD check`](https://r-pkgs.org/r-cmd-check.html) is basically a suite of automated tests. It's purpose is to ensure a package is properly structured, check that certain good practices are in use and identify potential issues. Over 50 individual checks are made when this is run. It will also run any `{testthat}` tests. It can be time-consuming to run, so is something to use sparingly. It should be run before preparing to push updates to a package to GitHub. 
+
+### GitHub actions
+
+[GitHub actions (GHA)](https://docs.github.com/en/actions) provide a convenient (and free!) platform for CI. They can be used for a multitude of use cases. Useful things for R packages include:
+
+- checking for leaked data with [gitleaks](https://gitleaks.io/)
+- style and lint files with `{styler}` and `{lintr}`
+- run `R CMD check`
+
+## R package workflow
+
+Time to create an R package! It will be simple in scope, so that the focus is on the workflow rather than the code itself.
+
+### Simplest possible package
+
+### Adding documentation
+
+### Adding tests
+
+### Checking a package
+
+### Adding CI
+
+## Using packages from GitHub
+
+## Resources
+
+- R packages (Whickam)
+- Enterprise Shiny (ThinkR)
+
+## Questions?
