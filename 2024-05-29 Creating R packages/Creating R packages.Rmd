@@ -35,14 +35,12 @@ Comes for 'free'
 |        `r emo::ji("white_check_mark")` Code is version controlled (git)
 |        `r emo::ji("white_check_mark")` Code is published in the open (GitHub)
 
-<br>
-Little extra effort
+<br> Little extra effort
 
 |        `r emo::ji("ballot_box_with_check")` Code is linked to from accompanying publication (simple!)
 |        `r emo::ji("ballot_box_with_check")` README.md file that details steps a user must follow to reproduce the code (can be challenging when data used is not publicly available)
 
-<br>
-Small to moderate extra effort
+<br> Small to moderate extra effort
 
 |        `r emo::ji("ballot_box_with_check")` Code has been peer reviewed (as it should be, package or not)
 
@@ -58,14 +56,12 @@ Comes for 'free'
 |        `r emo::ji("white_check_mark")` Code adheres to agreed coding standards (`{styler}` and `{lintr}` can be integrated into workflow and Continuous Integration (CI) on GitHub)
 |        `r emo::ji("white_check_mark")` Repository includes dependency information (`DESCRIPTION` file)
 
-<br>
-Moderately extra effort, supported by package development tools
+<br> Moderately extra effort, supported by package development tools
 
 |        `r emo::ji("ballot_box_with_check")` Pipeline includes a testing framework (with `{testthat}`)
 |        `r emo::ji("ballot_box_with_check")` Explanation of code structure & methodology (distinct from 'usage' documentation, one way is to write package vignettes, or it could be part of an analysis write-up)
 
-<br>
-Little direct cross-over with package development
+<br> Little direct cross-over with package development
 
 |        Outputs are produced by code with minimal manual intervention (CI)
 |        Logs are automatically recorded by the pipeline to ensure outputs are as expected
@@ -79,14 +75,12 @@ Comes for 'free'
 
 |        `r emo::ji("white_check_mark")` Code is fully packaged
 
-<br>
-Little extra effort
+<br> Little extra effort
 
 |        `r emo::ji("ballot_box_with_check")` Repository automatically runs tests etc. via CI/CD (GitHub Actions)
 |        `r emo::ji("ballot_box_with_check")` Changes to the RAP are clearly signposted (such as a changelog and release notes)
 
-<br>
-Little direct cross-over with package development
+<br> Little direct cross-over with package development
 
 |        Process runs based on event-based triggers (e.g., new data in database) or on a schedule.
 
@@ -102,32 +96,32 @@ Writing an R package does come with additional overhead during development. The 
 
 [`{usethis}`](https://usethis.r-lib.org/index.html) automates repetitive tasks that arise during package development. Some use cases include:
 
-- initial creation of a new R package
-- creation of various files such as licenses, R files and associated test setup
+-   initial creation of a new R package
+-   creation of various files such as licenses, R files and associated test setup
 
 ### roxygen2
 
 [`{roxygen2}`](https://roxygen2.r-lib.org/) generates package documentation and metadata from comments in your code. The comments can include tags for specific sections of a function's documentation, such as:
 
-- @param - describe the purpose of a function argument and what format it should be
-- @export - tells roxygen2 that a function can be called by a user of the package
-- @examples - provides examples to show how to use the function
+-   @param - describe the purpose of a function argument and what format it should be
+-   @export - tells roxygen2 that a function can be called by a user of the package
+-   @examples - provides examples to show how to use the function
 
 ### testthat
 
 [`{testthat}`](https://testthat.r-lib.org/) is the most popular unit testing package for R and is used by thousands of CRAN packages.
 
-- Provides functions that make it easy to describe what you expect a function to do.
-- Easily integrates into package development workflows.
-- Displays test progress visually, showing a pass, fail, or error for every expectation.
+-   Provides functions that make it easy to describe what you expect a function to do.
+-   Easily integrates into package development workflows.
+-   Displays test progress visually, showing a pass, fail, or error for every expectation.
 
 ### styler
 
 [`{styler}`](https://www.tidyverse.org/blog/2017/12/styler-1.0.0/) formats R code according to a style guide. By default, it uses the [Tidyverse style guide](https://style.tidyverse.org/). Has an addin for Rstudio to:
 
-- style individual R and Rmd files
-- styles all R and/or Rmd files in a directory
-- styles the source files of an R package
+-   style individual R and Rmd files
+-   styles all R and/or Rmd files in a directory
+-   styles the source files of an R package
 
 ### lintr
 
@@ -139,25 +133,110 @@ Writing an R package does come with additional overhead during development. The 
 
 ### R CMD check
 
-[`R CMD check`](https://r-pkgs.org/r-cmd-check.html) is basically a suite of automated tests. It's purpose is to ensure a package is properly structured, check that certain good practices are in use and identify potential issues. Over 50 individual checks are made when this is run. It will also run any `{testthat}` tests. It can be time-consuming to run, so is something to use sparingly. It should be run before preparing to push updates to a package to GitHub. 
+[`R CMD check`](https://r-pkgs.org/r-cmd-check.html) is basically a suite of automated tests. It's purpose is to ensure a package is properly structured, check that certain good practices are in use and identify potential issues. Over 50 individual checks are made when this is run. It will also run any `{testthat}` tests. It can be time-consuming to run, so is something to use sparingly. It should be run before preparing to push updates to a package to GitHub.
 
 ### GitHub actions
 
 [GitHub actions (GHA)](https://docs.github.com/en/actions) provide a convenient (and free!) platform for CI. They can be used for a multitude of use cases. Useful things for R packages include:
 
-- checking for leaked data with [gitleaks](https://gitleaks.io/)
-- style and lint files with `{styler}` and `{lintr}`
-- run `R CMD check`
+-   checking for leaked data with [gitleaks](https://gitleaks.io/)
+-   style and lint files with `{styler}` and `{lintr}`
+-   run `R CMD check`
 
 ## R package workflow
 
-Time to create an R package! It will be simple in scope, so that the focus is on the workflow rather than the code itself.
+Consider the problem of determining which quadrant of the plane a point lies in.
+
+```{r, echo=FALSE, out.width="30%", fig.cap="<br>The four quadrants of a Cartesian coordinate system<br><a href='http://creativecommons.org/licenses/by-sa/3.0/' title='Creative Commons Attribution-Share Alike 3.0'>CC BY-SA 3.0</a>, <a href='https://commons.wikimedia.org/w/index.php?curid=603366'>Link</a>"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/1/1a/Cartesian_coordinates_2D.svg")
+```
+
+We will create a package called `quadr` that provides functions concerning this problem. It will be simple in scope, so that the focus is on the workflow rather than the code itself. The mostly manual way of doing things is shown, as this helps to get an understanding of what is going on that using the various tools does not. Afterwards, a more streamlined workflow is shown using the tools.
 
 ### Simplest possible package
 
-### Adding documentation
+Suppose we have the functions below. They both take an x and y coordinate.
 
-### Adding tests
+- `quadrant` returns the quadrant (as a Roman numeral), or a message that `(x,y)` is in no quadrant.
+- `on_axes` returns `TRUE` or `FALSE`, according to whether `(x,y)` is on at least one of the axes.
+
+Each function is defined in its own file for demonstration purposes, but these could well be in the same file as their purpose is related.
+
+```{r, eval=FALSE}
+# In quadrant.R
+quadrant <- function(x, y) {
+  if (on_axes(x, y)) return ("No quadrant")
+  
+  signs <- sign(c(x, y))                        # maps x, y to -1, 0 or 1
+  signs <- sub("1", "+", sub("-1", "-", signs)) # replaces 1, -1 with +, -
+  signs <- paste0(signs, collapse = "")         # get a single string of x, y signs
+  
+  switch (signs,
+    `++` = "I",
+    `-+` = "II",
+    `--` = "III",
+    `+-` = "IV"
+  )
+}
+
+# In on_axes.R
+on_axes <- function(x, y) {
+  any(c(x,y) == 0)                              # If either x or y is 0, TRUE 
+}
+```
+
+The simplest possible R package has the following requirements:
+
+- R files are placed in a folder named `R`
+- a file `DESCRIPTION` is in the package root directory
+- the `DESCRIPTION` file is yaml format and specifies properties `Package` and `Version`, e.g. 
+
+```
+Package: quadr
+Version: 0.1
+```
+
+Usually the package root directory is named the same as the package, so for our toy package it would be `quadr`. In order to have the package at different stages of development, each version will be saved as `quadr_n`, with n starting at 0 for the first minimal package.
+
+The `quadr` package can now be installed by setting the working directory to `quadr_0` and running `devtools::install()`
+
+```{r, eval=FALSE}
+devtools::install()
+```
+
+```{r, echo=FALSE}
+setwd("quadr_0")
+devtools::install()
+```
+
+Once installed, the package can be loaded with `library()`, or functions invoked using `quadr::`.
+
+```{r}
+c(
+  quadr::quadrant(1, 2),
+  quadr::quadrant(-1, 2),
+  quadr::quadrant(-1,-2),
+  quadr::quadrant(1, -2),
+  quadr::quadrant(1, 0)
+)
+```
+
+If you want to try out your package-in-development, use `devtools::load_all()`. This simulates the steps of building and installing, and also loads the package. Note that the output `load_all()` simply tells you the package is loaded - it is faster than building and installing for real with `install()`.
+
+```{r, eval=FALSE}
+devtools::load_all()
+
+quadrant(1, 2)
+```
+
+```{r, echo=FALSE}
+setwd("quadr_0")
+devtools::load_all()
+
+quadrant(1, 2)
+```
+
+### Adding documentation
 
 ### Checking a package
 
@@ -167,7 +246,7 @@ Time to create an R package! It will be simple in scope, so that the focus is on
 
 ## Resources
 
-- R packages (Whickam)
-- Enterprise Shiny (ThinkR)
+-   R packages (Whickam)
+-   Enterprise Shiny (ThinkR)
 
 ## Questions?
