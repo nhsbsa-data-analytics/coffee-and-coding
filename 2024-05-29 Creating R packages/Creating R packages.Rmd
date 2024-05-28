@@ -394,12 +394,54 @@ A preview of the documentation will be opened in the Help pane of Rstudio.
 
 ### Adding tests
 
+If you would like an introduction to testing in R that goes a bit deeper, check out my previous session. For the purposes of this session I will be skimming over the subject of testing and just present how to add the necessary files to a package.
+
+In order for `{testthat}` to work best for a package, the tests need to be included in a specific way.
+
+- There is a `tests` folder in the package root directory.
+- A `testthat.R` file is in `tests`, that loads `{testthat}`, the package being tested and finally runs the tests.
+- Within the `tests` folder is another folder named `testthat`.
+- All tests are in the `tests/testthat` folder.
+
+For our toy package then, we create the `tests` folder and place in it `testthat.R` which contains
+
+```
+library(testthat)
+library(quadr)
+
+test_check("quadr")
+```
+
+Also we create the `testthat` folder and place in it a file `test-quadrant.R` which contains
+
+```
+test_that("correct quadrants are given", {
+  expect_equal(quadrant( 1,  2), "I")
+  expect_equal(quadrant(-1,  2), "II")
+  expect_equal(quadrant(-1, -2), "III")
+  expect_equal(quadrant( 1, -2), "IV")
+  expect_equal(quadrant( 0,  1), "No quadrant")
+  expect_equal(quadrant( 1,  0), "No quadrant")
+  expect_equal(quadrant( 0,  0), "No quadrant")
+})
+```
+
+When set up in this way, you can run the tests manually by a call to `devtools::test()`.
+
+```{r, eval=FALSE}
+devtools::test()
+```
+
 ```{r, echo=FALSE}
 setwd("quadr_2")
-devtools::load_all()
-
-?quadrant
+devtools::test()
 ```
+
+Another way is to click the  Rstudio 'Run Tests' button while viewing the test file.
+
+<center>
+  ![Run tests in Rstudio](images/rstudio-run-tests.png)
+</center>
 
 ### Checking a package
 
