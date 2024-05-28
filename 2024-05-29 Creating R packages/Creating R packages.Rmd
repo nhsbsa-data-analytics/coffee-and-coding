@@ -527,6 +527,20 @@ Duration: 15.6s
 
 ### Adding CI
 
+[Continuous integration (CI)](https://en.wikipedia.org/wiki/Continuous_integration) is the software development paradigm of frequently building and testing a software product during development, using automated workflows.
+
+One way of incorporating CI into R package development is using GitHub Actions (GHA). A GHA is specified in yaml format and provides configuration and instructions for a specific workflow. A good source of GHA specifications is the [rlib/actions repository](https://github.com/r-lib/actions/tree/v2/examples), which includes actions like checking R packages, styling and linting R code and more.
+
+Suppose we want all code to be styled following the Tidyverse style guide. By adding a GHA to do this whenever code is pushed, our package will always be in the same style. Further, we can add another GHA to do a lint check on all code.
+
+The R CMD check is a relatively long-running task, so maybe we don't want this to run every time we push code to GitHub. Instead, this could be set to run only on pushes directly to the the `main` branch, or pull requests (PRs) into the `main` branch.
+
+Any GHA specifications need to be saved to a folder `workflows`, which is itself in the folder `.github`.
+
+#### Styling CI
+
+The [`style.yaml`](https://github.com/r-lib/actions/blob/v2/examples/style.yaml) workflow will style any code pushed, before committing it back to the same branch.
+
 ## Using packages from GitHub
 
 ## Resources
