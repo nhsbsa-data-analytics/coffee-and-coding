@@ -272,11 +272,11 @@ With metadata added, we can now document the functions. For this, we add comment
 
 The most common tags include
 
-- \@title: short one-liner (if tag omitted first comment will be used as title)
-- \@description: short description of the purpose of the function (if tag omitted the second comment will be used as description)
-- \@param: describe a function input, giving acceptable input types and any further info to end user
-- \@return: the presence of this tag determines whether a function is exported from the package (by adding to `NAMESPACE`)
-- \@examples: R code that demonstrates how the function works
+- `\@title`: short one-liner (if tag omitted first comment will be used as title)
+- `\@description`: short description of the purpose of the function (if tag omitted the second comment will be used as description)
+- `\@param`: describe a function input, giving acceptable input types and any further info to end user
+- `\@return`: the presence of this tag determines whether a function is exported from the package (by adding to `NAMESPACE`)
+- `\@examples`: R code that demonstrates how the function works
 
 ```{r, eval=FALSE}
 # In quadrant.R
@@ -444,6 +444,86 @@ Another way is to click the  Rstudio 'Run Tests' button while viewing the test f
 </center>
 
 ### Checking a package
+
+In order for `{testthat}` to be available when checking the package, the following needs to be added to `DESCRIPTION`
+
+```
+Suggests: 
+    testthat (>= 3.0.0)
+```
+
+```{r, eval=FALSE}
+devtools::check()
+```
+
+The output is very verbose, since it is checking a lot of things! Below, the output has been trimmed down (indicated by two lines of `...`), with just some points of note left in.
+
+- Package documentation is regenerated if needed.
+- Package is 'built' (i.e. into an installable form).
+- A temp folder is created and provided for the outputs of the check.
+- `DESCRIPTION` is checked, including any dependencies specified.
+- Checks package can be installed.
+- Checks R code is readable and syntax-error free.
+- The code provided in `\@examples` is run to ensure no errors.
+- The tests specified under the `tests` folder are run.
+- Finally, results are displayed.
+    - Errors **must** be fixed, since package is uninstallable.
+    - Warnings **should** be fixed, if at all possible, to not clutter the output on future runs, potentially making other issues harder to spot.
+    - Notes also **should** be addressed if possible, but these are the least serious issues.
+
+```
+══ Documenting ═════════════════════════════════════════════════════════════════════════════════════════════════════════
+ℹ Updating quadr documentation
+ℹ Loading quadr
+══ Building ════════════════════════════════════════════════════════════════════════════════════════════════════════════
+...
+...
+══ Checking ════════════════════════════════════════════════════════════════════════════════════════════════════════════
+...
+...
+── R CMD check ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+─  using log directory ‘/tmp/RtmpfqyxK2/file1a5286a7a4e/quadr.Rcheck’
+...
+...
+✔  checking for file ‘quadr/DESCRIPTION’
+─  this is package ‘quadr’ version ‘0.1’
+─  package encoding: UTF-8
+✔  checking package namespace information
+✔  checking package dependencies ...
+✔  checking if this is a source package ...
+...
+...
+✔  checking whether package ‘quadr’ can be installed (1.4s)
+...
+...
+✔  checking R files for non-ASCII characters ...
+✔  checking R files for syntax errors ...
+✔  checking whether the package can be loaded (346ms)
+✔  checking whether the package can be unloaded cleanly ...
+✔  checking whether the namespace can be unloaded cleanly ...
+...
+...
+✔  checking dependencies in R code (517ms)
+...
+...
+✔  checking R code for possible problems (3.3s)
+✔  checking Rd files ...
+...
+...
+✔  checking for unstated dependencies in examples ...
+✔  checking examples (796ms)
+...
+...
+─  checking tests ...
+✔  Running ‘testthat.R’ (596ms)
+...
+...
+   
+── R CMD check results ────────────────────────────────────────────────────────────────────────────────── quadr 0.1 ────
+Duration: 15.6s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+```
 
 ### Adding CI
 
