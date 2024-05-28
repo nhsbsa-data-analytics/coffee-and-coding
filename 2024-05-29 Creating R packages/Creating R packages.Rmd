@@ -537,9 +537,53 @@ The R CMD check is a relatively long-running task, so maybe we don't want this t
 
 Any GHA specifications need to be saved to a folder `workflows`, which is itself in the folder `.github`.
 
+GHAs should be seen as a 'fail-safe', but shouldn't replace regular checking during development. As a rule of thumb, a package should be checked (and styled or linted, if in use) at least before pushing code. It is better to do this more regularly however. Going too long between checks will mean debugging issues is harder, as there are more changes that could have introduced a bug.
+
+NOTE: because the code for this session is itself in a `git` repository, with associated GitHub repo, there is no `.git` folder in each of the `quad_n` folders. An example of the resulting `quadr` [package](https://github.com/nhsbsa-data-analytics/quadr) is available on GitHub.
+
 #### Styling CI
 
 The [`style.yaml`](https://github.com/r-lib/actions/blob/v2/examples/style.yaml) workflow will style any code pushed, before committing it back to the same branch.
+
+#### Linting CI
+
+The [`lint.yaml`](https://github.com/r-lib/actions/blob/v2/examples/lint.yaml) workflow will check for any code lint in code pushed to the `main` (or `master`) branch, or any PR into those branches. To instead do this on all code pushed, the `on` property can be altered:
+
+```
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+```
+
+becomes just
+
+```
+on: [push]
+```
+
+However, adding this as a separate workflow will mean the style and lint workflows running independently and in parallel. It is possible that styling the code will actually remove some lints. So a better approach would be to style code first, and only then lint it.
+
+This can be achieved by setting `on` to
+
+```
+on:
+  workflow_run:
+    workflows: ["Style"]
+    types:
+      - completed
+```
+
+which will run the `Lint` job only after a successful `Style` job.
+
+If such workflows are in place, you can see why it is a good idea to style and lint your code before pushing it. Doing so will catch any issues locally, rather than having to check why the GHA failed, fix your code and then push again.
+
+#### Check CI
+
+The [`check-release.yaml`](https://github.com/r-lib/actions/blob/v2/examples/check-release.yaml) workflow will run `R CMD check` on the package, when a push is to the `main` (or `master`) branch, or any PR into those branches.
+
+Again, since this check is automatically going to happen, it is best to check the package before pushing anything to GitHub, and avoid possibility of having to fix something and re-push.
 
 ## Using packages from GitHub
 
