@@ -1,0 +1,10 @@
+Package: quadr
+Title: Plane Quadrants Tools
+Version: 0.1
+Authors@R: 
+    person("Some", "One", , "some.one@example.com", role = c("aut", "cre"))
+License: Apache License (>= 2)
+Description: Functions concerning plane quadrants.
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1

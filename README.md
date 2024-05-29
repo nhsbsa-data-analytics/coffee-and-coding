@@ -12,7 +12,7 @@ The goal of these sessions is to provide a relaxed environment to share new skil
 
 ### Tools
 
-If you are playing along there are a couple of free online interactive environments that can, depending on the session, be used to allow access to the materials to code along.
+If you are playing along we recommend using the free Posit Cloud Environment, since all the packages needed to run the code will be available. Alternatively, you could clone this repo to your local device.
 
 **Posit Cloud RStudio Environment**
 
@@ -21,15 +21,7 @@ This online tool requires the user to have a free account and will allow a proje
 -   [Posit cloud login](https://posit.cloud/content/yours?sort=name_asc)
 -   [Guide to using posit cloud](posit%20cloud%20rstudio/Using%20Posit%20Cloud%20RStudio%20environment.pdf)
 
-**Binder**
-
-[Binder](https://mybinder.org/v2/gh/sfdsa/HEAD) is a free online interactive environment to execute code in online with no signup or user accounts required. Launch the version which suits the session you are attending:
-
--   JupyterLab instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=lab)
--   RStudio instance [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nhsbsa-data-analytics/coffee-and-coding/HEAD?urlpath=rstudio)
--   Google colab instance [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb)
-
-We also use GitHub Actions to automate the Binder build process.
+Once you have the Coffee and Coding project open in Posit Cloud, you can update it from this repository by using the `git pull` command in the Terminal.
 
 ------------------------------------------------------------------------
 
@@ -39,13 +31,14 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2024-03-               | Kayoung Goffe                    | TBC                                                         |   
-| 2024-02-               | Lucy Sherwin Robson              | TBC                                                         |   
-| 2024-01-               | Grace Libby                      | TBC                                                         |   
+| 2024-05-29 \*          | Mark McPherson                   | Creating R packages                                         | 
+| 2024-04-30             | Larissa Conradt                  | User built functions in R                                   | 
+| 2024-02-28             | Lucy Sherwin Robson              | ARIMA Forecasting in R                                      |   
+| 2024-01-30             | Grace Libby                      | Importing ONS population data                               |   
 | 2023-12-19             | Thomas Owen                      | Efficient programming in R                                  |   
 | 2023-11-28             | Graham Platen                    | R Markdown for presenting data analysis                     |   
 | 2023-10-25             | Adnan Shroufi                    | How to load and use `{addressMatchR}`                       |   
-| 2023-10-03  \*         | Mark McPherson                   | Automated testing in R                                      |
+| 2023-10-03             | Mark McPherson                   | Automated testing in R                                      |
 | 2023-08-09             | Kayoung Goffe                    | Introduction to `{purrr}` in R                              | 
 | 2023-06-21             | Mihail Garbuzov                  | Introduction to regular expressions using R                 |
 | 2023-05-24             | Steven Buckley                   | Person matching in R - introducing the personMatchR package |
