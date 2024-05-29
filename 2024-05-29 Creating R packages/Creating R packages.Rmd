@@ -92,6 +92,8 @@ Writing an R package does come with additional overhead during development. The 
 
 [`{devtools}`](https://devtools.r-lib.org/) is akin to `{tidyverse}`. Whereas the latter allows for quickly loading packages used for data exploration and visualization, `library(devtools)` will load packages used for package development. The sub-packages include `{usethis}`, `{roxygen2}` and `{testthat}`, among others.
 
+Throughout this article, all function calls are namespaced (`pkg::fn`) to make it clear which package they are in. But in practice, it is recommended to just call `library(devtools)` to load everything.
+
 ### usethis
 
 [`{usethis}`](https://usethis.r-lib.org/index.html) automates repetitive tasks that arise during package development. Some use cases include:
@@ -265,6 +267,8 @@ RoxygenNote: 7.3.1
 Note that the license file should also be included in the package. We will skip adding that, but later see that this can be done automatically.
 
 The version number in the `RoxygenNote: 7.3.1` entry should match the version of {roxygen2} you have installed. If you update that package, the entry here should also be updated.
+
+Note: If a package is hosted on GitHub, it should contain a README file. This is not added here as it is not related to R packages in particular.
 
 #### Function documentation
 
@@ -591,18 +595,198 @@ Again, since this check is automatically going to happen, it is best to check th
 
 The workflow described above is more manual than is needed, but hopefully does help with understanding the different concepts and components in play when writing an R package.
 
-Now, lets see what this workflow might look like in practice, using the tools we have available to help us.
+Now, lets see what this workflow might look like in practice, using the tools we have available to help us. The explanation here is minimal, so if something is not clear please ask about it!
+
+The final version is in the `quadr` folder.
 
 ### Create package
 
+Ensure working directory is where you want the package to be in, then run
 
+```
+usethis::create_package("quadr")
+```
 
+Additional files in the resulting package include
+
+- `quadr.Rproj`: Rstudio project file, can be committed and shared on GitHub.
+- `.Rproj.user`: Rstudio user project file, don't include in GitHub.
+- `.gitignore`: Has a single entry to ignore `.Rproj.user`.
+- `.Rbuildignore`: Is like `.gitignore`, but for R packages, and already contains entries for the 2 `Rproj` files.
+
+The R code for `quadrant` and `on_axes` is added in the `R` folder, initially creating the files with
+
+```
+usethis::use_r("quadrant")
+usethis::use_r("on_axes")
+```
+
+### Documentation
+
+The initial state of the `DESCRIPTION` file is
+
+```
+Package: quadr
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("Mark", "McPherson", , "mark.mcpherson@nhsbsa.nhs.uk", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+```
+
+Note that I have set my personal details as a permanent option, which is why they are already filled in for `Author`. See documentation for `?usethis::use_description`.
+
+The `Title` and `Description` properties are updated to match the earlier example.
+
+The `License` property is set with a placeholder message. Since we use Apache v2 license in the NHSBSA, run
+
+```
+usethis::use_apl2_license()
+```
+
+This adds the correct `License` property. It also creates a file `LICENSE.md`. To be valid, you will need to update the placeholder (almost at bottom of the file) for copyright year and owner.
+
+```
+Copyright [yyyy] [name of copyright owner]
+```
+
+becomes
+
+```
+Copyright 2024 NHSBSA
+```
+
+The function documentation is added just like before. But note the handy Rstudio option `Code > Insert Roxygen Skeleton`, which will add placeholders for a minimal set of doc comments. Make sure the cursor is on the function name first.
+
+```
+#' Title
+#'
+#' @param x 
+#' @param y 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+```
+
+At this stage running a check is warranted. You can use `devtools::check()`. A better option is using the Rstudio `Build` pane, which has an option `Check`. This runs the check in the background, so does not lock up your R session.
+
+### Tests
+
+To set up `testthat` run
+
+```
+usethis::use_testthat()
+```
+
+Now, when you want to add tests you can have the file with the code to test open, and run
+
+```
+usethis::use_test()
+```
+
+Doing this for the `quadrant.R` file results in the file `tests/testthat/test-quadrant.R`. There is some placeholder code in there. This is replaced with the test code from earlier.
+
+### CI
+
+The package is not a `git` repository yet (despite there being a `.gitignore` file). To initialise the repo, run
+
+```
+usethis::use_git()
+```
+
+This results in a question about committing files, which should be answered with the relevant option (2 in this case, but the order can be different).
+
+```
+v Initialising Git repo
+v Adding '.Rhistory', '.Rdata', '.httr-oauth', '.DS_Store', '.quarto' to '.gitignore'
+There are 9 uncommitted files:
+* '.gitignore'
+* '.Rbuildignore'
+* 'DESCRIPTION'
+* 'LICENSE.md'
+* 'man/'
+* 'NAMESPACE'
+* 'quadr.Rproj'
+* 'R/'
+* 'tests/'
+Is it ok to commit them?
+
+1: Negative
+2: I agree
+3: Nope
+
+Selection: 
+```
+
+If you intend to use the Rstudio Git pane, select to restart, otherwise there is no need to restart.
+
+```
+v Adding files
+v Making a commit with message 'Initial commit'
+* A restart of RStudio is required to activate the Git pane
+Restart now?
+
+1: No
+2: Not now
+3: I agree
+
+Selection: 
+```
+
+Various GHAs can be added conveniently with `usethis::use_github_action()` and providing the name of the flow you want to use (or start with, if there are modifications needed). The name is the file name as in `rlib/actions` GitHub repo.
+
+```
+usethis::use_github_action("style")
+usethis::use_github_action("lint", open = TRUE)
+usethis::use_github_action("check-release", save_as = "check.yaml")
+```
+
+The lint workflow needs a little modification to match the earlier one, so is set to open for editing. The last needs the name of the workflow specified, since `usethis` will by default call it "R-CMD-check" (certain keyword names have additional behaviour like this).
+
+Note that if there is no remote repository set, the last one will generate an error. It can be safely ignored, the workflow will still be created.
+
+```
+Error in `stop_bad_github_remote_config()`:
+! Unsupported GitHub remote configuration: 'no_github'
+* Host = NA
+* origin = <not configured>
+* upstream = <not configured>
+* Neither 'origin' nor 'upstream' is a GitHub repo.
+```
 
 ## Using packages from GitHub
 
+A package that is available as a GitHub repo can be installed with
+
+```
+remotes::install_github("owner/repo")
+```
+
+The `owner/repo` can be easily copied from the URL. For example, the `{nhsbsaR}` package has URL https://github.com/nhsbsa-data-analytics/nhsbsaR. To install this, we would run
+
+```
+remotes::install_github("nhsbsa-data-analytics/nhsbsaR")
+```
+
+In most cases, you will want to install the main (or master) branch. Sometimes however, a specific commit or release may be wanted. It is even possible to install a pull request. These can be specified like
+
+```
+# Get pull request #43 version
+remotes::install_github("nhsbsa-data-analytics/nhsbsaR", ref = remotes::github_pull("43"))
+
+# Get branch "experimental"
+remotes::install_github("nhsbsa-data-analytics/nhsbsaR", ref = "experimental")
+```
+
 ## Resources
 
--   R packages (Whickam)
--   Enterprise Shiny (ThinkR)
+- An exhaustive treatment of R packages is [R Packages (2nd edition)](https://r-pkgs.org/) (Wickham and Bryan) - if you can't find something R package related in here, there is probably no book that does include it!
 
 ## Questions?
