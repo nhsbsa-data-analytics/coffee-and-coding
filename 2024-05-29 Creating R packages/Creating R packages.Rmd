@@ -25,6 +25,10 @@ If you perform data analysis in R, writing a package to ingest data, run analysi
 
 > RAP is a set of principles and working practices that help you create faster, more robust, and more transparent analytical processes.
 
+Chat GPT gives a layman explanation
+
+> A reproducible analytical pipeline is a detailed, step-by-step process for analyzing data that anyone can follow. It includes all the necessary instructions, tools, and data so that others can repeat the analysis and get the same results. This makes it easy to verify findings and ensures the analysis is reliable and trustworthy.
+
 A well written R package for your analysis, that is openly available on GitHub, meets a lot of the desired properties of a RAP.
 
 **Baseline (aka Bronze) RAP** `r emo::ji("3rd_place_medal")` - minimum requirements to be a RAP:
@@ -48,6 +52,8 @@ Comes for 'free'
 
 **Silver RAP** `r emo::ji("2nd_place_medal")` - implementing best practice:
 
+All of the above plus
+
 Comes for 'free'
 
 |        `r emo::ji("white_check_mark")` Code is well-documented including user guidance and function documentation (helped by `{roxygen2}`)
@@ -70,6 +76,8 @@ Comes for 'free'
 <hr style="border: none; background-color: grey; height: 2px;">
 
 **Gold RAP** `r emo::ji("1st_place_medal")` - analysis as a product:
+
+All of the above plus
 
 Comes for 'free'
 
@@ -166,6 +174,7 @@ Each function is defined in its own file for demonstration purposes, but these c
 
 ```{r, eval=FALSE}
 # In quadrant.R
+
 quadrant <- function(x, y) {
   if (on_axes(x, y)) return ("No quadrant")
   
@@ -182,6 +191,7 @@ quadrant <- function(x, y) {
 }
 
 # In on_axes.R
+
 on_axes <- function(x, y) {
   any(c(x,y) == 0)                              # If either x or y is 0, TRUE 
 }
@@ -194,6 +204,8 @@ The simplest possible R package has the following requirements:
 - the `DESCRIPTION` file is yaml format and specifies properties `Package` and `Version`, e.g. 
 
 ```
+# In DESCRIPTION
+
 Package: quadr
 Version: 0.1
 ```
@@ -252,6 +264,8 @@ In addition to the actual function documentation, packages have metadata. This i
 - what can be thought of as configuration options, such as encoding and `{roxygen2}` related options
 
 ```
+# In DESCRIPTION
+
 Package: quadr
 Title: Plane Quadrants Tools
 Version: 0.1
@@ -410,6 +424,8 @@ In order for `{testthat}` to work best for a package, the tests need to be inclu
 For our toy package then, we create the `tests` folder and place in it `testthat.R` which contains
 
 ```
+# In testthat.R
+
 library(testthat)
 library(quadr)
 
@@ -419,6 +435,8 @@ test_check("quadr")
 Also we create the `testthat` folder and place in it a file `test-quadrant.R` which contains
 
 ```
+# In test-quadrant.R
+
 test_that("correct quadrants are given", {
   expect_equal(quadrant( 1,  2), "I")
   expect_equal(quadrant(-1,  2), "II")
@@ -556,6 +574,8 @@ Note that this may mean the code on GitHub no longer matches the code pushed, so
 The [`lint.yaml`](https://github.com/r-lib/actions/blob/v2/examples/lint.yaml) workflow will check for any code lint in code pushed to the `main` (or `master`) branch, or any PR into those branches. To instead do this on all code pushed, the `on` property can be altered:
 
 ```
+# In lint.yaml
+
 on:
   push:
     branches: [main, master]
@@ -566,6 +586,8 @@ on:
 becomes just
 
 ```
+# In lint.yaml
+
 on: [push]
 ```
 
@@ -574,6 +596,8 @@ However, adding this as a separate workflow will mean the style and lint workflo
 This can be achieved by setting `on` to
 
 ```
+# In lint.yaml
+
 on:
   workflow_run:
     workflows: ["Style"]
@@ -626,6 +650,8 @@ usethis::use_r("on_axes")
 The initial state of the `DESCRIPTION` file is
 
 ```
+# In DESCRIPTION
+
 Package: quadr
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
@@ -652,12 +678,16 @@ usethis::use_apl2_license()
 This adds the correct `License` property. It also creates a file `LICENSE.md`. To be valid, you will need to update the placeholder (almost at bottom of the file) for copyright year and owner.
 
 ```
+# In LICENSE.md
+
 Copyright [yyyy] [name of copyright owner]
 ```
 
 becomes
 
 ```
+# In LICENSE.md
+
 Copyright 2024 NHSBSA
 ```
 
