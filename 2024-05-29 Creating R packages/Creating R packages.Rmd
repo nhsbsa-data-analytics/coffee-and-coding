@@ -545,6 +545,8 @@ NOTE: because the code for this session is itself in a `git` repository, with as
 
 The [`style.yaml`](https://github.com/r-lib/actions/blob/v2/examples/style.yaml) workflow will style any code pushed, before committing it back to the same branch.
 
+Note that this may mean the code on GitHub no longer matches the code pushed, so a pull from the branch on GitHub to the local branch will be needed to get them back in sync.
+
 #### Linting CI
 
 The [`lint.yaml`](https://github.com/r-lib/actions/blob/v2/examples/lint.yaml) workflow will check for any code lint in code pushed to the `main` (or `master`) branch, or any PR into those branches. To instead do this on all code pushed, the `on` property can be altered:
@@ -584,6 +586,17 @@ If such workflows are in place, you can see why it is a good idea to style and l
 The [`check-release.yaml`](https://github.com/r-lib/actions/blob/v2/examples/check-release.yaml) workflow will run `R CMD check` on the package, when a push is to the `main` (or `master`) branch, or any PR into those branches.
 
 Again, since this check is automatically going to happen, it is best to check the package before pushing anything to GitHub, and avoid possibility of having to fix something and re-push.
+
+## Automate where possible
+
+The workflow described above is more manual than is needed, but hopefully does help with understanding the different concepts and components in play when writing an R package.
+
+Now, lets see what this workflow might look like in practice, using the tools we have available to help us.
+
+### Create package
+
+
+
 
 ## Using packages from GitHub
 
