@@ -1,0 +1,199 @@
+---
+title: |
+  ![](BSA_report_header.jpg){width=100%}  
+    
+  Interaction API in R
+#author: ""
+#date: "2024-28-02"
+
+output: 
+  html_document:
+    css: "style/style.css"
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{=html}
+<style type="text/css">
+
+body, td {
+   font-size: 16px;
+   font-family: sans-serif;
+}
+</style>
+```
+<html lang="en">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Welcome to today's Coffee & Coding session. This is a follow-up session after our Data Byte series. Today, we will explore how to work with APIs in R using the NHS Open Data Portal as our example. APIs (Application Programming Interfaces) allow us to access data from various web services, making them a powerful tool for data analysis and application development. Additionally, we will cover how to create your own API in R using plumber.
+
+# Introduction to APIs
+
+## What is an API?
+
+An API (Application Programming Interface) is a communication layer that enables different systems to interact without needing to know the details of each other. This tutorial focuses on web APIs, which facilitate communication across networks.
+
+## Why use APIs?
+
+-   Access to data
+-   Automate data retrieval and processing
+-   Integration with web services and third-party applications
+
+## Install required packages
+
+```{r load packages, messages = FALSE, include = TRUE}
+# install.packages("httr2")
+# install.packages("jsonlite")
+# install.packages("dplyr")
+# install.packages("data.table")
+# install.packages("devtools")
+# install.packages("plumber")
+
+library(httr2)
+library(jsonlite)
+library(dplyr)
+library(data.table)
+library(devtools)
+library(plumber)
+
+```
+
+`httr2` is an R package designed for making HTTP requests and handling responses. - Simplified syntax for constructing HTTP requests - Support for common HTTP methods (GET, POST, PUT, DELETE) - Tools for handling authentication, including OAuth. - Functions for managing request headers, query parameters, and body content. - Capabilities for processing and parsing HTTP responses.
+
+`jsonlite` is an R packages that working with JSON data. - Functions for parsing JSON string into R objects (`fromJSON`) - Functions for converting R objects into JSON string (`toJSON`) - Support for complex data structures, including nested lists and data frames - Options for pretty-printing and compacting JSON output - Compatibility with streaming JSON data for larlge datasets
+
+`plumber` enables the creating of RESTful APIs from R scripts. It allows users to expose R functions as web services, making it easy to integrate R with web applications. - Simple annotations to define API endpointss - Support for HTML methods (GET, POST etc) - Tools for managing API documentation and testing endpoints.
+
+# Making API requests
+
+## Understanding the Endpoint
+
+An endpoint is a specific URL that allows you to access a particular part of an API. For example, an API might have different endpoints for retrieving data, submitting data, or updating data. The structure of an endpoint typically includes the base URL and additional parameters or paths that specify the exact resource you want to interact with. It connects API clients and servers.
+
+The Open Data Portal (ODP) uses CKAN (Comprehensive Knowledge Archive Network), an open-source data portal designed for the storage and distribution of open data. To learn how to interact with the NBSBSA ODP site, you can refer to the CKAN API guide available [here](https://docs.ckan.org/en/2.10/api/index.html).
+
+You can find useful example code in [here](https://opendata.nhsbsa.net/dataset/english-prescribing-data-epd/resource/d047e02f-1440-45b9-9bd8-94cba6452c01)
+
+```{r}
+
+
+# Define the base URL and endpoint 
+# To get a full JSON representation of a resouce 
+
+base_endpoint <- "https://opendata.nhsbsa.net/api/3/action/"
+package_show_method <- "package_show?id="
+dataset_id <- "english-prescribing-data-epd"
+
+
+# Combine the base URL and endpoint
+url <- paste0(base_endpoint, package_show_method, dataset_id)
+
+print(url) # We can check this url
+
+# Make the GET request using httr2
+# Sends the request to the API and stores the response. 
+response <- request(url) |> 
+  req_perform()
+
+if (resp_status(response) == 200) { # or response$status_code 
+  # Parse the content of the response
+  content <- resp_body_string(response)
+  data <- fromJSON(content)
+  # Save this as data frame
+  df <- data$result$resources
+  tail(df)
+} else {
+  stop("API request failed with status: ", resp_status(response))
+}
+
+```
+`content` refers to the body of the response from the API.`resp_body_json` directly parse raw byte data into JSON object. It stores in the `data` variable.
+
+## Querying 
+
+From `data$size`, we can see that each English Prescribing Dataset (EPD) is about 6GB. To manage this size, we can construct SQL queries within the API to download smaller datasets by selecting only the columns of interest.
+We can revisit the example in ODP site. It needs `datastore_search_sql?`, `resource_id` to run the SQL.
+
+SQL: We want to extract 2024-03 BNF chapter 5.1 (Antibacterial drugs) for ICB and create bar chart for the comparison.
+
+
+```{r}
+
+sql_action_method = "datastore_search_sql?"
+
+# Pull the latest month antibiotic drug prescription data by ICB.
+resource_id = "EPD_202403"
+
+# Initialise dataframe which will hold information from API call
+antibiotic_icb_df <- data.frame()
+
+# Build our query which will feed after sql_action_method
+
+tmp_query <- paste0(
+    "
+  SELECT
+      YEAR_MONTH,
+      REGIONAL_OFFICE_NAME,
+      REGIONAL_OFFICE_CODE,
+      ICB_NAME,
+      ICB_CODE,
+      BNF_CHEMICAL_SUBSTANCE,
+      CHEMICAL_SUBSTANCE_BNF_DESCR,
+      ITEMS
+  FROM `",
+    resource_id, "`
+  WHERE
+    BNF_CHEMICAL_SUBSTANCE LIKE '0501%'
+  "
+  )
+
+  # Build temporary API call
+  tmp_api_call <- paste0(
+    base_endpoint,
+    sql_action_method,
+    "resource_id=",
+    resource_id,
+    "&",
+    "sql=",
+    URLencode(tmp_query) # Encode spaces in the url
+  )
+  
+  print(tmp_api_call)
+  
+  # We can check in browser
+  
+
+  # Grab the response JSON as a temporary list
+  tmp_response <- jsonlite::fromJSON(tmp_api_call)
+  
+
+  # Extract records in the response to a temporary dataframe
+  # antibiotic_icb_df <- data.table::fread(tmp_response$result$gc_urls$url)
+
+```
+
+
+`URLencode` is a function in R that is used to encode characters in a URL so that they can be transmitted over the internet. This function ensures that special characters in URLs are properly encoded to avoid issues with URL parsing and transmission.
+For example, A space character (` `) will be encoded as `%20`.
+An apostrophe (`'`) will be encoded as `%27`.
+The greater than or equal to sign (`>=`) will be encoded as `%3E%3D` etc.
+
+`URLencode` is used to encode the SQL query string before appending it to the URL for the API call. This ensures that any special characters in the SQL query are properly encoded.
+
+
+
+
+
+[IDEA]
+Antibiotics prescribing in ICBs - map
+Lane end surgery - their trend (another loop over 12 months)
+
+
