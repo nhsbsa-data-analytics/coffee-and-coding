@@ -2,8 +2,8 @@
 title: |
   ![](BSA_report_header.jpg){width=100%}  
     
-#author: ""
-#date: "2024-28-02"
+author: "Kayoung Goffe"
+date: "2024-06-25"
 output: 
   html_document:
     css: "style/style.css"
@@ -121,7 +121,7 @@ You can find useful example code in
 
 
 # Define the base URL and endpoint 
-# To get a full JSON representation of a resouce 
+# To get a full JSON representation of a resource 
 
 base_endpoint <- "https://opendata.nhsbsa.net/api/3/action/"
 package_show_method <- "package_show?id="
@@ -141,7 +141,7 @@ response <- request(url) |>
 if (resp_status(response) == 200) { # or response$status_code 
   # Parse the content of the response
   content <- resp_body_string(response)
-  data <- fromJSON(content)
+  data <- fromJSON(content) # We can check data
   # Save this as data frame
   resource_table <- data$result$resources
   # tail(resource_table)
@@ -164,7 +164,7 @@ interest. By utilising the `datastore_search_sql?` endpoint and
 specifying the `resource_id`, we can run SQL queries to extract specific
 data.
 
-For example, to extract data from the April 2024 dataset, specically
+For example, to extract data from the April 2024 data set, specially
 focusing on BNF chapter 5.1 (Antibacterial drugs) at the Integrated Care
 Board (ICB) level, and create a bar chart for comparison, we can use the
 following SQL query.
@@ -248,9 +248,9 @@ URL so that they can be transmitted over the internet. This function
 ensures that special characters in URLs are properly encoded to avoid
 issues with URL parsing and transmission.
 
-For example: -A space character () will be encoded as `%20`. -An
-apostrophe (`'`) will be encoded as `%27`. -The greater than or equal to
-sign (`>=`) will be encoded as `%3E%3D` etc.
+For example: - A space character () will be encoded as `%20`. - An
+apostrophe (`'`) will be encoded as `%27`. - The greater than or equal
+to sign (`>=`) will be encoded as `%3E%3D` etc.
 
 `URLencode` is used to encode the SQL query string before appending it
 to the URL for the API call. This ensures that any special characters in
@@ -260,7 +260,7 @@ the SQL query are properly encoded.
 
 Let's expand our query to loop through multiple months of data. We will
 extract monthly dispensed Amoxicillin (0501013B0) items in one random GP
-practice in North East & Yorishire.
+practice in North East & Yorkshire.
 
 ```{r}
 # extract multiple months for GP practices in North East and Yorkshire region
@@ -338,7 +338,6 @@ see what other data sets are available in our Open Data Portal site.
 
 ```{r}
 
-
 base_endpoint <- "https://opendata.nhsbsa.net/api/3/action/"
 package_list_method <- "package_list" 
 
@@ -349,7 +348,7 @@ url_list <- paste0(base_endpoint, package_list_method)
 response_list <- request(url_list) |> 
   req_perform() 
 
-# Check the status of the response, 200 means susccess
+# Check the status of the response, 200 means success
 if (resp_status(response_list) == 200) {
   # Parse the content of the response directly as JSON using httr2
   data_list <- resp_body_json(response_list)
@@ -380,65 +379,65 @@ request and response?
 
 ```{r}
 
-# base_endpoint <- "https://opendata.nhsbsa.net/api/3/action/"
-# package_show_method <- "package_show?id="
-# dataset_id <- "foi-_____"
-# 
-# # Combine the base URL and endpoint
-# url <- paste0(base_endpoint, package_show_method, dataset_id)
-# 
-# print(url)
-# 
-# # url should look like this: https://opendata.nhsbsa.net/api/3/action/package_show?id=foi-01040
-# 
-# # Perform a request to fetch the results using httr2
-# response <- request(___) |> 
-#   httr2::_____() #httr2 function
-# 
-# # Check the status of the response
-# if (resp_status(response) == ___) { # Success status should return this numeric value
-#   # Parse the content of the response directly as JSON
-#   data <- httr2::___(___) #httr2 function family of : resp_*
-#   
-#   # Extract the notes part from JSON
-#   notes <- data$result$___
-#   
-#   # Find the index of the start of the response part (most case start with \n#Response etc)
-#   response_start <- regexpr("\n#", notes)
-#   
-#   if (response_start[1] != -1) { # if response find
-#     request_part <- substr(notes, 1, response_start[1] - 1) # Request will be the all the text until Response
-#     response_part <- substr(notes, response_start[1], nchar(notes)) # All response
-#   } else {
-#     request_part <- notes
-#     response_part <- ""
-#   }
-#   
-#   
-#   # Extract tags
-#   tags <- data$result$tags
-#   
-#   tag_names <- sapply(tags, function(tag) tag$name)
-#   concatenated_tags <- paste(tag_names, collapse = ", ")
-#   
-#   
-#   
-#   # Clean text by removing all characters except alphanumeric, spaces, and URL patterns
-#   clean_text <- function(text) {
-#     text <- gsub("(?<!http:|https:)[^[:alnum:] [:space:] /:._-]", "", text, perl = TRUE)
-#     return(text)
-#   }
-#   
-#   request_part_clean <- clean_text(request_part)
-#   response_part_clean <- clean_text(response_part)
-#   
-#   # Display the cleaned parts & tags
-#   cat("Tags:\n", concatenated_tags, "\n")
-#   cat("Request Part:\n", request_part_clean, "\n\n")
-#   cat("Response Part:\n", response_part_clean, "\n")
-# } else {
-#   cat("Failed to retrieve data: HTTP status", resp_status(response), "\n")
-# }
+base_endpoint <- "https://opendata.nhsbsa.net/api/3/action/"
+package_show_method <- "package_show?id="
+dataset_id <- "foi-_____"
+
+# Combine the base URL and endpoint
+url <- paste0(base_endpoint, package_show_method, dataset_id)
+
+print(url)
+
+# url should look like this: https://opendata.nhsbsa.net/api/3/action/package_show?id=foi-01040
+
+# Perform a request to fetch the results using httr2
+response <- request(___) |>
+  httr2::_____() #httr2 function
+
+# Check the status of the response
+if (resp_status(response) == ___) { # Success status should return this numeric value
+  # Parse the content of the response directly as JSON
+  data <- httr2::___(___) #httr2 function family of : resp_*
+
+  # Extract the notes part from JSON
+  notes <- data$result$___
+
+  # Find the index of the start of the response part (most case start with \n#Response etc)
+  response_start <- regexpr("\n#", notes)
+
+  if (response_start[1] != -1) { # if response find
+    request_part <- substr(notes, 1, response_start[1] - 1) # Request will be the all the text until Response
+    response_part <- substr(notes, response_start[1], nchar(notes)) # All response
+  } else {
+    request_part <- notes
+    response_part <- ""
+  }
+
+
+  # Extract tags
+  tags <- data$result$tags
+
+  tag_names <- sapply(tags, function(tag) tag$name)
+  concatenated_tags <- paste(tag_names, collapse = ", ")
+
+
+
+  # Clean text by removing all characters except alphanumeric, spaces, and URL patterns
+  clean_text <- function(text) {
+    text <- gsub("(?<!http:|https:)[^[:alnum:] [:space:] /:._-]", "", text, perl = TRUE)
+    return(text)
+  }
+
+  request_part_clean <- clean_text(request_part)
+  response_part_clean <- clean_text(response_part)
+
+  # Display the cleaned parts & tags
+  cat("Tags:\n", concatenated_tags, "\n")
+  cat("Request Part:\n", request_part_clean, "\n\n")
+  cat("Response Part:\n", response_part_clean, "\n")
+} else {
+  cat("Failed to retrieve data: HTTP status", resp_status(response), "\n")
+}
 
 ```
 
@@ -459,12 +458,12 @@ print(url)
 
 # Perform a request to fetch the results using httr2
 response <- request(url) |> 
-  httr2::req_perform() #httr2 function
+  req_perform() #httr2 function
 
 # Check the status of the response
 if (resp_status(response) == 200) { # Success status should return this numeric value
   # Parse the content of the response directly as JSON
-  data <- httr2::resp_body_json(response) #httr2 function family of : resp_*
+  data <- resp_body_json(response) #httr2 function family of : resp_*
   
   # Extract the notes part from JSON
   notes <- data$result$notes
@@ -653,11 +652,8 @@ We will use Posit Connect to achieve this. Here's the process:
 1.  **Convert Code to Plumber API Script**: Take our initial example
     code and convert it into a Plumber API script (e.g., `plumber.R`):
 
-    
-    r <- plumber::plumb(file = "./2024-06-25-API/plumber.R")
-    r$run(port = 8000)
-
-    
+    r \<- plumber::plumb(file = "./2024-06-25-API/plumber.R")
+    r\$run(port = 8000)
 
 2.  **Test Locally**: Run the API locally to ensure it works correctly.
 
@@ -689,3 +685,6 @@ interactive, shareable web services.
 
 [RStudio conference -
 Plumber](https://www.youtube.com/watch?v=J0Th2QRZ7Rk)
+
+[Plumber cheat
+sheet](https://rstudio.github.io/cheatsheets/html/plumber.html)
