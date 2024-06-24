@@ -662,7 +662,7 @@ clean_text <- function(text) {
 }
 
 # Apply the clean_text function to the Request and Response columns
-results_df2 <- results_df %>%
+results_df2 <- results_df |> 
   mutate(Request = sapply(Request, clean_text),
          Response = sapply(Response, clean_text))
 
