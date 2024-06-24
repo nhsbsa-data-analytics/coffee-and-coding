@@ -62,7 +62,7 @@ focuses on web APIs.
 # install.packages("jsonlite")
 # install.packages("dplyr")
 # install.packages("data.table")
-# install.packages("devtools")
+# install.packages("plotly")
 # install.packages("plumber")
 # install.packages("stringr")
 
@@ -93,7 +93,7 @@ streaming JSON data for larlge datasets
 
 `plumber` enables the creating of RESTful APIs from R scripts. It allows
 users to expose R functions as web services, making it easy to integrate
-R with web applications. - Simple annotations to define API endpointss -
+R with web applications. - Simple annotations to define API endpoints -
 Support for HTML methods (GET, POST etc) - Tools for managing API
 documentation and testing endpoints.
 
@@ -331,6 +331,11 @@ for (month in resource_ids){
 
 ```
 
+
+You can try to change SQL to include more than one practice or change to different BNF chapters etc. 
+
+
+
 ## Querying FOI
 
 Let's revisit API guide in the KCAN page. We will use `package_list` to
@@ -442,6 +447,17 @@ if (resp_status(response) == ___) { # Success status should return this numeric 
 ```
 
 Example answer:
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r answer}
 
@@ -609,6 +625,55 @@ if (resp_status(response_list) == 200) {
 
 
 ```
+
+Your turn!
+We have created results_df data frame. We can add extra steps to clean the text. 
+For example,
+"Thank you for your request for information about the following",
+"Under the Freedom of Information Act 2000",
+"Request",
+"Response"  
+These can be removed from the text. 
+
+
+Example answer
+
+```{r}
+
+# Define a function to clean the text
+clean_text <- function(text) {
+  patterns_to_remove <- c(
+    "Thank you for your request for information about the following",
+    "Under the Freedom of Information Act 2000",
+    "Request",
+    "Response"
+  )
+  
+  for (pattern in patterns_to_remove) {
+    text <- gsub(pattern, "", text, ignore.case = TRUE)
+  }
+  
+  text <- gsub("[^a-zA-Z0-9 \n]", "", text)
+  
+  text <- trimws(text)
+  text <- gsub("\n+", "\n", text)
+  
+  return(text)
+}
+
+# Apply the clean_text function to the Request and Response columns
+results_df2 <- results_df %>%
+  mutate(Request = sapply(Request, clean_text),
+         Response = sapply(Response, clean_text))
+
+```
+
+
+
+
+
+
+
 
 ### Plumber
 
