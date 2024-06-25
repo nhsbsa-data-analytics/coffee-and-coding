@@ -136,7 +136,7 @@ print(url) # We can check this url
 
 # Make the GET request using httr2
 # Sends the request to the API and stores the response. 
-response <- request(url) |> 
+response <- httr2::request(url) |> 
   req_perform()
 
 if (resp_status(response) == 200) { # or response$status_code 
@@ -318,7 +318,6 @@ for (month in resource_ids){
     URLencode(tmp_query) # Encode spaces in the url
   )
   
-  print(tmp_api_call)
   
   tmp_response <- jsonlite::fromJSON(tmp_api_call)
   
@@ -330,6 +329,9 @@ for (month in resource_ids){
   lane_end_df <- dplyr::bind_rows(lane_end_df, tmp_df)
 
 }
+
+print(tmp_api_call) # for check
+
 
 ```
 
