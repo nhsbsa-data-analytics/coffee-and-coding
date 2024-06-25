@@ -689,8 +689,9 @@ Define your API by adding special comments, or "annotations," to your R
 functions. These annotations specify how each function should behave
 when it receives an HTTP request. Plumber supports various HTTP methods
 (such as GET, POST, PUT, DELETE), making it flexible for different types
-of web services. - Plumber requires annotation starts with `#*` - For
-example `#* @get` defines GET endpoint like our example code `plumber.r`
+of web services. 
+- Plumber requires annotation starts with `#*` 
+- For example `#* @get` defines GET endpoint like our example code `plumber.r`
 
 Plumber APIs can handle inputs and outputs in various formats, including
 JSON, which is commonly used for data exchange on the web. This makes it
@@ -718,8 +719,8 @@ We will use Posit Connect to achieve this. Here's the process:
 1.  **Convert Code to Plumber API Script**: Take our initial example
     code and convert it into a Plumber API script (e.g., `plumber.R`):
 
-    r \<- plumber::plumb(file = "./2024-06-25-API/plumber.R")
-    r\$run(port = 8000)
+    r <- plumber::plumb(file = "./2024-06-25-API/plumber.R")
+    r$run(port = 8000)
 
 2.  **Test Locally**: Run the API locally to ensure it works correctly.
 
