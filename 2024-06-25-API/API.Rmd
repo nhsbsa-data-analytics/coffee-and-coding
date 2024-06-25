@@ -70,7 +70,6 @@ library(httr2)
 library(jsonlite)
 library(dplyr)
 library(data.table)
-library(devtools)
 library(plumber)
 library(stringr)
 library(plotly)
@@ -78,24 +77,26 @@ library(plotly)
 ```
 
 `httr2` is an R package designed for making HTTP requests and handling
-responses. - Simplified syntax for constructing HTTP requests - Support
-for common HTTP methods (GET, POST, PUT, DELETE) - Tools for handling
-authentication, including OAuth. - Functions for managing request
-headers, query parameters, and body content. - Capabilities for
-processing and parsing HTTP responses.
+responses. 
+  - Simplified syntax for constructing HTTP requests 
+  - Support for common HTTP methods (GET, POST, PUT, DELETE) 
+  - Tools for handling authentication, including OAuth. 
+  - Functions for managing request headers, query parameters, and body content. 
+  - Capabilities for processing and parsing HTTP responses.
 
-`jsonlite` is an R packages that working with JSON data. - Functions for
-parsing JSON string into R objects (`fromJSON`) - Functions for
-converting R objects into JSON string (`toJSON`) - Support for complex
-data structures, including nested lists and data frames - Options for
-pretty-printing and compacting JSON output - Compatibility with
-streaming JSON data for larlge datasets
+`jsonlite` is an R packages that working with JSON data. 
+  - Functions for parsing JSON string into R objects (`fromJSON`) 
+  - Functions for converting R objects into JSON string (`toJSON`) 
+  - Support for complex data structures, including nested lists and data frames 
+  - Options for pretty-printing and compacting JSON output 
+  - Compatibility with streaming JSON data for larlge datasets
 
 `plumber` enables the creating of RESTful APIs from R scripts. It allows
 users to expose R functions as web services, making it easy to integrate
-R with web applications. - Simple annotations to define API endpoints -
-Support for HTML methods (GET, POST etc) - Tools for managing API
-documentation and testing endpoints.
+R with web applications. 
+  - Simple annotations to define API endpoints 
+  - Support for HTML methods (GET, POST etc) 
+  - Tools for managing API documentation and testing endpoints.
 
 # Making API requests
 
@@ -162,7 +163,7 @@ is about 6GB. We can construct SQL queries within the API to download
 smaller, more focused datasets by selecting only the columns of
 interest. By utilising the `datastore_search_sql?` endpoint and
 specifying the `resource_id`, we can run SQL queries to extract specific
-data.
+data. Example code can be found in ODP site.
 
 For example, to extract data from the April 2024 data set, specially
 focusing on BNF chapter 5.1 (Antibacterial drugs) at the Integrated Care
@@ -211,7 +212,7 @@ tmp_query <- paste0(
   
   print(tmp_api_call)
   
-  # We can check in browser
+  # We can check in browser to see if it returns the result
   
 
   # Grab the response JSON as a temporary list
