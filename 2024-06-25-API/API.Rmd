@@ -249,9 +249,10 @@ URL so that they can be transmitted over the internet. This function
 ensures that special characters in URLs are properly encoded to avoid
 issues with URL parsing and transmission.
 
-For example: - A space character () will be encoded as `%20`. - An
-apostrophe (`'`) will be encoded as `%27`. - The greater than or equal
-to sign (`>=`) will be encoded as `%3E%3D` etc.
+For example: 
+  - A space character () will be encoded as `%20`. 
+  - An apostrophe (`'`) will be encoded as `%27`. 
+  - The greater than or equal to sign (`>=`) will be encoded as `%3E%3D` etc.
 
 `URLencode` is used to encode the SQL query string before appending it
 to the URL for the API call. This ensures that any special characters in
@@ -729,7 +730,7 @@ We will use Posit Connect to achieve this. Here's the process:
     provide a URL for your API.
 
 4.  **Share the API URL**: Share the provided URL so others can access
-    your API. For example, the URL might look like this:
+    your API. For example, the URL might look like this (example):
     `https://connect.nhsbsa-analytics.com/antibiotic_data?resource_id=202404`
 
 Using this URL, users can access the API and create charts to visualize
