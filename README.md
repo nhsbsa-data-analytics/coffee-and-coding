@@ -31,7 +31,9 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2024-05-29 \*          | Mark McPherson                   | Creating R packages                                         | 
+| 2024-08-21 \*          | Steven Buckley                   | Introduction to SQL macro functions                         | 
+| 2024-06-25             | Kayoung Goffe                    | API                                                         | 
+| 2024-05-29             | Mark McPherson                   | Creating R packages                                         | 
 | 2024-04-30             | Larissa Conradt                  | User built functions in R                                   | 
 | 2024-02-28             | Lucy Sherwin Robson              | ARIMA Forecasting in R                                      |   
 | 2024-01-30             | Grace Libby                      | Importing ONS population data                               |   
