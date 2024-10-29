@@ -81,6 +81,7 @@ This is through using the lambda function as an anonymous function within lapply
 # Map function to vector
 my_list = lapply(X = 1:10, FUN = function(x) value = x^2)
 
+# Check output
 print(unlist(my_list))
 ```
 
@@ -135,10 +136,13 @@ This data is:
 + Sum of Items and cost
 
 ```{r}
-# Load data
-df = readRDS("2024-10-30-lapply/cc_lapply_opd_data.Rds")
+# Print working directory
+print(getwd())
 
-# Chck first few rows
+# Load data
+df = readRDS("cc_lapply_opd_data.Rds")
+
+# Check first few rows
 head(df,5)
 ```
 
@@ -269,7 +273,7 @@ Can first choose number of cores and setup cluster.
 
 ```{r}
 # Generate appropriate number of cores
-n_cores = detectCores() - 2
+n_cores = 2
 
 # Set up parallel
 clust = makeCluster(n_cores)
@@ -314,7 +318,7 @@ That said, we can still use this to speed up a process that in the first instanc
 # Start timer
 tic()
 
-# Generate cqc details: 150 seconds
+# Generate results
 results = parallel::parLapply(
   cl = clust, 
   X = practice_codes_vec, 
@@ -409,7 +413,7 @@ clusterExport(
 # Start timer
 tic()
 
-# Generate cqc details: 150 seconds
+# Generate results
 results = parallel::parLapply(
   cl = clust, 
   X = practice_codes_vec, 
@@ -450,7 +454,7 @@ results_df = results %>%
   ) %>% 
   select(YEAR_MONTH, BNF_CHAPTER, everything())
 
-# check dataframe
+# Check dataframe
 head(results_df, 10)
 ```
 
@@ -515,7 +519,7 @@ plot_by_region = function(df, region){
 Check the function for a single region.
 
 ```{r}
-plot_by_region(df, "LONDON")
+print(plot_by_region(df, "LONDON"))
 ```
 
 If I want to pass a vector of region names to the function, I first need to create a vector of region names.
@@ -574,8 +578,8 @@ We can save the list of plots as a single item.
 Save it as an 'Rds' to preserve the list items as they are.
 
 ```{r}
-mkdirs("2024-10-30-lapply/output")
-saveRDS(plot_list, "2024-10-30-lapply/output/plot_list.Rds")
+mkdirs("output")
+saveRDS(plot_list, "output/plot_list.Rds")
 ```
 
 # The walk function
