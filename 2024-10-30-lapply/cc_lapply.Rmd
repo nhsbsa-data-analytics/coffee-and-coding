@@ -10,7 +10,7 @@ This is where a function loops through a list of inputs, and saves all the outpu
 
 ### Types of function
 
-Before we do that, we will look at two diffferent types of function in R.
+Before we do that, we will look at two different types of function in R.
 'Regular' functions and lambda functions.
 
 ### Regular function
@@ -42,7 +42,7 @@ print(lambda_function(12))
 
 ### Looping with a function
 
-You can use a 'for-loop' to apply a function to a serues of inputs.
+You can use a 'for-loop' to apply a function to a series of inputs.
 Different programming languages have different for-loop formats.
 In R, a for loop could look like:
 
@@ -92,7 +92,7 @@ First install and load packages.
 ### Install packages
 
 Below is exactly what we *shouldn't* be doing in R.
-Namely, manually repeating lines of code, where could use a function to repeat the process for us.
+Namely, manually repeating lines of code, where we could use a function to repeat the process for us.
 Later on, we will revisit this, using what we have learned ...
 
 ```{r, echo=FALSE, message=FALSE}
@@ -129,7 +129,7 @@ This data is:
 
 ```{r}
 # Load data
-df = readRDS("cc_lapply_opd_data.Rds")
+df = readRDS("2024-10-30-lapply/cc_lapply_opd_data.Rds")
 
 # Chck first few rows
 head(df,5)
@@ -151,7 +151,7 @@ length(unique(df$PRACTICE_CODE))
 ### Sum items by individual practice
 
 Lets say we required the total items, cost and distinct chemical substances, per practice, from this data.
-Lets also say, we also wanted this aggregated done per practice separately (for a reporting reason of some kind).
+Lets also say, we wanted this aggregation done per practice separately (for a reporting reason of some kind).
 Instead of writing 8k+ chunks of code, it would obviously make more sense to write a function to do this.
 Something along the lines of
 
@@ -330,7 +330,7 @@ parallel::stopCluster(clust)
 ### Fine tune function
 
 If you have maxed up the number of cores you might sensibly want to use, you could then try speed up the function itself.
-If a function is being repeated 8k+ times, a saving of 0.01 seconds per iteration, would still equate to about a minute a half.
+If a function is being repeated 8k+ times, a saving of 0.01 seconds per iteration, would still equate to about a minute and a half.
 Basically, the more times a process is being repeated, the greater the benefits of fine tuning.
 This function can be improved if we use 'data.table' rather than 'dplyr'.
 If you have function written in dplyr, ChatGPT can often have a decent attempt at converting this to data.table.
@@ -352,7 +352,7 @@ sum_items_by_practice_DT = function(df, practice_code){
 ```
 
 We can now just repeat the entire process in a single block.
-We don't need to define the number of cores again, but do neeed to define everything else.
+We don't need to define the number of cores again, but do need to define everything else.
 However, we now need to do a few things:
 
 + Our data.table function expects a data.table object
@@ -428,7 +428,7 @@ What is the point of a list?
 What can we do with lists?
 
 Well, they are a handy way of storing lots of outputs together in a single object.
-The next example will be an better illustration of this. 
+The next example will be a better illustration of this. 
 Alternatively, we can bind the rows together, to create a single dataframe.
 
 ```{r}
@@ -448,7 +448,7 @@ head(results_df, 10)
 ### Plot function
 
 Rather than doing an aggregation, the next function will create a plot.
-First, we need to revert our 'df' object, back from a data.table to a datarame.
+First, we need to revert our 'df' object, back from a data.table to a dataframe.
 
 ```{r}
 # Revert back to a data.frame
@@ -530,7 +530,7 @@ plot_list = lapply(
   )
 ```
 
-I can access each plots by list index.
+I can access each plot by list index.
 We use square brackets to access items within a list.
 
 ```{r}
@@ -540,7 +540,7 @@ plot_list[2]
 
 This isn't ideal, as we don't know which region each index refers to.
 In this instance, we can name each list item by its region name (the function input).
-With can do this using our region names vector, along with the setNames() function
+We can do this using our region names vector, along with the setNames() function
 
 ```{r}
 # Generate plots
@@ -565,7 +565,8 @@ We can save the list of plots as a single item.
 Save it as an 'Rds' to preserve the list items as they are.
 
 ```{r}
-saveRDS(plot_list, "output/plot_list.Rds")
+mkdirs("2024-10-30-lapply/output")
+saveRDS(plot_list, "2024-10-30-lapply/output/plot_list.Rds")
 ```
 
 # The walk function
@@ -587,7 +588,7 @@ In practice, you could use something like this to loop over multiple objects tha
 
 ```{r}
 # Lambda function two
-save_charts_individually = function(x) saveRDS(plot_list[[x]], file = paste0("Output/", x, " plot"))
+save_charts_individually = function(x) saveRDS(plot_list[[x]], file = paste0("2024-10-30-lapply/output/", x, " plot"))
 ```
 
 Using lapply, we *are* savings our plots here, but we are also creating a redundant item.
@@ -610,22 +611,22 @@ At the start of the session, we did this.
 
 ```{r}
 # Install packages
-install.packages('purrr')
-install.packages('dplyr')
-install.packages('data.table')
-install.packages('tictoc')
-install.packages('parallel')
-install.packages('highcharter')
-install.packages('R.utils')
+# install.packages('purrr')
+# install.packages('dplyr')
+# install.packages('data.table')
+# install.packages('tictoc')
+# install.packages('parallel')
+# install.packages('highcharter')
+# install.packages('R.utils')
 
 # Load packages
-library('purrr')
-library('dplyr')
-library('data.table')
-library('tictoc')
-library('parallel')
-library('highcharter')
-library('R.utils')
+# library('purrr')
+# library('dplyr')
+# library('data.table')
+# library('tictoc')
+# library('parallel')
+# library('highcharter')
+# library('R.utils')
 ```
 
 We can now write a function to do this.
@@ -659,7 +660,7 @@ check_install_load = function(lib_name){
 
 We then need to:
 
-+ Specify a vector with a list of package.
++ Specify a vector with a list of packages.
 + Use walk to map this function to each package name within the vector.
 
 The 'acoRn' package is about 'Exclusion-Based Parentage Assignment Using Multilocus Genotype Data'.
@@ -682,7 +683,7 @@ sessionInfo()
 
 # Summary
 
-In summary, we have:
+In summary, we have covered:
 
 + lambda function vs 'normal' function
 + lapply vs for-loop
