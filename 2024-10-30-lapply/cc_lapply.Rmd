@@ -1,0 +1,695 @@
+---
+title: "Coffee & coding: lapply"
+output: html_notebook
+---
+
+# Introduction
+
+Rather than repeat lines of code that do the same thing, it can be more efficient to 'loop' a procedure.
+This is where a function loops through a list of inputs, and saves all the outputs into (for example) a list.
+
+### Types of function
+
+Before we do that, we will look at two different types of function in R.
+'Regular' functions and lambda functions.
+
+### Regular function
+
+```{r}
+# Verbose function
+regular_function = function(x){
+  
+  # Calculate value
+  value = x^2
+  
+  # Return value
+  return(value)
+}
+
+# Use function
+print(regular_function(12))
+```
+
+### Lambda function
+
+```{r}
+# 'One-liner' lambda function
+lambda_function = function(x) value = x^2
+  
+# Use function
+print(lambda_function(12))
+```
+
+### Looping with a function
+
+You can use a 'for-loop' to apply a function to a series of inputs.
+Different programming languages have different for-loop formats.
+In R, a for loop could look like:
+
+### Reguar R-loop
+
+```{r}
+# Create empty list
+my_list = list()
+
+# 'One-liner' lambda function
+lambda_function = function(x) value = x^2
+
+# Loop through input values
+for(i in 1:10){
+  
+  # Insert function outputs into list
+  my_list[[i]] = lambda_function(i)
+}
+
+# Check output
+print(unlist(my_list))
+```
+
+### Use lapply to 'map' a function to a vector
+
+To do that in R, we might use code along the following lines:
+
+```{r}
+# Map function to vector
+my_list = lapply(X = 1:10, FUN = function(x) value = x^2)
+
+print(unlist(my_list))
+```
+
+### Why use lapply?
+
++ It is (allegedly) faster than a for-loop.
++ It is far neater syntax.
++ This syntax is used in lots of other situations in R.
++ In particular, if we structure code in lapply format, we can easily re-structure it in a 'parLapply' format.
++ This is a really easy way to setup and conduct parallel processing in R, which can save a lot of time.
+
+# Using lapply
+
+First install and load packages.
+
+### Install packages
+
+Below is exactly what we *shouldn't* be doing in R.
+Namely, manually repeating lines of code, where we could use a function to repeat the process for us.
+Later on, we will revisit this, using what we have learned ...
+
+```{r, echo=FALSE, message=FALSE}
+# Install packages
+install.packages('purrr')
+install.packages('dplyr')
+install.packages('data.table')
+install.packages('tictoc')
+install.packages('parallel')
+install.packages('highcharter')
+install.packages('R.utils')
+
+# Load packages
+library('purrr')
+library('dplyr')
+library('data.table')
+library('tictoc')
+library('parallel')
+library('highcharter')
+library('R.utils')
+```
+
+### Load data
+
+We will use some data from the NHSBSA Open Data Portal as a basis for today's session.
+A separate script shows how to extract this data yourself, but it's saved locally for convenience. 
+This data is:
+
++ English Prescribing Data (EPD) 
++ July 2024
++ Only items from BNF Chapter 04 (Central Nervous System)
++ Grouped at a Region / Practice / Chemical Substance level
++ Sum of Items and cost
+
+```{r}
+# Load data
+df = readRDS("2024-10-30-lapply/cc_lapply_opd_data.Rds")
+
+# Chck first few rows
+head(df,5)
+```
+
+We can now do some very simple EDA:
+
++ See how many records per region.
++ see how many practices there are.
+
+```{r}
+# check region names
+table(df$REGIONAL_OFFICE_NAME)
+
+# Check number of practices
+length(unique(df$PRACTICE_CODE))
+```
+
+### Sum items by individual practice
+
+Lets say we required the total items, cost and distinct chemical substances, per practice, from this data.
+Lets also say, we wanted this aggregation done per practice separately (for a reporting reason of some kind).
+Instead of writing 8k+ chunks of code, it would obviously make more sense to write a function to do this.
+Something along the lines of
+
+```{r}
+# Function to sum metrics by practice
+sum_items_by_practice = function(df, practice_code){
+  
+  # Generate output
+  output = df %>% 
+    filter(PRACTICE_CODE == practice_code) %>% 
+    group_by(
+      REGIONAL_OFFICE_NAME,
+      PRACTICE_NAME, 
+      PRACTICE_CODE
+      ) %>% 
+    summarise(
+      ITEMS = sum(ITEMS),
+      NIC = sum(NIC),
+      DRUG_COUNT = n_distinct(CHEMICAL_SUBSTANCE_BNF_DESCR),
+      .groups = "drop"
+      )
+  
+  # Return
+  return(output)
+}
+```
+
+We can check it with a single practice code:
+
+```{r}
+sum_items_by_practice(df, 'Y05949')
+```
+
+Using lapply we can map a function to a vector. This vector could be:
+
++ Integers
++ Characters
+
+If we can create a vector of practice codes, we can use this with the above function.
+
+```{r}
+# Generate vector of practice names
+practice_codes_vec = df %>% 
+  select(PRACTICE_CODE) %>% 
+  distinct() %>% 
+  pull()
+
+# Check practice codes
+head(practice_codes_vec,50)
+
+# Check length
+length(practice_codes_vec)
+```
+
+We can now apply the function to our vector.
+We will time how long it takes using 'tic()' and 'toc()' from the 'tictoc' package.
+If a function has more than input:
+
++ The 'X' parameter is your vector
++ Explicitly state the other parameter inputs
+
+The code is hashed out, but would take ~3.5 minutes to run.
+
+```{r}
+# # Start timer
+# tic()
+# 
+# # Lapply
+# results = lapply(
+#   X = practice_codes_vec,
+#   FUN = sum_items_by_practice,
+#   df = df
+#   )
+# 
+# # End timer
+# toc()
+```
+
+### Run in parLapply
+
+This is a fairly slow process, that could be easily sped up.
+We can use parLapply to run the process in parallel.
+This is a very similar code structure to 'regular' lapply. 
+
+There are a few considerations to bear in mind when using parLapply:
+
++ How many cores your machine has
++ How many cores you want to *not* be used
++ The size of your function inputs/dependencies
++ E.g., if you want x6 processing, and you have a 500MB dataframe, this needs copying x6 times.
+
+The process then has a few steps:
+
+1. Define how many cores you want to use
+2. 'Make' your cluster
+3. Export all the required libraries (used in the function) to each cluster
+4. Export all the required objects (used in the function) to each cluster
+5. Generate the results
+6. Stop the cluster (IMPORTANT!)
+
+The function itself:
+
++ You need to specify the cluster object, in the 'cl' parameter.
++ The 'FUN' parameter becomes 'fun'
+
+Can first choose number of cores and setup cluster.
+
+```{r}
+# Generate appropriate number of cores
+n_cores = detectCores() - 2
+
+# Set up parallel
+clust = makeCluster(n_cores)
+```
+
+The function only requires the 'dplyr' library.
+And it only requires our vector of practice codes, and we can specify where to find these (the global environment).
+
+```{r}
+# Export libraries to cluster
+clusterEvalQ(
+  cl = clust,
+  {
+    library(dplyr); 
+  }
+)
+
+# Export required objects to cluster
+clusterExport(
+  cl = clust,
+  varlist = c(
+    "practice_codes_vec"
+  ),
+  envir = environment()
+)
+```
+
+We can now run the code in parallel.
+The longer the runtime, the 'better' the time saving will be.
+This is because some overhead is required in the process.
+These include:
+
++ Forking
++ Initialization
++ Data Serialisation
++ Memory allocation
++ and so on ...
+
+That said, we can still use this to speed up a process that in the first instance took several minutes.
+
+```{r}
+# Start timer
+tic()
+
+# Generate cqc details: 150 seconds
+results = parallel::parLapply(
+  cl = clust, 
+  X = practice_codes_vec, 
+  fun = sum_items_by_practice,
+  df = df
+)
+
+# End timer
+toc()
+```
+
+This took ~1 minute compared to ~3.5 minutes.
+This is not a x6 saving, due to the aforementioned overhead.
+Final thing is to stop the cluster.
+
+```{r}
+# Stop Cluster
+parallel::stopCluster(clust)
+```
+
+### Fine tune function
+
+If you have maxed up the number of cores you might sensibly want to use, you could then try speed up the function itself.
+If a function is being repeated 8k+ times, a saving of 0.01 seconds per iteration, would still equate to about a minute and a half.
+Basically, the more times a process is being repeated, the greater the benefits of fine tuning.
+This function can be improved if we use 'data.table' rather than 'dplyr'.
+If you have function written in dplyr, ChatGPT can often have a decent attempt at converting this to data.table.
+
+```{r}
+# New version of function
+sum_items_by_practice_DT = function(df, practice_code){
+  
+  # Generate output
+  output = df[practice_code, .(
+    ITEMS = sum(ITEMS),
+    NIC = sum(NIC),
+    DRUG_COUNT = uniqueN(CHEMICAL_SUBSTANCE_BNF_DESCR)
+  ), by = .(REGIONAL_OFFICE_NAME, PRACTICE_NAME, PRACTICE_CODE)]
+  
+  # Return
+  return(output)
+}
+```
+
+We can now just repeat the entire process in a single block.
+We don't need to define the number of cores again, but do need to define everything else.
+However, we now need to do a few things:
+
++ Our data.table function expects a data.table object
++ Therefore convert the dataframe into a data.table
++ We need to send the data.table library to each cluster, not dplyr
++ This is why we stop the cluster after each process, as invariably different packages and objects will be used.
++ It also prevents us from forgetting to stop the cluster.
+
+When we convert the the dataframe into a data.table, we can also put an index on the data.table.
+Each iteration filters by practice, so if we index on practice this should speed things up.
+
+```{r}
+# Turn to DT
+setDT(df)
+
+# Set index for increased performance
+setkey(df, PRACTICE_CODE)
+
+# Check 
+str(df)
+```
+
+You want to stop the cluster after each function, as a different function will require clusters to have different libraries and objects sent to them.
+
+```{r}
+# Set up parallel
+clust = makeCluster(n_cores)
+
+# Export libraries to cluster
+clusterEvalQ(
+  cl = clust,
+  {
+    library(data.table); 
+  }
+)
+
+# Export required objects to cluster
+clusterExport(
+  cl = clust,
+  varlist = c(
+    "practice_codes_vec"
+  ),
+  envir = environment()
+)
+
+# Start timer
+tic()
+
+# Generate cqc details: 150 seconds
+results = parallel::parLapply(
+  cl = clust, 
+  X = practice_codes_vec, 
+  fun = sum_items_by_practice_DT,
+  df = df
+)
+
+# End timer
+toc()
+
+# Stop Cluster
+parallel::stopCluster(clust)
+```
+So all in all, the timings for this process were:
+
+- lapply: 200 seconds
+- parLapply: 50 seconds
+- parLapply & data.table: 10 seconds
+
+### Lists
+
+The output of lapply and parLapply is a list.
+What is the point of a list?
+What can we do with lists?
+
+Well, they are a handy way of storing lots of outputs together in a single object.
+The next example will be a better illustration of this. 
+Alternatively, we can bind the rows together, to create a single dataframe.
+
+```{r}
+# Bind results into a single dataframe
+results_df = results %>% 
+  bind_rows() %>% 
+  mutate(
+    YEAR_MONTH = 202407,
+    BNF_CHAPTER = "04"
+  ) %>% 
+  select(YEAR_MONTH, BNF_CHAPTER, everything())
+
+# check dataframe
+head(results_df, 10)
+```
+
+### Plot function
+
+Rather than doing an aggregation, the next function will create a plot.
+First, we need to revert our 'df' object, back from a data.table to a dataframe.
+
+```{r}
+# Revert back to a data.frame
+setDF(df)
+
+# Check class
+class(df)
+```
+
+Using lapply, we can then store all these plots inside a single list.
+Depending on your use case, this may be a useful thing to do.
+
+```{r}
+# This creates a regional highcharter plot
+plot_by_region = function(df, region){
+  
+  # Title string
+  title_string = paste0(
+    "<b>Top 10 Chemical Substances in BNF Chapter 04 by total NIC for the ",
+    tolower(region),
+    " region in 202407</b>"
+  )
+  
+  # Generate output
+  output = df %>% 
+    filter(REGIONAL_OFFICE_NAME == region) %>% 
+    group_by(REGIONAL_OFFICE_NAME, CHEMICAL_SUBSTANCE_BNF_DESCR) %>% 
+    summarise(
+      ITEMS = sum(ITEMS),
+      NIC = sum(NIC),
+      DRUG_COUNT = n_distinct(CHEMICAL_SUBSTANCE_BNF_DESCR),
+      .groups = "drop"
+    ) %>% 
+    slice_max(order_by = NIC, n = 10)
+  
+  # Generate chart
+  hc = hchart(output, "bar", hcaes(CHEMICAL_SUBSTANCE_BNF_DESCR, NIC)) %>% 
+    hc_title(text = title_string) %>% 
+    hc_yAxis(title = list(text = "NIC (£)")) %>% 
+    hc_xAxis(title = list(text = "BNF Chemical Substance")) %>% 
+    hc_add_theme(hc_theme_google()) %>% 
+    hc_tooltip(
+      headerFormat = "",
+      pointFormat = "
+      <b>Region: </b> {point.REGIONAL_OFFICE_NAME}<br>
+      <b>Chemical substance: </b> {point.CHEMICAL_SUBSTANCE_BNF_DESCR}<br>
+      <b>NIC: </b> £ {point.NIC:,.2f}"
+    )
+  
+  # Return
+  return(hc)
+}
+```
+
+Check the function for a single region.
+
+```{r}
+plot_by_region(df, "LONDON")
+```
+
+If I want to pass a vector of region names to the function, I first need to create a vector of region names.
+
+```{r}
+# Region vector
+region_names_vec = df %>% 
+  select(REGIONAL_OFFICE_NAME) %>% 
+  distinct() %>% 
+  pull()
+```
+
+I can then create a list of all m region plots using lapply.
+
+```{r}
+# Generate plots
+plot_list = lapply(
+  X = region_names_vec, 
+  FUN = plot_by_region,
+  df = df
+  )
+```
+
+I can access each plot by list index.
+We use square brackets to access items within a list.
+
+```{r}
+plot_list[1]
+plot_list[2]
+```
+
+This isn't ideal, as we don't know which region each index refers to.
+In this instance, we can name each list item by its region name (the function input).
+We can do this using our region names vector, along with the setNames() function
+
+```{r}
+# Generate plots
+plot_list = setNames(object = lapply(
+  X = region_names_vec, 
+  FUN = plot_by_region,
+  df = df
+  ),
+  nm = region_names_vec
+)
+```
+
+We can now access list items by their region name
+
+```{r}
+# View list item by its name
+plot_list["MIDLANDS"]
+plot_list["LONDON"]
+```
+
+We can save the list of plots as a single item.
+Save it as an 'Rds' to preserve the list items as they are.
+
+```{r}
+mkdirs("2024-10-30-lapply/output")
+saveRDS(plot_list, "2024-10-30-lapply/output/plot_list.Rds")
+```
+
+# The walk function
+
+Finally, we will look at the walk() function, which is part of the purrr package.
+The walk function, maps a function to a vector, but it doesn't output anything into a list.
+You might want to do this, if your function:
+
++ Saves an object to a folder
++ Load or install a library
++ And so on.
+
+Basically, a process where 'something happens', rather than 'something is being created'.
+
+### Walk with a lambda function to save list items individually
+
+Here is a simple lambda function that saves an individual list item.
+In practice, you could use something like this to loop over multiple objects that needed saving.
+
+```{r}
+# Lambda function two
+save_charts_individually = function(x) saveRDS(plot_list[[x]], file = paste0("2024-10-30-lapply/output/", x, " plot"))
+```
+
+Using lapply, we *are* savings our plots here, but we are also creating a redundant item.
+
+```{r}
+# Apply lambda function to region vector
+save_list = lapply(region_names_vec, save_charts_individually)
+```
+
+We could use the 'walk' function to remove this redundancy, and demonstrate that nothing is being 'created' in the global environment. 
+
+```{r}
+# Apply lambda function to region vector
+purrr::walk(region_names_vec, save_charts_individually)
+```
+
+### Walk with a function to check package installation and load packages
+
+At the start of the session, we did this.
+
+```{r}
+# Install packages
+# install.packages('purrr')
+# install.packages('dplyr')
+# install.packages('data.table')
+# install.packages('tictoc')
+# install.packages('parallel')
+# install.packages('highcharter')
+# install.packages('R.utils')
+
+# Load packages
+# library('purrr')
+# library('dplyr')
+# library('data.table')
+# library('tictoc')
+# library('parallel')
+# library('highcharter')
+# library('R.utils')
+```
+
+We can now write a function to do this.
+The function will utilise the base function `installed.packages()`.
+
+```{r}
+rownames(installed.packages())
+```
+
+The following function does the following:
+
++ Checks if a package is installed.
++ If not, install the package
++ Then load the package
+
+```{r}
+# Function to install packages if not already installed
+check_install_load = function(lib_name){
+  
+  # Check if already installed
+  if(!lib_name %in% rownames(installed.packages())){
+    
+    # If not install
+    install.packages(lib_name)
+  }
+  
+  # Then load
+  library(lib_name, character.only = TRUE)
+}
+```
+
+We then need to:
+
++ Specify a vector with a list of packages.
++ Use walk to map this function to each package name within the vector.
+
+The 'acoRn' package is about 'Exclusion-Based Parentage Assignment Using Multilocus Genotype Data'.
+Some people may not have this installed.
+
+```{r, echo=FALSE, message=FALSE}
+# Library
+lib_vec = c('purrr', 'dplyr', 'data.table', 'highcharter', 'readr', 'jsonlite', 'acoRn')
+
+# Map install packages function to vector
+purrr::walk(lib_vec, check_install_load)
+```
+
+We can then check that we have indeed loaded the packages as intended.
+
+```{r}
+# Check session info to check function
+sessionInfo()
+```
+
+# Summary
+
+In summary, we have covered:
+
++ lambda function vs 'normal' function
++ lapply vs for-loop
++ lapply to create a list output
++ parLapply to use lapply in parallel
++ Use tictoc to measure function performance
++ data.table to increase performance of a function
++ Purpose and use of lists in R
++ Walk vs lapply
