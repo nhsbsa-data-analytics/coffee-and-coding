@@ -37,7 +37,7 @@ print(regular_function(12))
 lambda_function = function(x) value = x^2
   
 # Use function
-print(regular_function(12))
+print(lambda_function(12))
 ```
 
 ### Looping with a function
@@ -95,7 +95,7 @@ Below is exactly what we *shouldn't* be doing in R.
 Namely, manually repeating lines of code, where could use a function to repeat the process for us.
 Later on, we will revisit this, using what we have learned ...
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 # Install packages
 install.packages('purrr')
 install.packages('dplyr')
@@ -124,8 +124,8 @@ This data is:
 + English Prescribing Data (EPD) 
 + July 2024
 + Only items from BNF Chapter 04 (Central Nervous System)
-+ Items and cost
 + Grouped at a Region / Practice / Chemical Substance level
++ Sum of Items and cost
 
 ```{r}
 # Load data
@@ -216,18 +216,18 @@ If a function has more than input:
 The code is hashed out, but would take ~3.5 minutes to run.
 
 ```{r}
-# Start timer
-tic()
-
-# Lapply
-results = lapply(
-  X = practice_codes_vec,
-  FUN = sum_items_by_practice,
-  df = df
-  )
-
-# End timer
-toc()
+# # Start timer
+# tic()
+# 
+# # Lapply
+# results = lapply(
+#   X = practice_codes_vec,
+#   FUN = sum_items_by_practice,
+#   df = df
+#   )
+# 
+# # End timer
+# toc()
 ```
 
 ### Run in parLapply
@@ -300,7 +300,7 @@ These include:
 + Memory allocation
 + and so on ...
 
-That said, we can still use this to speed up a process that in the first instance was under 5 minutes.
+That said, we can still use this to speed up a process that in the first instance took several minutes.
 
 ```{r}
 # Start timer
@@ -445,6 +445,9 @@ results_df = results %>%
 head(results_df, 10)
 ```
 
+### Plot function
+
+Rather than doing an aggregation, the next function will create a plot.
 First, we need to revert our 'df' object, back from a data.table to a datarame.
 
 ```{r}
@@ -455,9 +458,6 @@ setDF(df)
 class(df)
 ```
 
-### Plot function
-
-Rather than doing an aggregation, the next function will create a plot.
 Using lapply, we can then store all these plots inside a single list.
 Depending on your use case, this may be a useful thing to do.
 
@@ -629,6 +629,12 @@ library('R.utils')
 ```
 
 We can now write a function to do this.
+The function will utilise the base function `installed.packages()`.
+
+```{r}
+rownames(installed.packages())
+```
+
 The following function does the following:
 
 + Checks if a package is installed.
@@ -659,7 +665,7 @@ We then need to:
 The 'acoRn' package is about 'Exclusion-Based Parentage Assignment Using Multilocus Genotype Data'.
 Some people may not have this installed.
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 # Library
 lib_vec = c('purrr', 'dplyr', 'data.table', 'highcharter', 'readr', 'jsonlite', 'acoRn')
 
