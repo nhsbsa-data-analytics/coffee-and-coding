@@ -15,6 +15,8 @@ Before we do that, we will look at two different types of function in R.
 
 ### Regular function
 
+This requires curly brackets and may involve returning a value or object.
+
 ```{r}
 # Verbose function
 regular_function = function(x){
@@ -31,6 +33,10 @@ print(regular_function(12))
 ```
 
 ### Lambda function
+
+This is also known as an 'anonymous' function.
+This means it can used embedded within code without being defined.
+However, it can also be a convenient way of writing a simple 'one-line' function.
 
 ```{r}
 # 'One-liner' lambda function
@@ -68,7 +74,8 @@ print(unlist(my_list))
 
 ### Use lapply to 'map' a function to a vector
 
-To do that in R, we might use code along the following lines:
+To do that in R, we might use code along the following lines.
+This is through using the lambda function as an anonymous function within lapply.
 
 ```{r}
 # Map function to vector
@@ -211,6 +218,7 @@ We will time how long it takes using 'tic()' and 'toc()' from the 'tictoc' packa
 If a function has more than input:
 
 + The 'X' parameter is your vector
++ The 'FUN' parameter is your function
 + Explicitly state the other parameter inputs
 
 The code is hashed out, but would take ~3.5 minutes to run.
@@ -333,7 +341,7 @@ If you have maxed up the number of cores you might sensibly want to use, you cou
 If a function is being repeated 8k+ times, a saving of 0.01 seconds per iteration, would still equate to about a minute and a half.
 Basically, the more times a process is being repeated, the greater the benefits of fine tuning.
 This function can be improved if we use 'data.table' rather than 'dplyr'.
-If you have function written in dplyr, ChatGPT can often have a decent attempt at converting this to data.table.
+If you have function written in dplyr, ChatGPT can often make a decent attempt at converting this to data.table.
 
 ```{r}
 # New version of function
@@ -415,6 +423,7 @@ toc()
 # Stop Cluster
 parallel::stopCluster(clust)
 ```
+
 So all in all, the timings for this process were:
 
 - lapply: 200 seconds
