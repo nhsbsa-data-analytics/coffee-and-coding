@@ -31,7 +31,8 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2025-01-30 \*          | Alistair Jones                   | What is Spark?                                              | 
+| 2025-03-13 \*          | Mihail Garbuzov                  | Introduction to data/table in R                             |
+| 2025-01-30             | Alistair Jones                   | What is Spark?                                              | 
 | 2024-11-19             | Thomas Owen                      | Python Lists and Dictionaries                               | 
 | 2024-10-30             | Adnan Shroufi                    | lappy                                                       |  
 | 2024-09-25             | Rohini Subramaniam               | Sentiment Analysis                                          | 
