@@ -131,7 +131,7 @@ A powerful way to use non-vectorised functions in row-wise calculations is by us
 
 ```{r}
 df |>
-  rowwise() |> # Implicitly groups by row
+  rowwise() |> # Grouping by each row
   mutate(Flag = flag_setosa(Species)) |>
   group_by(Species, Flag) |>
   summarise(N = n())
