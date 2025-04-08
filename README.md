@@ -31,7 +31,8 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
-| 2025-03-13 \*          | Mihail Garbuzov                  | Introduction to data/table in R                             |
+| 2025-03-24 \*          | Mihail Garbuzov                  | Introduction to data/table in R - Part 2                    |
+| 2025-03-13             | Mihail Garbuzov                  | Introduction to data/table in R - Part 1                    |
 | 2025-01-30             | Alistair Jones                   | What is Spark?                                              | 
 | 2024-11-19             | Thomas Owen                      | Python Lists and Dictionaries                               | 
 | 2024-10-30             | Adnan Shroufi                    | lappy                                                       |  
