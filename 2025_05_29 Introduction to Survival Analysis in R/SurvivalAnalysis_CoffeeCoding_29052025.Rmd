@@ -1,0 +1,599 @@
+---
+title: "Survival Analysis C&C"
+author: "Larissa Conradt"
+date: "2025-05-27"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+
+# knitr::opts_chunk$set(echo = FALSE)
+# options(error = function() NULL)
+
+```
+
+
+<br> 
+
+## Survival Analysis
+
+<br> 
+
+Code and power point slides can be found [here](https://github.com/nhsbsa-data-analytics/coffee-and-coding/tree/master).
+
+<br> 
+
+
+### 1. Data preparation
+
+<br> 
+
+```{r data preparation 1, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Define required libraries
+library(survival)
+library(ggplot2)
+library(dplyr)
+library(survminer)
+library(DataExplorer)
+library(tidyr)
+
+
+# Get data
+lung <- survival::lung
+
+# Look at data
+head(lung)
+
+
+```
+
+
+<br> 
+
+#### 1.1. Data dictionary
+
+inst:	Institution code
+<br> 
+time:	Survival time in days
+<br> 
+status:	censoring status 1=censored, 2=dead
+<br> 
+age:	Age in years
+<br> 
+sex:	Male=1 Female=2
+<br> 
+ph.ecog:	ECOG performance score as rated by the physician. 0=asymptomatic, 1= symptomatic but completely ambulatory, 2= in bed <50% of the day, 3= in bed > 50% of the day but not bedbound, 4 = bedbound
+<br> 
+ph.karno:	Karnofsky performance score (bad=0-good=100) rated by physician
+<br> 
+pat.karno:	Karnofsky performance score as rated by patient
+<br> 
+meal.cal:	Calories consumed at meals
+<br> 
+wt.loss:	Weight loss in last six months (pounds)
+<br> 
+<br> 
+*the higher the karno score the better was patient's start condition; the higher the ecog score, the worse was patient's start condition
+<br> 
+<br> 
+
+<span style = 'color:#ff0000'>
+**DISCLAIMER
+<br> If you did the following analysis properly, you would need to first 
+<br> 1. Collect background information on all the potential explanatory variables
+<br> 2. Properly investigate distributions of variables
+<br> 3. Properly investigate missing values and potential bias in missing values
+<br> 4. Properly investigate correlation between variables 
+<br> 5. Do some outlier diagnostics 
+<br> .... 
+<br> 
+See [here](https://rpubs.com/floreuzan/survivalanalysislungdata) for more details.
+This is beyond the scope of present C&C, so we will concentrate on survival analysis itself.**
+</span>
+
+<br> 
+
+#### 1.2. Preparing survival times
+<br> 
+
+Using the function [**Surv**](https://www.rdocumentation.org/packages/survival/versions/2.11-4/topics/Surv) from R package [survival](https://www.rdocumentation.org/packages/survival/versions/3.8-3), and information on times and status. The coding for 'death' in status (here: **status == 2**) should be indicated.
+
+
+<br> 
+```{r data preparation 2, warning = FALSE, message = FALSE}
+
+# Make a survival object
+lung_survival <- with(lung, Surv(time, status == 2))
+
+# Look at survival object
+head(lung_survival)
+
+```
+
+<br> 
+Censored times are indicated by '+'.
+<br> 
+
+
+<br> 
+
+### 2. Kaplan Meier estimates (non parametric)
+
+<br> 
+
+Kaplan Meier estimates the survival probability at different times. It is a non parametric tests and makes no assumptions about the hazard function. As always, non parametric models are not as powerful as parametric models. However, they are saver if one is unsure about the underlying hazard function.  
+
+<br> 
+<br> 
+
+#### 2.1 Median survival time
+
+<br> 
+
+Using the function [**survfit**](https://www.rdocumentation.org/packages/survival/versions/2.11-4/topics/survfit) from the package [survival](https://www.rdocumentation.org/packages/survival/versions/3.8-3), it is:
+
+<br> 
+```{r Kalpan Meier 1, warning = FALSE, message = FALSE}
+
+# Make a Kaplan Meier (KM) model
+lung_fit <- survfit(lung_survival ~ 1)
+
+# KM model with estimated median
+lung_fit
+
+
+```
+
+<br> 
+
+The estimated median survival time was 310 days (95% CI: 285-363 days).
+
+<br> 
+
+
+#### 2.2. More details for survival over time
+
+
+
+<br> 
+```{r Kalpan Meier 2, warning = FALSE, message = FALSE}
+
+# Look at fitted/estimated survival probabilities of KM model for distinct times
+summary(lung_fit, times = c(c(0:202) * 50, 1022))
+
+
+```
+
+<br> 
+
+[Kaplan_Meier estimator](https://en.wikipedia.org/wiki/Kaplan%E2%80%93Meier_estimator) takes data censoring into account. 
+<br> 
+For example at time = 400, the number of patients still at risk is 57 of the original 228 patients (57/228 = 0.25). However, the estimated survival to time 400 is 0.38. This is, because not all of the 171 patients who are no longer at risk, have necessarily died, but 45 had dropped out of the study by time 400 (i.e., they were censored).
+<br> 
+
+
+<font size="2em">
+
+*The standard error 'std.err' is based on a binomial variance with 'n.risk' as n and the estimated surival probability as p.
+
+</font>
+
+<br> 
+
+
+#### 2.3. Visualisation of estimated survival curve
+
+<br> 
+
+```{r Kalpan Meier 3, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Visual inspection of fitted KM model
+survminer::ggsurvplot(lung_fit, data = lung, conf.int = TRUE, xlab = "Days", ylab = "Survival rate", title = "Kaplan-Meier Estimates", color = "black")
+
+
+```
+
+
+<br> 
+
+*Crosses are observations; line is the fitted estimates from KM model; grey area is 95% CI
+
+<br> 
+
+<br> 
+
+
+
+#### 2.4. Does gender influence survival?
+
+<br> 
+
+
+
+Using **survfit** again, this time with formular **lung_survival ~ sex** containing the independent / explanatory variable **sex** from the data set **lung**:
+
+
+
+<br> 
+```{r Kalpan Meier 4, warning = FALSE, message = FALSE}
+
+# Re-label Gender from (1, 2) to (male, female)
+lung$gender <- factor(lung$sex, levels = c(1, 2), labels = c("male", "female"))
+
+# Fit KM model including explanatory variable sex
+lung_fit_gender <- survfit(lung_survival ~ gender, data = lung)
+
+# Inspect model
+lung_fit_gender
+
+
+```
+<br>
+
+
+The estimated median survival time for men was 270 days (95% CI: 270-312 days); and for women 426 days (95% CI: 348-550 days).
+
+<br> 
+
+
+##### 2.4.1. Visualisation of the influence of gender
+
+<br> 
+
+```{r Kalpan Meier 5, warning = FALSE, message = FALSE}
+
+# Visualise KM model including gender
+survminer::ggsurvplot(lung_fit_gender, data = lung, conf.int = TRUE, xlab = "Days", ylab = "Survival rate", title = "Kaplan-Meier Estimates", palette = c( "lightblue", "pink"), legend.title = "Gender", legend.labs = c("male", "female"))
+
+
+
+```
+
+<br> 
+
+*Crosses are observations; lines are fitted estimates from KM model; shaded areas are 95% CIs
+
+<br> 
+
+
+
+
+#### 2.4. Does age influence survival?
+
+<br> 
+
+
+Age is a continuous variable, and will be converted into a categorical one named **age_group**.
+
+
+<br> 
+```{r Kalpan Meier 6, warning = FALSE, message = FALSE}
+
+# Make two age groups with median age as devider
+lung$age_group <- cut(lung$age, breaks = c(0, median(lung$age), 100), labels = c("young", "old"))
+
+# Fit KM model with age_group as explanatory variable
+lung_fit_age <- survfit(lung_survival ~ age_group, data = lung)
+
+# Inspect KM model
+lung_fit_age
+
+
+```
+<br>
+
+
+Age data for two patients were missing and those patients were automatically excluded from the analysis. 
+<br>
+Younger patients had longer median survival times (348 days) than older patients (301 days)
+
+<br> 
+
+<br> 
+
+```{r Kalpan Meier 7, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Visualise KM model including age_group
+survminer::ggsurvplot(lung_fit_age, data = lung, conf.int = TRUE, xlab = "Days", ylab = "Survival rate", title = "Kaplan-Meier Estimates", palette = c( "lightgrey", "lightgreen"), legend.title = "Gender", legend.labs = c("young", "old"))
+
+
+
+```
+
+
+<br> 
+
+*Crosses are observations; lines are fitted estimates from KM model; shaded areas are 95% CIs
+
+<br> 
+
+<br> 
+
+#### 2.5. Does age and gender interact in their influence on survival?
+
+<br> 
+
+In the formular, an interaction term of **age_group** and **sex** is used.
+
+<br> 
+```{r Kalpan Meier 8, echo = TRUE, warning = FALSE, message = FALSE}
+
+# Fit KM model including sex and age_group as explanatory variables
+lung_fit_gender_age <- survfit(lung_survival ~ interaction(gender, age_group), data = lung)
+
+# Visualise KM model
+survminer::ggsurvplot(lung_fit_gender_age, data = lung, conf.int = FALSE, xlab = "Days", ylab = "Survival rate", title = "Kaplan-Meier Estimates", palette = c( "lightblue", "pink", "blue", "red"), legend.title = "Gender", legend.labs = c("young male", "young female", "old male", "old female"))
+
+
+```
+<br>
+
+<br> 
+
+#### 2.6. Are differences between age/gender significant?
+
+<br> 
+
+The following are simple chi-square tests, looking whether confirmed (observed) number of deaths differ between groups.
+
+<br> 
+
+```{r Kalpan Meier 9, echo = TRUE, warning = FALSE, message = FALSE}
+
+# Gender KM model
+# Chi^2 test
+survdiff(lung_survival ~ gender, data = lung)
+
+
+# Age KM model
+# Chi^2 test
+survdiff(lung_survival ~ age_group, data = lung)
+
+# Gender and Age KM model
+# Chi^2 test
+survdiff(lung_survival ~ interaction(gender, age_group), data = lung)
+
+
+```
+
+<br> 
+
+<br> 
+
+### 3. Cox Proportional Hazards Model
+
+<br> 
+
+Cox Proportional Hazards Model makes no assumption about the shape of the hazard function, but assumes that the hazard function has the same qualitative shape (i.e., is proportional) for different explanatory variables. The model is, thus, intermediate between a non parametric and a parametric model. 
+<br> 
+<br> 
+
+Cox Proportional Hazards Models estimate the hazard, and thereby indirectly the survival. That is, the higher the hazard, the lower the survival and vice versa. 
+<br> 
+<br> 
+
+#### 3.1. Which factors influence survival?
+
+<br> 
+
+Unlike Kaplan Meier, Cox's model can easily deal with continuous explanatory variables.
+<br>
+<br> 
+The [**coxph**](https://www.rdocumentation.org/packages/survival/versions/3.8-3/topics/coxph) function from the R package [survival](https://www.rdocumentation.org/packages/survival/versions/3.8-3) is used to fit a model:
+
+
+
+<br> 
+```{r Cox 1, echo = T, warning = FALSE, message = FALSE}
+
+# Convert institute number to a factor variable
+lung$inst_fact <- as.factor(lung$inst)  # institute as a factor
+
+# Remove inst, sex and age_group from variables
+lung_cox <- lung[ , !(names(lung) %in% c("inst", "sex", "age_group"))]
+
+# Fit a full Cox Proportional Hazards (CPH) model including all available independent variables
+#       Note that Surv(time, status == 2) is used instead of lung_survival:
+#           else cox_full would try to fit time and status from lung_cox as explanatory variables
+cox_full <- coxph(Surv(time, status == 2) ~ ., data = lung_cox)
+cox_full
+
+```
+
+<br> 
+
+Positive coefficient indicates an increased hazard and a lower survival chance.
+
+<br> 
+
+Note the high number of missing observations.
+
+
+<br> 
+```{r Cox 2, echo = T}
+
+# Look where there are missing values
+DataExplorer::plot_missing(lung_cox)
+
+```
+<br> 
+
+
+<br> 
+```{r Cox 3, echo = T, warning = FALSE, message = FALSE}
+
+# Remove meal.cal from variables
+lung_cox <- lung_cox[ , !(names(lung_cox) %in% c("meal.cal"))]
+
+# Fit a full Cox Proportional Hazards (CPH) model including all available independent variables
+#       Note that Surv(time, status == 2) is used instead of lung_survival:
+#           else cox_full would try to fit time and status from lung_cox as explanatory variables
+cox_full <- coxph(Surv(time, status == 2) ~ ., data = lung_cox)
+cox_full
+
+```
+
+<br> 
+
+Note the high number of missing observations.
+
+
+<br> 
+```{r Cox 4, echo = T}
+
+DataExplorer::plot_missing(lung_cox)
+
+```
+<br> 
+
+
+
+
+<br> 
+```{r Cox 5, echo = T}
+
+# Find best CPH model by stepwise elimination from full model
+#       k = 2 => AIC as criterion; k = log(n) => if BIC as criterion
+#         try makes sure script does not stop in case of error message
+try(step(cox_full, direction = "both", k = 2), silent = TRUE)
+
+
+```
+<br> 
+
+Number of missing data changes when explanatory variables are dropped, which AIC cannot handle. Thus, I have to remove all missing values first. This should normally not been done 'blind', but after investigation of potential biases. For today's purpose, I simply ommit them.
+
+
+<br> 
+```{r Cox 6, echo = T, warning = FALSE, message = FALSE}
+
+# Remove missing data first 
+lung_cox_no_missing <- na.omit(lung_cox)
+
+# Fit full CPH model to data set without missing values
+cox_full <- coxph(Surv(time, status == 2) ~ ., data = lung_cox_no_missing)
+
+# Find best CPH model by stepwise elimination from full model
+step(cox_full, direction = "both", k = 2) 
+
+
+```
+
+<br> 
+
+My best model still contains ph.karno and pat.karno in a 'contradictory manner'. In a real world analysis, I would investigate further. For example, which role the difference between a patient's own assessment and a doctor's assesment plays; how ph.karno and pat.karno are correlated and how they are related to the other condition measure ph.ecog; etc.
+<br> 
+For today's purpose, I will simply drop these variables.
+
+<br> 
+```{r Cox 7, echo = T, warning = FALSE, message = FALSE}
+
+# Remove ph.karno and pat.karno from data set
+lung_cox <- lung_cox[ , !(names(lung_cox) %in% c("ph.karno", "pat.karno"))]
+
+# Remove missing data first 
+lung_cox_no_missing <- na.omit(lung_cox)
+
+# Fit full CPH model to data set without missing values
+cox_full <- coxph(Surv(time, status == 2) ~ ., data = lung_cox_no_missing)
+
+# Find best CPH model by stepwise elimination from full model
+step(cox_full, direction = "both", k = 2) 
+
+
+```
+
+The preliminary 'best' model includes age, gender and ph.ecog. We will now be going back to original data set to include as many missing values as possible under that 'best' model.
+
+
+<br> 
+```{r Cox 8, echo = T, warning = FALSE, message = FALSE}
+
+# Fit final CPH model to all data
+cox_fit <- coxph(Surv(time, status == 2) ~ ., data = na.omit(lung[, c("time", "status", "gender", "age", "ph.ecog")])) 
+
+cox_fit
+
+
+```
+<br> 
+
+Note that we have now only one missing value.
+<br> 
+Further, age does no longer appear to be 'significant'. Therefore we start another model 'optimisation' process.
+
+
+<br>
+
+```{r Cox 9, echo = T, warning = FALSE, message = FALSE}
+
+# Find best CPH model by stepwise elimination from full model
+step(cox_fit, direction = "both", k = 2) 
+
+# Fit final CPH model to all data
+cox_fit <- coxph(lung_survival ~ gender + ph.ecog , data = lung) 
+cox_fit
+
+
+```
+<br> 
+
+
+
+Gender female has a negative influence on the hazard and thus, a positive influence on survival.
+
+Remember, the larger ph.ecog, the worse the condition of the patient at the start of the study. 
+<br> Our CHP model suggests that the physicians assessment of the ECOG performance status of a patient is a good predictor: 
+<br> The worse the ECOG condition at start, the higher the hazard and the lower the survival.
+
+<br> 
+<br> 
+
+
+#### 3.2. Visualisation of final Cox Hazard model
+
+
+<br> 
+```{r Cox 10, echo = FALSE, warning = FALSE, message = FALSE}
+
+ggsurvplot(survfit(cox_fit), data = lung, color = "black", title = "CPH estimates")
+
+```
+
+<br> 
+<br> 
+<br> 
+
+### 4. Comparing Kaplan Meier and Cox Proportional Hazard models
+
+
+<br> 
+```{r Cox 11, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Both models fitted values only for males (CPH model with mean ph.ecog value)
+cox <- survfit(coxph(Surv(time, status == 2) ~ gender + ph.ecog, data = lung), newdata = data.frame(gender = c("male"), ph.ecog = mean(lung$ph.ecog, na.rm = T) ))
+km <- survfit(Surv(time, status == 2) ~ gender, data = lung[which(lung$sex==1),])
+
+
+# CHP and KM models for male in one chart
+g1 <- ggsurvplot(cox, data = lung[which(lung$gender == "male"),], conf.int = F, xlab = "Days", ylab = "Survival rate", title = "Estimates from both models", palette = c("#A7C7E7"), legend.title = "Gender", legend.labs = c("male"))
+
+g2 <- ggsurvplot(km, data = lung, conf.int = F)
+
+g1$plot + geom_line(data = ggplot_build(g2$plot)$data[[1]], aes(x = x, y = y), color = "blue")
+
+
+
+```
+
+**<span style='color:#A7C7E7'> Cox PH estimates </span>**
+<br> 
+**<span style='color:#0000FF'> Kaplan Meier estimates </span>**
+<br> 
+
+
+
+
