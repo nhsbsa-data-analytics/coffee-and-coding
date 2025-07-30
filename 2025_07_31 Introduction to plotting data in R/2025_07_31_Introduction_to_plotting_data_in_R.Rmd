@@ -185,12 +185,12 @@ boxplot(
   ylab = "Life Expectancy"                      # y-axis title
 )
 
-# A list of base colours that can be referenced by name can be found here: https://r-graph-gallery.com/42-colors-names.html . Alternatively hexadecimal codes can be used for specific colours.
 
 ```
 
-### NHSBSA theming
 
+### NHSBSA theming
+A list of base colours that can be referenced by name can be found here: https://r-graph-gallery.com/42-colors-names.html. Alternatively hexadecimal codes can be used for specific colours.
 We do have a recommended colour palette to use to keep our visualisations in line with NHS identity. Details of the hexadecimal codes for the recommended colours can be found [here]. (<https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/>)
 
 Alternatively, in R we can use the `get_nhs_colours()` function from the `NHSRtheme` package.
