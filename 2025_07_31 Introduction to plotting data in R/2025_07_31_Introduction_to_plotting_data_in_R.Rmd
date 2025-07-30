@@ -143,7 +143,7 @@ plot(lifeExp ~ gdpPercap, data = gapminder, log = 'x')
 
 # and a change of x axis label:
 
-with(gapminder, plot(gdpPercap, lifeExp, log = 'x', xlab = "GDP per capita (Log-scale)"))
+plot(lifeExp ~ gdpPercap, data = gapminder, log = 'x', xlab = "GDP per capita (Log-scale)")
 
 
 ```
@@ -191,7 +191,7 @@ boxplot(
 
 ### NHSBSA theming
 A list of base colours that can be referenced by name can be found here: https://r-graph-gallery.com/42-colors-names.html. Alternatively hexadecimal codes can be used for specific colours.
-We do have a recommended colour palette to use to keep our visualisations in line with NHS identity. Details of the hexadecimal codes for the recommended colours can be found [here]. (<https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/>)
+We do have a recommended colour palette to use to keep our visualisations in line with NHS identity. Details of the hexadecimal codes for the recommended colours can be found [here](https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/).
 
 Alternatively, in R we can use the `get_nhs_colours()` function from the `NHSRtheme` package.
 
@@ -469,7 +469,6 @@ highchart() |>
     )|>
   hc_tooltip(                                                         # Customise formatting for tooltips
     useHTML = TRUE,
-    headerFormat = "",
     pointFormat = paste0(
       "<b>Country:</b> {point.name}<br>",
       "<b>GDP per Capita:</b> {point.x:.2f}<br>",
