@@ -1,6 +1,14 @@
 # Clear environment -----------------------------------------------------------
 rm(list = ls())
 
+# install packages-------------------------------------------------------------
+install.packages("dplyr")
+install.packages("lubridate")
+install.packages("tidyverse")
+install.packages("readr")
+install.packages("jsonlite")
+install.packages("httr")
+
 # Load libraries --------------------------------------------------------------
 library(dplyr)
 library(lubridate)
