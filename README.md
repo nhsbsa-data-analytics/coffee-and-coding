@@ -31,6 +31,7 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
+| 2025-08-28             | Kate Brown                       | Loading data from the Open Data Portal in R                 |
 | 2025-07-31             | Jessica Tarn-Thompson            | Introduction to plotting data in R                          |
 | 2025-06-25             | Alistair Jones                   | Introduction to Unit Testing in Python                      |
 | 2025-05-29             | Larissa Conradt                  | Introduction to Survival Analysis in R                      |
