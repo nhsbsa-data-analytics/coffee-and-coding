@@ -6,4 +6,119 @@ date: "2026-02-02"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(testthat)
+```
+
+## The FizzBuzz kata
+
+Fizz Buzz Problem involves that given an integer n, for every integer i <= n, the task is to write a Python program to print,
+
+- 'Fizz' if i is divisible by 3,
+- 'Buzz' if i is divisible by 5
+- 'FizzBuzz' if i is divisible by 3 and 5,
+- 'i' as a string, if none of the conditions are true.
+
+Because testing a printed output would make it more complicated to show what we do in TDD, we will modify the function to create a list of elements to print. E.g.
+
+If you input '5', it should return `["1", "2", "Fizz", "3", "Buzz"]`, while printing
+
+```r
+1
+2
+"Fizz"
+4
+"Buzz"
+```
+
+## Template test
+
+```{r}
+should_output <- function() {
+  # Assign
+  
+  
+  # Act
+  
+  
+  # Assert
+  
+}
+```
+
+## Test 1 - "Fizz"
+
+```{r}
+fizzbuzzer <- function() {} # Start - empty function
+```
+
+```{r}
+should_output_fizz_if_divisible_by_3 <- function() {   # NOTE: naming considerations, parameter in name?
+  # Assign
+  input <- 3
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  expect_equal(output, "Fizz")
+}
+```
+
+```{r}
+should_output_fizz_if_divisible_by_3() # RED: no argument in functon
+```
+
+```{r}
+fizzbuzzer <- function(number) {} # REFACTOR: add argument
+```
+
+```{r}
+should_output_fizz_if_divisible_by_3() # RED: output not as expected
+```
+
+```{r}
+fizzbuzzer <- function(number) { # REFACTOR: change output to what test expects
+  return ("Fizz")
+}
+```
+
+```{r}
+should_output_fizz_if_divisible_by_3() # GREEN - but note the behaviour being tested is not yet as specified
+```
+
+```{r}
+fizzbuzzer <- function(number) { # REFACTOR: change behaviour of function to match specification
+  # if (number %% 3) { # Imagine making this mistake...
+  if ((number %% 3) == 0) {
+    return("Fizz")
+  }
+  
+  as.character(number)
+}
+```
+
+```{r}
+should_output_fizz_if_divisible_by_3() # COMPLETED CYCLE
+```
+
+## Test 2 -  default "i"
+
+We have 2 branches in our `fizzbuzzer` function, but the first test only tests one of them. Where possible, testing **every** branch is better.
+
+```{r}
+should_output_input_as_string <- function() {
+  # Assign
+  input <- 2
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  assert_equal(output, as.character(input)) # No 'magic' number, reliably uses input to create what we expect.
+                                            # BUT - could result in hidden bug? Does DRY apply to test assertions?
+  
+  assert_equal(output, "2")                 # Explicit expectation. If input changes, this does not, but we will 
+                                            # quickly see due to failing test. Safer?
+}
 ```
