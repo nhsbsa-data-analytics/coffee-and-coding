@@ -365,8 +365,8 @@ features are presented.</p>
 <h2>The FizzBuzz kata</h2>
 <p>TODO: Use same definition as Ian will show live TODO: Don’t specify
 the language used</p>
-<p>Fizz Buzz Problem involves that given an integer n, for every integer
-i &lt;= n, the task is to write a program to print,</p>
+<p>Fizz Buzz Problem involves that given an integer n, for every
+positive integer i &lt;= n, the task is to write a program to print,</p>
 <ul>
 <li>‘Fizz’ if i is divisible by 3,</li>
 <li>‘Buzz’ if i is divisible by 5</li>
@@ -733,6 +733,139 @@ using <code>lapply</code> for the list building, and
 <p>And just to check the output visually…</p>
 <pre class="r"><code>cat(as.character(fizzbuzzer(15)), sep = &quot;, &quot;)</code></pre>
 <pre><code>## 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz</code></pre>
+</div>
+<div id="wait-a-minutetest-6" class="section level2">
+<h2>Wait a minute…Test 6</h2>
+<p>Although the specification does not specifically say that a
+non-positive integer should be invalid input, we can infer this from</p>
+<blockquote>
+<p>for every positive integer i &lt;= n</p>
+</blockquote>
+<p>This means we have another test to implement! We must do both the Act
+and Assert steps together here, as we are expecting an error. If we just
+used an invalid input in our Act step, the test would not correctly run
+as the error would halt it prematurely.</p>
+<pre class="r"><code>should_error_for_invalid_input &lt;- function() {
+  # Assign
+  input &lt;- 0
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input))
+}</code></pre>
+<p>To robustly check for invalid inputs, we can use the
+<code>stopifnot</code> base R function to throw a custom error message.
+We need to be careful of the order here, a good rule of thumb is to
+write the error conditions in order of how different they are from a
+valid input. The key thing is to check things in an order which means
+all the conditions make sense. E.g. we check something is numeric before
+checking if it is greater than zero.</p>
+<p>So we have:</p>
+<ul>
+<li>Check if input is even numeric</li>
+<li>If it is numeric, check it is a <em>single</em> number (all numbers
+in R are vectors!)</li>
+<li>if it is a single number, check it is positive</li>
+<li>If it is a single positive number, check it is a whole number</li>
+</ul>
+<pre class="r"><code>fizzbuzz &lt;- function(number) {
+  stopifnot(
+    &quot;Input must be numeric&quot; = is.numeric(number),
+    &quot;Input must be length 1&quot; = length(number) == 1,
+    &quot;Input must be positive&quot; = number &gt; 0,
+    &quot;Input must be a whole number&quot; = number %% 1 == 0
+  )
+  
+  is_divisible_by_3 &lt;- (number %% 3) == 0
+  is_divisible_by_5 &lt;- (number %% 5) == 0
+  
+  if (is_divisible_by_3 &amp; is_divisible_by_5) {
+    return(&quot;FizzBuzz&quot;)
+  }
+  if (is_divisible_by_3) {
+    return(&quot;Fizz&quot;)
+  }
+  if (is_divisible_by_5) {
+    return(&quot;Buzz&quot;)
+  }
+  
+  as.character(number)
+}</code></pre>
+<p>We get a GREEN result.</p>
+<pre class="r"><code>should_error_for_invalid_input()</code></pre>
+<p>Note that we could have written specific tests for specific
+errors.</p>
+<pre class="r"><code>should_error_for_non_numeric_input &lt;- function() {
+  # Assign
+  input &lt;- &quot;foo&quot;
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), &quot;Input must be numeric&quot;)
+}</code></pre>
+<pre class="r"><code>should_error_for_vector_length_more_than_one &lt;- function() {
+  # Assign
+  input &lt;- 1:15
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), &quot;Input must be length 1&quot;)
+}</code></pre>
+<pre class="r"><code>should_error_for_non_positive_input &lt;- function() {
+  # Assign
+  input &lt;- -15
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), &quot;Input must be positive&quot;)
+}</code></pre>
+<pre class="r"><code>should_error_for_non_whole_number &lt;- function() {
+  # Assign
+  input &lt;- 9.9
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), &quot;Input must be a whole number&quot;)
+}</code></pre>
+<p>All checks GREEN.</p>
+<pre class="r"><code>should_error_for_non_numeric_input()
+should_error_for_vector_length_more_than_one()
+should_error_for_non_positive_input()
+should_error_for_non_whole_number()</code></pre>
+</div>
+<div id="using-testthat-in-r-projects" class="section level2">
+<h2>Using <code>testthat</code> in R projects</h2>
+<p>For the purposes of demonstration, the example in this document has
+used procedural code. To implement tests using <code>testthat</code>, we
+can create test files and a runner file. See the following files for how
+this could look, for our FizzBuzz specificaton.</p>
+<ul>
+<li><code>fizzbuzz.R</code>: This is where we put our functions. Because
+both <code>fizzbuzz</code> and <code>fizzbuzzer</code> form one related
+‘concept’, they are in the same file. This is a common approach to keep
+large codebases manageable, while modular.</li>
+<li><code>run_tests.R</code>: This is the runner for the tests. It
+handles importing any libraries (at least testthat is needed) and
+sourcing of code from the R files being tested. It also prints out the
+results.</li>
+<li><code>tests/test-fizzbuzz</code>: This contains the tests. Note that
+<code>testthat</code> requires the files to start with
+<code>test-</code> in order to automatically find the tests. We again
+use a single file for all our tests, as they are testing one set of
+related functionality. In general, you should have 1 test file per 1
+function file.</li>
+</ul>
+</div>
+<div id="more-advanced-usage" class="section level2">
+<h2>More advanced usage</h2>
+<p>For R <em>packages</em> there are a few more things to consider, but
+the structure is largely the same as for projects. Refer to <a href="https://r-pkgs.org/testing-basics.html">R Packages (2e) -</a> for
+how to use in a package, or for a quick explanation see the section on
+Testing in a previous Coffee &amp; Coding, 2024-05-29 Creating R
+packages.</p>
+<p>It is possible, and a great idea, to automate your tests using
+Continuous Integration tools like GitHub Actions. For example, if you
+include a <code>R CMD check</code> that runs when you push, or attempt
+to merge to main, your <code>testthat</code> tests will automatically
+run. This can prevent bad code ending up in production code. Doing this
+is a key aspect of Reproducible Analytical Pipelines.</p>
+<p>For a deeper dive into <code>testthat</code>, see a previous Coffee
+&amp; Coding session, 2023-10-03 Automated Testing in R.</p>
 </div>
 
 

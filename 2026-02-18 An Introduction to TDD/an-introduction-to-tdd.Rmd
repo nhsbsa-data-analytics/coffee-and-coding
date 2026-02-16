@@ -20,7 +20,7 @@ The kata presented live in the session uses python to demonstrate the RED-GREEN-
 TODO: Use same definition as Ian will show live
 TODO: Don't specify the language used
 
-Fizz Buzz Problem involves that given an integer n, for every integer i <= n, the task is to write a program to print,
+Fizz Buzz Problem involves that given an integer n, for every positive integer i <= n, the task is to write a program to print,
 
 - 'Fizz' if i is divisible by 3,
 - 'Buzz' if i is divisible by 5
@@ -430,3 +430,129 @@ And just to check the output visually...
 ```{r}
 cat(as.character(fizzbuzzer(15)), sep = ", ")
 ```
+
+## Wait a minute...Test 6
+
+Although the specification does not specifically say that a non-positive integer should be invalid input, we can infer this from
+
+> for every positive integer i <= n
+
+This means we have another test to implement! We must do both the Act and Assert steps together here, as we are expecting an error. If we just used an invalid input in our Act step, the test would not correctly run as the error would halt it prematurely.
+
+```{r}
+should_error_for_invalid_input <- function() {
+  # Assign
+  input <- 0
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input))
+}
+```
+
+To robustly check for invalid inputs, we can use the `stopifnot` base R function to throw a custom error message. We need to be careful of the order here, a good rule of thumb is to write the error conditions in order of how different they are from a valid input. The key thing is to check things in an order which means all the conditions make sense. E.g. we check something is numeric before checking if it is greater than zero.
+
+So we have:
+
+- Check if input is even numeric
+- If it is numeric, check it is a *single* number (all numbers in R are vectors!)
+- if it is a single number, check it is positive
+- If it is a single positive number, check it is a whole number
+
+```{r}
+fizzbuzz <- function(number) {
+  stopifnot(
+    "Input must be numeric" = is.numeric(number),
+    "Input must be length 1" = length(number) == 1,
+    "Input must be positive" = number > 0,
+    "Input must be a whole number" = number %% 1 == 0
+  )
+  
+  is_divisible_by_3 <- (number %% 3) == 0
+  is_divisible_by_5 <- (number %% 5) == 0
+  
+  if (is_divisible_by_3 & is_divisible_by_5) {
+    return("FizzBuzz")
+  }
+  if (is_divisible_by_3) {
+    return("Fizz")
+  }
+  if (is_divisible_by_5) {
+    return("Buzz")
+  }
+  
+  as.character(number)
+}
+```
+
+We get a GREEN result.
+
+```{r}
+should_error_for_invalid_input()
+```
+
+Note that we could have written specific tests for specific errors.
+
+```{r}
+should_error_for_non_numeric_input <- function() {
+  # Assign
+  input <- "foo"
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be numeric")
+}
+```
+
+```{r}
+should_error_for_vector_length_more_than_one <- function() {
+  # Assign
+  input <- 1:15
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be length 1")
+}
+```
+
+```{r}
+should_error_for_non_positive_input <- function() {
+  # Assign
+  input <- -15
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be positive")
+}
+```
+
+```{r}
+should_error_for_non_whole_number <- function() {
+  # Assign
+  input <- 9.9
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be a whole number")
+}
+```
+
+All checks GREEN.
+
+```{r}
+should_error_for_non_numeric_input()
+should_error_for_vector_length_more_than_one()
+should_error_for_non_positive_input()
+should_error_for_non_whole_number()
+```
+
+## Using `testthat` in R projects
+
+For the purposes of demonstration, the example in this document has used procedural code. To implement tests using `testthat`, we can create test files and a runner file. See the following files for how this could look, for our FizzBuzz specificaton.
+
+- `fizzbuzz.R`: This is where we put our functions. Because both `fizzbuzz` and `fizzbuzzer` form one related 'concept', they are in the same file. This is a common approach to keep large codebases manageable, while modular.
+- `run_tests.R`: This is the runner for the tests. It handles importing any libraries (at least testthat is needed) and sourcing of code from the R files being tested. It also prints out the results.
+- `tests/test-fizzbuzz`: This contains the tests. Note that `testthat` requires the files to start with `test-` in order to automatically find the tests. We again use a single file for all our tests, as they are testing one set of related functionality. In general, you should have 1 test file per 1 function file.
+
+## More advanced usage
+
+For R *packages* there are a few more things to consider, but the structure is largely the same as for projects. Refer to [R Packages (2e) - ](https://r-pkgs.org/testing-basics.html) for how to use in a package, or for a quick explanation see the section on Testing in a previous Coffee & Coding, 2024-05-29 Creating R packages.
+
+It is possible, and a great idea, to automate your tests using Continuous Integration tools like GitHub Actions. For example, if you include a `R CMD check` that runs when you push, or attempt to merge to main, your `testthat` tests will automatically run. This can prevent bad code ending up in production code. Doing this is a key aspect of Reproducible Analytical Pipelines.
+
+For a deeper dive into `testthat`, see a previous Coffee & Coding session, 2023-10-03 Automated Testing in R.
