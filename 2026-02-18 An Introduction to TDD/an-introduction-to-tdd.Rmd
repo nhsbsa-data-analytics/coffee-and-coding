@@ -1,7 +1,7 @@
 ---
 title: "An Introduction to Test-Driven Development (TDD)"
 output: html_document
-date: "2026-02-02"
+date: "2026-02-17"
 ---
 
 ```{r setup, include=FALSE}
@@ -17,20 +17,14 @@ The kata presented live in the session uses python to demonstrate the RED-GREEN-
 
 ## The FizzBuzz kata
 
-TODO: Use same definition as Ian will show live
-TODO: Don't specify the language used
+The Goal: Create a function that takes a number and returns a list of strings based on these rules:
 
-Fizz Buzz Problem involves that given an integer n, for every positive integer i <= n, the task is to write a program to print,
+- If the number is divisible by 3, return "Fizz"
+- If the number is divisible by 5, return "Buzz"
+- If it's divisible by both (15), return "FizzBuzz"
+- Otherwise, return the number as a string
 
-- 'Fizz' if i is divisible by 3,
-- 'Buzz' if i is divisible by 5
-- 'FizzBuzz' if i is divisible by 3 and 5,
-- 'i' as a string, if none of the conditions are true.
-
-TODO: Decide if we want just specify returning a list of strings 'up front', rather than printing?
-Because testing a printed output would make it more complicated to show what we do in TDD, we will modify the specification to simply return a list of strings.
-
-E.g. If you input '5', it should return `["1", "2", "Fizz", "3", "Buzz"]`
+Example: If you input '5', it should return `["1", "2", "Fizz", "3", "Buzz"]`.
 
 ## Template test
 
@@ -288,8 +282,6 @@ should_output_string_of_number_if_not_divisible_by_3_or_5()
 Up to now, we have focused on handling of individual numbers. But the specification calls for a list of strings to be returned. This is an example of the 'divide and conquer' strategy (useful outside of coding too!). We broke the specifications down into small parts of the final set of features. Now it is time to bring everything together.
 
 One way to go here would be to refactor our existing tests and `fizzbuzzer` to output a list. But this will mean essentially 'throwing away' our good and reliable tests.
-
-TODO: Check with Ian that below is correct use of SR/SoC?
 
 A better way is to use the principles of Single Responsibility and Separation of Concerns. This means having small functions, that work independently and do just one thing. This can result in more maintainable and modular code. Here, it also allows us to keep our existing tests, so our final test suite is more robust. 
 

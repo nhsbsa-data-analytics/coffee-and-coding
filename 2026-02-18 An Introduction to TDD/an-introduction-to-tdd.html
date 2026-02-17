@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2026-02-02" />
+<meta name="date" content="2026-02-17" />
 
 <title>An Introduction to Test-Driven Development (TDD)</title>
 
@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">An Introduction to Test-Driven Development
 (TDD)</h1>
-<h4 class="date">2026-02-02</h4>
+<h4 class="date">2026-02-17</h4>
 
 </div>
 
@@ -363,22 +363,16 @@ on the specification. Here we will proceed in the same order as the
 features are presented.</p>
 <div id="the-fizzbuzz-kata" class="section level2">
 <h2>The FizzBuzz kata</h2>
-<p>TODO: Use same definition as Ian will show live TODO: Don’t specify
-the language used</p>
-<p>Fizz Buzz Problem involves that given an integer n, for every
-positive integer i &lt;= n, the task is to write a program to print,</p>
+<p>The Goal: Create a function that takes a number and returns a list of
+strings based on these rules:</p>
 <ul>
-<li>‘Fizz’ if i is divisible by 3,</li>
-<li>‘Buzz’ if i is divisible by 5</li>
-<li>‘FizzBuzz’ if i is divisible by 3 and 5,</li>
-<li>‘i’ as a string, if none of the conditions are true.</li>
+<li>If the number is divisible by 3, return “Fizz”</li>
+<li>If the number is divisible by 5, return “Buzz”</li>
+<li>If it’s divisible by both (15), return “FizzBuzz”</li>
+<li>Otherwise, return the number as a string</li>
 </ul>
-<p>TODO: Decide if we want just specify returning a list of strings ‘up
-front’, rather than printing? Because testing a printed output would
-make it more complicated to show what we do in TDD, we will modify the
-specification to simply return a list of strings.</p>
-<p>E.g. If you input ‘5’, it should return
-<code>[&quot;1&quot;, &quot;2&quot;, &quot;Fizz&quot;, &quot;3&quot;, &quot;Buzz&quot;]</code></p>
+<p>Example: If you input ‘5’, it should return
+<code>[&quot;1&quot;, &quot;2&quot;, &quot;Fizz&quot;, &quot;3&quot;, &quot;Buzz&quot;]</code>.</p>
 </div>
 <div id="template-test" class="section level2">
 <h2>Template test</h2>
@@ -617,7 +611,6 @@ set of features. Now it is time to bring everything together.</p>
 <p>One way to go here would be to refactor our existing tests and
 <code>fizzbuzzer</code> to output a list. But this will mean essentially
 ‘throwing away’ our good and reliable tests.</p>
-<p>TODO: Check with Ian that below is correct use of SR/SoC?</p>
 <p>A better way is to use the principles of Single Responsibility and
 Separation of Concerns. This means having small functions, that work
 independently and do just one thing. This can result in more
