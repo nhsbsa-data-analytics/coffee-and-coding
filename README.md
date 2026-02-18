@@ -31,6 +31,7 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
+| 2026-02-18             | Mark McPherson                   | Introduction to Test Driven Development                     |
 | 2026-01-21             | Kayoung Goffe                    | Using Hugging Face models in Fabric                         |
 | 2025-09-25             | Ryan Legget                      | Data Pipelines in Fabric                                    |
 | 2025-08-28             | Kate Brown                       | Loading data from the Open Data Portal in R                 |
