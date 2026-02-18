@@ -1,0 +1,550 @@
+---
+title: "An Introduction to Test-Driven Development (TDD)"
+output: html_document
+date: "2026-02-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  error = TRUE  # This allows the document to continue knitting even if a chunk errors
+)
+
+library(testthat)
+```
+
+The kata presented live in the session uses python to demonstrate the RED-GREEN-REFACTOR cycle. Here it is presented using R. Note that there is no general best order for implementing tests and features. It depends on the specification. Here we will proceed in the same order as the features are presented.
+
+## The FizzBuzz kata
+
+The Goal: Create a function that takes a number and returns a list of strings based on these rules:
+
+- If the number is divisible by 3, return "Fizz"
+- If the number is divisible by 5, return "Buzz"
+- If it's divisible by both (15), return "FizzBuzz"
+- Otherwise, return the number as a string
+
+Example: If you input '5', it should return `["1", "2", "Fizz", "3", "Buzz"]`.
+
+## Template test
+
+When creating a new test, it is good to follow the 3 'A's - Assign, Act, Assert. A simple template for tests is below.
+
+```r
+should_output <- function() {
+  # Assign
+  
+  
+  # Act
+  
+  
+  # Assert
+  
+}
+```
+
+## Simplest function
+
+We can create the simplest possible function before starting the TDD process. That is just a function with no arguments and an empty body. This function can be called, but does nothing yet.
+
+```{r}
+fizzbuzzer <- function() {}
+
+print(fizzbuzzer())
+```
+
+## Test 1 - "Fizz"
+
+The first feature we will test is the "Fizz" part. We should expect a value of "Fizz" to be returned, when input is divisible by 3. Note that we are not implementing the entire specification here. We focus on one atomic feature. Once the basic features are implemented we will address the final output format (a list of strings).
+
+```{r}
+should_output_fizz_if_divisible_by_3 <- function() {
+  # Assign
+  input <- 3
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  expect_equal(output, "Fizz")
+}
+```
+
+Running this results in an error. This is because our function has no argument, but in the 'Act' part of the test we call it with an argument.
+
+```{r}
+should_output_fizz_if_divisible_by_3()
+```
+This is a RED result, so we need to fix the function to get a successful GREEN result. With TDD, you should look to make only the minimal changes needed to get a pass. The idea is that a function is built up, in small well-tested increments, until the specification is met. The minimal change here is to add an argument for the number.
+ 
+```{r}
+fizzbuzzer <- function(number) {}
+```
+
+Running this again results in an error. This is because we expected the output to be "Fizz", but what we got was `NULL`. Another RED!
+
+```{r}
+should_output_fizz_if_divisible_by_3()
+```
+
+The simplest fix now is to simply output "Fizz" always. This might seem a waste of time! But consider the difference between writing 50 lines of code before running a test that fails, and writing 1 or a few lines before testing. In the latter case we can debug much faster as we know exactly where something went wrong.
+
+```{r}
+fizzbuzzer <- function(number) {
+  "Fizz"
+}
+```
+
+Now we get our first GREEN result. Most test libraries follow 'no news is good news', so we get nothing, telling us all is well.
+
+```{r}
+should_output_fizz_if_divisible_by_3()
+```
+
+You might be thinking we cheated to get that result, as we always return "Fizz". So we now need to REFACTOR our function to closer match the specification.
+
+The modulus operator, `%%`, is the best way to test that one number is divisible by another. Given numbers `a` and `b`, it gives back the remainder of the division `a / b`, which is 0 if `a` is divisible by `b`.
+
+```{r}
+fizzbuzzer <- function(number) {
+  if ((number %% 3) == 0) {
+    return("Fizz")
+  }
+}
+```
+
+We get no 'news' again, so we have a GREEN result. This means we now have the behaviour for a number divisible by 3, as called for in the specification.
+
+```{r}
+should_output_fizz_if_divisible_by_3()
+```
+
+## Test 2 - "Buzz"
+
+The second feature in the specification is *very* similar to what we just tested. We can replace the 'divisible by 3', with 'divisible by 5', and the output is "Buzz", rather then "Fizz". In such clearly similar cases, you could just copy a previous test and make the minor adjustments necessary. Especially when first learning TDD, it is recommended to still be methodical and build the test from scratch, using the 3 'A's.
+
+```{r}
+should_output_buzz_if_divisible_by_5 <- function() {
+  # Assign
+  input <- 5
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  expect_equal(output, "Buzz")
+}
+```
+
+We get a RED result.
+
+```{r}
+should_output_buzz_if_divisible_by_5()
+```
+
+This is one we have seen before, and we can REFACTOR our function similarly to get the test to pass.
+
+```{r}
+fizzbuzzer <- function(number) {
+  if ((number %% 3) == 0) {
+    return("Fizz")
+  }
+  if ((number %% 5) == 0) {
+    return("Buzz")
+  }
+}
+```
+
+And now we have a GREEN result. We now have 2 of the features covered.
+
+```{r}
+should_output_buzz_if_divisible_by_5()
+```
+
+## Test 3 - "FizzBuzz"
+
+The next feature in the specification is a mishmash of the previous 2 we have tests for. Our input needs to be divisible by both 3 and 5 to test this, and we should expect "FizzBuzz" to be the result.
+
+```{r}
+should_output_fizzbuzz_if_divisible_by_3_and_5 <- function() {
+  # Assign
+  input <- 3 * 5
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  expect_equal(output, "FizzBuzz")
+}
+```
+
+Handling this requires some care, because the conditions we already check in our function are also conditions involved in the "FizzBuzz" feature. Notably, the check for this combination must come *before* the individual checks.
+
+```{r}
+fizzbuzzer <- function(number) {
+  if (((number %% 3) == 0) & ((number %% 5) == 0)) {
+    return("FizzBuzz")
+  }
+  if ((number %% 3) == 0) {
+    return("Fizz")
+  }
+  if ((number %% 5) == 0) {
+    return("Buzz")
+  }
+}
+```
+
+This gets a GREEN result.
+
+```{r}
+should_output_fizzbuzz_if_divisible_by_3_and_5()
+```
+
+You might be thinking this could be improved, and it probably could be made more readable. One of the benefits of TDD is that once a test is in place, you have a very quick and easy way to check that behaviour (**not** implementation) is maintained when refactoring. Note that another benefit of TDD is that it leads to 'lean' code, as the developer writes minimal code to pass the tests. So always consider if any changes *do* improve your function. If in doubt, they are probably best not done!
+
+So we could safely improve readability now, relying on the test to ensure we did not change the behaviour of the function.
+
+```{r}
+fizzbuzzer <- function(number) {
+  is_divisible_by_3 <- (number %% 3) == 0
+  is_divisible_by_5 <- (number %% 5) == 0
+  
+  if (is_divisible_by_3 & is_divisible_by_5) {
+    return("FizzBuzz")
+  }
+  if (is_divisible_by_3) {
+    return("Fizz")
+  }
+  if (is_divisible_by_5) {
+    return("Buzz")
+  }
+}
+```
+
+After that refactoring of the conditions into clearly named variables, the function is more readable and it is very clear what is happening. The test stays GREEN.
+
+```{r}
+should_output_fizzbuzz_if_divisible_by_3_and_5()
+```
+
+## Test 4 - General case
+
+When a number is *not* divisible by 3 or 5, we want to just output the number as a string.
+
+```{r}
+should_output_string_of_number_if_not_divisible_by_3_or_5 <- function() {
+  # Assign
+  input <- 2
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  expect_equal(output, "2")
+}
+```
+
+We get a familiar RED result here.
+
+```{r}
+should_output_string_of_number_if_not_divisible_by_3_or_5()
+```
+
+As we have seen, the NULL is returned because we have not handled the case in our function yet. This can be considered a default case, so we just return the number in string format. This way, when all the previous conditions do not pass, we 'fall through' to the default case.
+
+```{r}
+fizzbuzzer <- function(number) {
+  is_divisible_by_3 <- (number %% 3) == 0
+  is_divisible_by_5 <- (number %% 5) == 0
+  
+  if (is_divisible_by_3 & is_divisible_by_5) {
+    return("FizzBuzz")
+  }
+  if (is_divisible_by_3) {
+    return("Fizz")
+  }
+  if (is_divisible_by_5) {
+    return("Buzz")
+  }
+  
+  as.character(number)
+}
+```
+
+And we have a GREEN result.
+
+```{r}
+should_output_string_of_number_if_not_divisible_by_3_or_5()
+```
+
+## Test 5 - List output
+
+Up to now, we have focused on handling of individual numbers. But the specification calls for a list of strings to be returned. This is an example of the 'divide and conquer' strategy (useful outside of coding too!). We broke the specifications down into small parts of the final set of features. Now it is time to bring everything together.
+
+One way to go here would be to refactor our existing tests and `fizzbuzzer` to output a list. But this will mean essentially 'throwing away' our good and reliable tests.
+
+A better way is to use the principles of Single Responsibility and Separation of Concerns. This means having small functions, that work independently and do just one thing. This can result in more maintainable and modular code. Here, it also allows us to keep our existing tests, so our final test suite is more robust. 
+
+The first thing we should do is rename `fizzbuzzer`. This function now represents the logic, without caring about how it is actually used. We need to refactor the existing tests also, and do this first.
+
+```{r}
+should_output_fizz_if_divisible_by_3 <- function() {
+  # Assign
+  input <- 3
+  
+  # Act
+  output <- fizzbuzz(input)
+  
+  # Assert
+  expect_equal(output, "Fizz")
+}
+```
+
+```{r}
+should_output_fizz_if_divisible_by_5 <- function() {
+  # Assign
+  input <- 5
+  
+  # Act
+  output <- fizzbuzz(input)
+  
+  # Assert
+  expect_equal(output, "Buzz")
+}
+```
+
+```{r}
+should_output_fizzbuzz_if_divisible_by_3_and_5 <- function() {
+  # Assign
+  input <- 3 * 5
+  
+  # Act
+  output <- fizzbuzz(input)
+  
+  # Assert
+  expect_equal(output, "FizzBuzz")
+}
+```
+
+```{r}
+should_output_string_of_number_if_not_divisible_by_3_or_5 <- function() {
+  # Assign
+  input <- 2
+  
+  # Act
+  output <- fizzbuzz(input)
+  
+  # Assert
+  expect_equal(output, "2")
+}
+```
+
+```{r}
+fizzbuzz <- function(number) {
+  is_divisible_by_3 <- (number %% 3) == 0
+  is_divisible_by_5 <- (number %% 5) == 0
+  
+  if (is_divisible_by_3 & is_divisible_by_5) {
+    return("FizzBuzz")
+  }
+  if (is_divisible_by_3) {
+    return("Fizz")
+  }
+  if (is_divisible_by_5) {
+    return("Buzz")
+  }
+  
+  as.character(number)
+}
+```
+
+All that was changed was to rename `fizzbuzzer` to `fizzbuzz`. We still get GREEN tests.
+
+```{r}
+should_output_fizz_if_divisible_by_3()
+should_output_fizz_if_divisible_by_5()
+should_output_fizzbuzz_if_divisible_by_3_and_5()
+should_output_string_of_number_if_not_divisible_by_3_or_5()
+```
+
+Now we need to write a test for our actual `fizzbuzzer` function, which will output a list of strings, as per specification.
+
+```{r}
+should_output_correct_list_for_input_of_15 <- function() {
+  # Assign
+  input <- 15
+  
+  # Act
+  output <- fizzbuzzer(input)
+  
+  # Assert
+  expect_equal(
+    output,
+    list("1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz")
+  )
+}
+```
+
+And we can now write the function that will complete implementation of the specification.
+
+```{r}
+fizzbuzzer <- function(number) {
+  out <- list()
+  
+  for (i in 1:number) {
+    out <- c(out, fizzbuzz(i))
+  }
+  
+  out
+}
+```
+
+Green result!
+
+```{r}
+should_output_correct_list_for_input_of_15()
+```
+
+Now we have a fully working and well-tested implementation it is a good time to consider if we want to REFACTOR. The `fizzbuzzer` function has some non-ideal issues. The main one is potentially very poor memory efficiency (the pattern used will result in the list being copied into a new memory location every iteration, which could get out of hand for large numbers). There is also a bug should 0 be input (`1:number` would become `c(1, 0)`). The idiomatic way of doing this in R would be using `lapply` for the list building, and `seq_len` for the sequence of numbers to process.
+
+```{r}
+fizzbuzzer <- function(number) lapply(seq_len(number), fizzbuzz)
+```
+
+Always run your tests after a refactor. Still GREEN.
+
+```{r}
+should_output_correct_list_for_input_of_15()
+```
+
+And just to check the output visually...
+
+```{r}
+cat(as.character(fizzbuzzer(15)), sep = ", ")
+```
+
+## Wait a minute...Test 6
+
+Although the specification does not specifically say that a non-positive integer should be invalid input, we can infer this from
+
+> for every positive integer i <= n
+
+This means we have another test to implement! We must do both the Act and Assert steps together here, as we are expecting an error. If we just used an invalid input in our Act step, the test would not correctly run as the error would halt it prematurely.
+
+```{r}
+should_error_for_invalid_input <- function() {
+  # Assign
+  input <- 0
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input))
+}
+```
+
+To robustly check for invalid inputs, we can use the `stopifnot` base R function to throw a custom error message. We need to be careful of the order here, a good rule of thumb is to write the error conditions in order of how different they are from a valid input. The key thing is to check things in an order which means all the conditions make sense. E.g. we check something is numeric before checking if it is greater than zero.
+
+So we have:
+
+- Check if input is even numeric
+- If it is numeric, check it is a *single* number (all numbers in R are vectors!)
+- if it is a single number, check it is positive
+- If it is a single positive number, check it is a whole number
+
+```{r}
+fizzbuzz <- function(number) {
+  stopifnot(
+    "Input must be numeric" = is.numeric(number),
+    "Input must be length 1" = length(number) == 1,
+    "Input must be positive" = number > 0,
+    "Input must be a whole number" = number %% 1 == 0
+  )
+  
+  is_divisible_by_3 <- (number %% 3) == 0
+  is_divisible_by_5 <- (number %% 5) == 0
+  
+  if (is_divisible_by_3 & is_divisible_by_5) {
+    return("FizzBuzz")
+  }
+  if (is_divisible_by_3) {
+    return("Fizz")
+  }
+  if (is_divisible_by_5) {
+    return("Buzz")
+  }
+  
+  as.character(number)
+}
+```
+
+We get a GREEN result.
+
+```{r}
+should_error_for_invalid_input()
+```
+
+Note that we could have written specific tests for specific errors.
+
+```{r}
+should_error_for_non_numeric_input <- function() {
+  # Assign
+  input <- "foo"
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be numeric")
+}
+```
+
+```{r}
+should_error_for_vector_length_more_than_one <- function() {
+  # Assign
+  input <- 1:15
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be length 1")
+}
+```
+
+```{r}
+should_error_for_non_positive_input <- function() {
+  # Assign
+  input <- -15
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be positive")
+}
+```
+
+```{r}
+should_error_for_non_whole_number <- function() {
+  # Assign
+  input <- 9.9
+  
+  # Act + Assert
+  expect_error(fizzbuzz(input), "Input must be a whole number")
+}
+```
+
+All checks GREEN.
+
+```{r}
+should_error_for_non_numeric_input()
+should_error_for_vector_length_more_than_one()
+should_error_for_non_positive_input()
+should_error_for_non_whole_number()
+```
+
+## Using `testthat` in R projects
+
+For the purposes of demonstration, the example in this document has used procedural code. To implement tests using `testthat`, we can create test files and a runner file. See the following files for how this could look, for our FizzBuzz specificaton.
+
+- `fizzbuzz.R`: This is where we put our functions. Because both `fizzbuzz` and `fizzbuzzer` form one related 'concept', they are in the same file. This is a common approach to keep large codebases manageable, while modular.
+- `run_tests.R`: This is the runner for the tests. It handles importing any libraries (at least testthat is needed) and sourcing of code from the R files being tested. It also prints out the results.
+- `tests/test-fizzbuzz`: This contains the tests. Note that `testthat` requires the files to start with `test-` in order to automatically find the tests. We again use a single file for all our tests, as they are testing one set of related functionality. In general, you should have 1 test file per 1 function file.
+
+## More advanced usage
+
+For R *packages* there are a few more things to consider, but the structure is largely the same as for projects. Refer to [R Packages (2e) - ](https://r-pkgs.org/testing-basics.html) for how to use in a package, or for a quick explanation see the section on Testing in a previous Coffee & Coding, 2024-05-29 Creating R packages.
+
+It is possible, and a great idea, to automate your tests using Continuous Integration tools like GitHub Actions. For example, if you include a `R CMD check` that runs when you push, or attempt to merge to main, your `testthat` tests will automatically run. This can prevent bad code ending up in production code. Doing this is a key aspect of Reproducible Analytical Pipelines.
+
+For a deeper dive into `testthat`, see a previous Coffee & Coding session, 2023-10-03 Automated Testing in R.
