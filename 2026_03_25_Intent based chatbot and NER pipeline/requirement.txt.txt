@@ -1,0 +1,9 @@
+spacy==3.8.11
+scikit-learn==1.5.0
+nltk==3.8.1
+numpy==2.0.2
+matplotlib==3.9.0
+pyspellchecker==0.9.0
+emoji==2.10.1
+contractions==0.1.73
+spacy-lookups-data==1.0.5
