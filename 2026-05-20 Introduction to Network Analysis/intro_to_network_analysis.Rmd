@@ -1,0 +1,470 @@
+---
+title: "Introduction to Network Analysis"
+author: "Adnan Shroufi"
+date: "2026-05-20"
+output: html_document
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, echo=FALSE}
+packages <- c("dplyr", "igraph")
+
+for (pkg in packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+data = readRDS("data/coffee_and_coding_networks.Rds")
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+graph_df = data %>% 
+  select(
+    chem_sub_one,
+    chem_sub_two,
+    weight = n
+  )
+```
+
+
+```{r}
+graph_cns = graph_from_data_frame(graph_df, directed = FALSE)
+```
+
+
+```{r}
+str(graph_cns)
+```
+
+
+```{r, echo=FALSE}
+plot(
+  graph_cns,
+  vertex.label = NA,
+  vertex.size = 5
+)
+```
+
+```{r}
+vcount(graph_cns)
+ecount(graph_cns)
+```
+
+```{r}
+V(graph_cns)
+E(graph_cns)
+```
+
+
+```{r}
+E(graph_cns)[1:10]
+E(graph_cns)$weight[1:10]
+```
+
+
+# REDUCE NODES
+
+```{r}
+cutoff = quantile(E(graph_cns)$weight, 0.99)
+
+print(cutoff)
+
+E(graph_cns)[E(graph_cns)$weight >= cutoff]
+```
+
+
+```{r}
+subgraph_from_threshold = function(graph, threshold){
+  
+  cutoff = quantile(E(graph)$weight, threshold)
+  
+  keep_edges = E(graph)[E(graph)$weight >= cutoff]
+  
+  new_graph = subgraph_from_edges(
+    graph,
+    keep_edges,
+    delete.vertices = TRUE
+  )
+}
+```
+
+
+
+
+
+```{r, echo=FALSE, fig.width=12, fig.height=9}
+graph_cns_sub = subgraph_from_threshold(graph_cns, 0.995)
+
+set.seed(123)
+
+plot(
+  graph_cns_sub,
+  vertex.size = 5
+)
+```
+
+# ADD A LAYOUT
+
+
+```{r, fig.width=10, fig.height=9}
+set.seed(123)
+
+lay = layout_with_dh(graph_cns_sub)
+
+plot(
+  graph_cns_sub,
+  vertex.size = 5,
+  layout = lay
+)
+```
+
+# Standardise vertex size
+
+```{r}
+cns_strength = strength(graph_cns_sub, mode = "all", weights = E(graph_cns_sub)$weight)
+
+cns_strength
+```
+
+
+
+```{r, fig.width=10, fig.height=9}
+set.seed(123)
+
+plot(
+  graph_cns_sub,
+  vertex.size = cns_strength / 20000,
+  layout = lay
+)
+```
+
+
+
+
+
+```{r}
+# Checks if no loops or no multiple edges between vertices
+is.simple(graph_cns_sub)
+
+# 
+degree(graph_cns_sub)
+```
+
+
+```{r}
+V(graph_cns_sub)[rev(order(degree(graph_cns_sub)))[1:3]]
+```
+
+# Standardise edge width
+
+```{r}
+edge_widths = E(graph_cns_sub)$weight
+edge_widths
+```
+
+```{r, fig.width=10, fig.height=9}
+set.seed(123)
+
+plot(
+  graph_cns_sub,
+  vertex.size = cns_strength / 20000,
+  layout = lay,
+  edge.width = edge_widths / 5000
+)
+```
+
+
+
+## PART 2 - NEW SUBGRAPH
+
+
+```{r}
+graph_cns_pcml <- delete_vertices(graph_cns, "Paracetamol")
+```
+
+
+```{r, echo=FALSE, fig.width=12, fig.height=9}
+set.seed(1234)
+
+graph_cns_sub_two = subgraph_from_threshold(graph_cns_pcml, 0.995)
+
+vertex_strength = strength(graph_cns_sub_two, mode = "all", weights = E(graph_cns_sub_two)$weight)
+
+edge_weight = E(graph_cns_sub_two)$weight
+
+lay = layout_with_dh(graph_cns_sub_two)
+```
+
+
+
+```{r, echo=FALSE, fig.width=10, fig.height=9}
+plot(
+  graph_cns_sub_two,
+  layout = lay,
+  vertex.size = vertex_strength / 10000,
+  edge.width = edge_weight / 3000
+)
+```
+
+## REMOVE VERTICES WITH ONLY DEGREE
+
+```{R}
+set.seed(123)
+
+graph_cns_sub_three <- delete_vertices(graph_cns_sub_two, V(graph_cns_sub_two)[degree(graph_cns_sub_two) == 1])
+
+vertex_strength = strength(graph_cns_sub_three, mode = "all", weights = E(graph_cns_sub_three)$weight)
+
+edge_weight = E(graph_cns_sub_three)$weight
+
+lay = layout_with_dh(graph_cns_sub_three)
+```
+
+```{r, fig.width=12, fig.height=9}
+plot(
+  graph_cns_sub_three,
+  layout = layout_with_dh(graph_cns_sub_three),
+  vertex.size = vertex_strength / 5000,
+  edge.width = edge_weight / 2500
+)
+```
+
+
+# PART 3 - SPECIFIC BNF SECTIONS
+
+```{R}
+head(data)
+```
+
+```{r}
+sections_vec = c("Drugs for dementia", "Drugs used in psychoses and related disorders")
+
+dementia_vec = data %>% 
+  filter(section_one == "Drugs for dementia") %>% 
+  select(chem_sub_one) %>% 
+  distinct() %>% 
+  pull()
+
+graph_section_df = data %>% 
+  filter(
+    section_one %in% sections_vec,
+    section_two %in% sections_vec,
+    section_one != section_two
+  ) %>% 
+  select(
+    chem_sub_one,
+    chem_sub_two,
+    weight = n
+  )
+
+graph_section = graph_from_data_frame(graph_section_df, directed = FALSE)
+```
+
+
+
+```{r}
+V(graph_section)$type = ifelse(V(graph_section)$name %in% dementia_vec, TRUE, FALSE)
+```
+
+```{r, fig.width=12, fig.height=9}
+lay = layout_as_bipartite(graph_section)
+lay <- cbind(lay[,2], -lay[,1])
+
+plot(
+  graph_section,
+  layout = lay,
+  vertex.size = 3
+)
+```
+
+
+```{r}
+keep_edges = E(graph_section)$weight >= 100
+
+edges = E(graph_section)[keep_edges]
+
+graph_section_sub = subgraph_from_edges(
+  graph_section, 
+  edges, 
+  delete.vertices = TRUE
+  )
+
+set.seed(1234)
+
+lay = layout_as_bipartite(graph_section_sub)
+lay <- cbind(lay[,2], -lay[,1])
+```
+
+```{r, fig.width=12, fig.height=9}
+plot(
+  graph_section_sub,
+  layout = lay,
+  vertex.size = 3
+)
+```
+
+
+
+```{r}
+vertex_strength = strength(graph_section_sub, mode = "all", weights = E(graph_section_sub)$weight)
+
+edge_weight = E(graph_section_sub)$weight
+```
+
+
+```{r, fig.width=12, fig.height=9}
+vertex_strength = strength(graph_section_sub, mode = "all", weights = E(graph_section_sub)$weight)
+
+edge_weight = E(graph_section_sub)$weight
+
+plot(
+  graph_section_sub,
+  layout = lay,
+  vertex.size = vertex_strength / 1000,
+  edge.width = edge_weight / 500
+)
+```
+
+
+
+
+
+
+```{r}
+vertex_pairs <- data.frame(
+  v1 = c("Donepezil hydrochloride",
+         "Donepezil hydrochloride",
+         "Memantine hydrochloride",
+         "Memantine hydrochloride",
+         "Rivastigmine"
+         ),
+  
+  v2 = c("Haloperidol",
+         "Levomepromazine hydrochloride",
+         "Haloperidol",
+         "Levomepromazine hydrochloride",
+         "Levomepromazine hydrochloride"
+         )
+)
+
+vertex_pairs
+```
+
+```{r, fig.width=12, fig.height=10}
+label_edge_pairs <- function(graph, pairs, base_col = "#D9D9D990", highlight_col = "#FF5FA2FF") {
+  
+  # Remove all labels first
+  E(graph)$col <- base_col
+  E(graph)$label <- NA
+  
+  # Loop through row count of input df
+  for (i in seq_len(nrow(pairs))) {
+    
+    # Move through rows of input pairs as df
+    v1 <- pairs[i, 1]
+    v2 <- pairs[i, 2]
+    
+    # Identify edges of interest
+    edges <- E(graph)[(.from(v1) & .to(v2)) | (.from(v2) & .to(v1))]
+    
+    # Add label to label feature
+    E(graph)[edges]$label <- paste0(round(E(graph)[edges]$weight / 1000, 1), "k patients")
+    
+    # Add highlight colour to colour feature
+    E(graph)[edges]$col <- highlight_col
+  }
+  
+  # Return modified graph
+  return(graph)
+}
+
+
+
+dist <- scales::rescale(log1p(vertex_strength), to = c(1, 4))
+
+graph_section_sub_label = label_edge_pairs(graph_section_sub, pairs)
+
+#len <- scales::rescale(nchar(V(graph_section_sub_label)$name), to = c(2, 6))
+
+V(graph_section_sub_label)$shape <- ifelse(V(graph_section_sub_label)$type, "circle", "square")
+
+V(graph_section_sub_label)$color <- ifelse(V(graph_section_sub_label)$type,"steelblue", "firebrick") 
+
+pdf("output/network_plot.pdf", width = 10, height = 12)
+
+plot(
+  graph_section_sub_label,
+  layout = lay,
+  vertex.size = vertex_strength / 600,
+  vertex.label = gsub(" ", "\n", V(graph_section_sub_label)$name),
+  vertex.label.color = "black",
+  vertex.label.dist = dist,
+  vertex.label.degree = pi,
+  edge.color = E(graph_section_sub_label)$col,
+  edge.width = edge_weight / 500,
+  edge.label = E(graph_section_sub_label)$label,
+  edge.label.cex = 1.2,
+  edge.label.color = "black"
+)
+
+# png("network_plot.png",
+#     width = 3000,
+#     height = 3000,
+#     res = 300)
+
+title(
+  main = "The number of distinct care home patients co-prescribed specific combinations\nof dementia and antipsychotic drugs within the same month in 2025/26",
+      cex.main = 1.3,
+      font.main = 2)
+
+caption <- paste(strwrap(
+"Edges represent co-prescribing frequency between dementia drugs and antipsychotics. Highlighted edges indicate clinically concerning or high-risk combinations. Node colour and shape distinguish drug classes. Edge width reflects prescribing frequency. Vertex size reflects the 'strength' of a vertex, or the total sum of its weight with other nodes. The same patient could appear in multiple edge, if they were prescribed three or given drugs with the same month. Care home patients must be co-prescribed drugs within the same month to be included within an edge weight.\n\n\n",
+  width = 150),
+  collapse = "\n")
+
+mtext(caption <- paste0(caption, "\n\n\n"), side = 1, line = 4, cex = 0.8)
+
+legend(
+  "top",
+  inset = 0.05,
+  legend = c("Dementia drugs", "Antipsychotics"),
+  col = c("steelblue", "firebrick"),
+  pch = c(21, 22),
+  pt.bg = c("steelblue", "firebrick"),
+  bty = "n"
+  )
+
+dev.off()
+```
+
+
+# Summary
