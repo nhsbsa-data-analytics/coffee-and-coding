@@ -5,10 +5,8 @@ date: "2026-05-20"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
-packages <- c("dplyr", "igraph")
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE}
+packages <- c("dplyr", "igraph", "knitr")
 
 for (pkg in packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -16,6 +14,8 @@ for (pkg in packages) {
   }
   library(pkg, character.only = TRUE)
 }
+
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
