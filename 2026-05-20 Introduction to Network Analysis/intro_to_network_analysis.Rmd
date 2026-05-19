@@ -5,19 +5,9 @@ date: "2026-05-20"
 output: html_document
 ---
 
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r, echo=FALSE}
 packages <- c("dplyr", "igraph")
 
 for (pkg in packages) {
@@ -28,43 +18,97 @@ for (pkg in packages) {
 }
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+# 1. Introduction to network analysis
+
+Network analysis is a way to explore relationships and connections within data. In the past specialist software was needed to do network analysis. This is now possible with general programming languages, such as python and R. We will use R for this session as it has some mature and well maintained libraries to conduct network analysis. We will use the *igraph* package for this.
+
+You may have seen a network visualised at some point, which in essence is a bunch of dots connected by kines. In practice, a network consists of a series of a nodes (entities) and edges (connections). Examples of these include:
+
+- A social network, such as in LinkedIn, where individuals (nodes) are connected if they have accepted a connection request (edges).
+- A road network, where places (nodes) are connected by roads (edges) of some sort.
+
+These edges (or connections) can also have what is known as a *weight*.
+
+- In a social network, this could be how many messages two contacts send each other a year.
+- In a road network, this could be the distance or average drive-time between two places.
+
+Once we create a network, we can use various approaches and calculations, such as:
+
+- Find clusters within a network
+- Determine how interconnected a network is
+- Visualise patterns within a network
+- Measure the strength of nodes within a network
+
+This is only an introduction to network analysis, so we can't do everything, but hopefully will do enough so that you can get started doing some network analysis yourself.
+
+# 2. Creating a network
+
+A big part of network analysis, is actually manipulating some data that it is in the right form so that we can use it. In this session we will use data that looks at the distinct number of care home patients aged 65 years and over in England, estimated to have been prescribed two different chemical substances from the Central Nervous System BNF chapter in 2024/25. Only chemical substance pairs with 10 or more distinct patients are considered. Naturally, there is no patient identifiable data here.
+
+It is important to understand *what your data is actually representing*, before you get too far with any network analysis.
 
 ```{r pressure, echo=FALSE}
 data = readRDS("data/coffee_and_coding_networks.Rds")
+head(data, 5)
 ```
 
+The easiest way to generate a network is from a dataframe. A dataframe to create a network needs 3 columns.
 
+- First, a column describing one set of nodes
+- Second, a column describing another set of nodes
+- Finally, a numerical value for the weight connecting each node.
 
+If you weren't interested in weights are just interested in which nodes are connected to which, you could just have a default edge weight of one. We need a simple groupby here as a few chemical substances appear in more than one section.
 
-
-
-
-
-
-
-
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 graph_df = data %>% 
   select(
     chem_sub_one,
     chem_sub_two,
     weight = n
-  )
+  ) %>% 
+  group_by(
+    chem_sub_one,
+    chem_sub_two
+  ) %>% 
+  summarise(
+    weight = sum(weight)
+  ) %>% 
+  ungroup()
+
+head(graph_df)
 ```
 
+The weight column *must* be called 'weight', otherwise the below function won't work. We have set the *directed* parameter to FALSE. A directed network is where connections can exist in both directions. For example:
+
+- In a social network measuring text volume where one person does not text the other
+- In a road network where two places are only connected by a one-way road
+
+In this session we will not look a directed networks. This could be looked at in a potential follow-up session.
 
 ```{r}
 graph_cns = graph_from_data_frame(graph_df, directed = FALSE)
 ```
 
+We now have a graph object.
 
 ```{r}
 str(graph_cns)
 ```
 
+This is *simple* graph, because: 
+
+- There are no self-loops (e.g. a social network measuring likes, someone liking their own post)
+- Nodes cannot be connected by multiple edges (e.g. a road network where two roads connect 2 places)
+
+```{r}
+is_simple(graph_cns)
+```
+
+# 3. Visualise an entire network
+
+We can now do the simplest possible plot and view the network.
 
 ```{r, echo=FALSE}
 plot(
@@ -74,24 +118,36 @@ plot(
 )
 ```
 
+Its pretty hard to tell what is going on, so we can now do a straight forward vertex (or node) count, along with an edge count.
+
 ```{r}
 vcount(graph_cns)
 ecount(graph_cns)
 ```
+
+Clearly many of the vertices and edges are not possible and are tightly bound together. We can also list the vertices and edges that comprise this network. This is useful for doing later transformations of the network.
 
 ```{r}
 V(graph_cns)
 E(graph_cns)
 ```
 
+If you want, you can also list the weight attributed to a given edge.
 
 ```{r}
-E(graph_cns)[1:10]
-E(graph_cns)$weight[1:10]
+E(graph_cns)[5]
+E(graph_cns)$weight[5]
 ```
 
+# 4. Create and visualise a network subgraph
 
-# REDUCE NODES
+A subgraph is basically a subset of a larger subset. You could create a subgraph through:
+
+- Identifying vertices of interest
+- Only retaining edge weights of a given value
+- Or even, only retaining some of the strongest edge weights.
+
+We will take the top 1% of highest edge weights, using the *quantile* function. 
 
 ```{r}
 cutoff = quantile(E(graph_cns)$weight, 0.99)
@@ -101,6 +157,13 @@ print(cutoff)
 E(graph_cns)[E(graph_cns)$weight >= cutoff]
 ```
 
+We will be creating various subgraphs, to have created a simple function, to do this. This function:
+
+- Takes what 'top %' of edges to retain
+- In terms of edge weight specific to the dpecified network, what edge weight returns that 'top %' value
+- Defines what edges to keep as a result
+- Creates a new subgraph from those edges 
+- And then *drops* the vertices *outside* this edge list
 
 ```{r}
 subgraph_from_threshold = function(graph, threshold){
@@ -117,12 +180,10 @@ subgraph_from_threshold = function(graph, threshold){
 }
 ```
 
-
-
-
+After defining the function, we can define what graph to create a subgraph of, and what 'top %' of edge weights we want to retain. If you were a clinician with a particular use case, you might not be interested in the strongest weights, but rather a list of given edges.
 
 ```{r, echo=FALSE, fig.width=12, fig.height=9}
-graph_cns_sub = subgraph_from_threshold(graph_cns, 0.995)
+graph_cns_sub = subgraph_from_threshold(graph_cns, 0.99)
 
 set.seed(123)
 
@@ -132,10 +193,20 @@ plot(
 )
 ```
 
-# ADD A LAYOUT
+# 5. Adding a layout to a network
 
+A quick note on visualisation in general, before considering layouts. Visualisation is central in network analysis because the layout of a graph can reveal structure directly, rather than just illustrate it. Clusters and isolated components often become immediately visible in a well-drawn network, sometimes exposing patterns that summary statistics might miss. In this sense, a network plot is not just a communication tool for results. Rather, it can actually be the *primary source of insight*. This is because network visualisation can guide hypotheses about network structure, influence, or connectivity, which can in turn help inform any future work.
 
-```{r, fig.width=10, fig.height=9}
+This is why a network layout is actually quite important. In the context of network analysis, a *layout* is the algorithm used to assign coordinates to the vertices in a graph. Different layouts allocate coordinates differently, to highlight different aspects of a network. A layout does **not** change the structure of the graph (vertices/edges), only how it is drawn. Different layouts emphasise different structural features like clusters, hierarchy, or centrality. Here are an exmaple of four kinds of layout. There are many more.
+
+- **Fuchterman–Reingold (FR):** good for spreading nodes apart while keeping connected ones close to reveal clusters.
+- **Kamada–Kawai (KK):** good for preserving distances so the layout reflects shortest-path relationships.
+- **Davidson–Harel (DH):** good for pulling communities apart clearly by optimising the layout to reduce overlap and “untangle” dense networks.
+- **Circle:** good for simple comparison of nodes and when structure isn’t important.
+
+We will use the DH algorithm to generate a layout for our subgraph. We use *set.seed* before plotting in order the plot output can be replicated.
+
+```{r, fig.width=10, fig.height=8}
 set.seed(123)
 
 lay = layout_with_dh(graph_cns_sub)
@@ -147,7 +218,11 @@ plot(
 )
 ```
 
-# Standardise vertex size
+# 6. Using vertex strength to standardise vertex size
+
+Currently, all vertices are the same size. It is possible to have the vertex size relative to another feature or value. In social network such as LinkedIn, the size of a vertex could be informed by how many connections this person has. 
+
+We will use the *strength* of a vertex to do this. Vertex strength measures how strongly a node is connected to the rest of the network. It is calculated as the sum of the weights of all edges connected to that node.
 
 ```{r}
 cns_strength = strength(graph_cns_sub, mode = "all", weights = E(graph_cns_sub)$weight)
@@ -155,9 +230,9 @@ cns_strength = strength(graph_cns_sub, mode = "all", weights = E(graph_cns_sub)$
 cns_strength
 ```
 
+We can then use the vertex strength values to stnadardise the size of each vertex. However, in practice, these values will usually need some form of manipulation or formatting. Without  this, the raw strength values may render each vertex way too big or way too small.
 
-
-```{r, fig.width=10, fig.height=9}
+```{r, fig.width=10, fig.height=8}
 set.seed(123)
 
 plot(
@@ -167,31 +242,31 @@ plot(
 )
 ```
 
-
-
-
+Another common measure of vertices within a network is the *degree*. This is basically how many other vertices each vertex is connected. Paracetamol will have the highest degree by far, many vertices will have a degree of one. If we wanted to, we could size each vertex by it's degree, or even another set of values unrelated to the network (such as annual prescribing volumes or such).
 
 ```{r}
-# Checks if no loops or no multiple edges between vertices
-is.simple(graph_cns_sub)
-
-# 
 degree(graph_cns_sub)
 ```
 
+If we can determine the order of the three vertices with the highest degree, we can list out their vertex names as well.
 
 ```{r}
+rev(order(degree(graph_cns_sub)))[1:3]
 V(graph_cns_sub)[rev(order(degree(graph_cns_sub)))[1:3]]
 ```
 
-# Standardise edge width
+# 7. Using edge weights to standardise edge width
+
+Edge width is a common and useful way to standardise edge widths. By doing this, edges with a higher edge weight will have a thicker line than edges with a lower edge weight
 
 ```{r}
 edge_widths = E(graph_cns_sub)$weight
 edge_widths
 ```
 
-```{r, fig.width=10, fig.height=9}
+With a bit of formatting (like we had to with vertex size), we can then apply the edge widths to the edge widths of the visualisation. The edge widths immediately offer additional context to the visulisation.
+
+```{r, fig.width=10, fig.height=8}
 set.seed(123)
 
 plot(
@@ -202,20 +277,55 @@ plot(
 )
 ```
 
+# 8. Detecting and visualising communities
 
+A community is a cluster of interconnected points. When we generated our initial subgraph, we could have instead visualised a single community, rather than focusing just on edge weights. As with layouts within network analysis, there are also multiple algorithms available that can detect communities. Examples include:
 
-## PART 2 - NEW SUBGRAPH
+- **Louvain:** groups nodes by joining ones that are strongly connected to each other.
+- **Walktrap:** groups nodes that are often reached together in short random walks.
+- **Edge betweenness:** splits the network by removing connections that link different groups.
 
+We will use a couple of these in the session. In practice, there is often some trial and error involved, in finding an appropriate algorithm for a given use case. 
+
+```{r}
+community_cns_sub = cluster_edge_betweenness(graph_cns_sub)
+membership(community_cns_sub)  
+sizes(community_cns_sub)      
+```
+
+We can then overlay our previous plot with these community groups. The communities are each represented by an area. EDges are coloured red if there are *between* communities, rather than within its designated community.
+
+```{r, fig.width=10, fig.height=8}
+set.seed(123)
+
+plot(
+  community_cns_sub,
+  graph_cns_sub,
+  vertex.size = cns_strength / 20000,
+  layout = lay,
+  edge.width = edge_widths / 5000
+)
+```
+
+# 9. Deleting vertices
+
+The paracetamol vertex dominates this subgraph. Having one dominant vertex may or not be useful to whatever inisght you are aiming to communicate. If we delete the paracetamol vertex from the **very first graph**, we can create a new subgraph from there.
 
 ```{r}
 graph_cns_pcml <- delete_vertices(graph_cns, "Paracetamol")
 ```
 
+This is not the **exact** the same network. After creating a subgraph of the initial network minus the paracetamol vertex, we must therefore re-calculate the following:
 
-```{r, echo=FALSE, fig.width=12, fig.height=9}
+- Vertex strength
+- Edge weights
+- Layout
+- communities
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=8}
 set.seed(1234)
 
-graph_cns_sub_two = subgraph_from_threshold(graph_cns_pcml, 0.995)
+graph_cns_sub_two = subgraph_from_threshold(graph_cns_pcml, 0.99)
 
 vertex_strength = strength(graph_cns_sub_two, mode = "all", weights = E(graph_cns_sub_two)$weight)
 
@@ -224,7 +334,7 @@ edge_weight = E(graph_cns_sub_two)$weight
 lay = layout_with_dh(graph_cns_sub_two)
 ```
 
-
+We can then apply all of the re-calculated features to a new plot.
 
 ```{r, echo=FALSE, fig.width=10, fig.height=9}
 plot(
@@ -235,7 +345,7 @@ plot(
 )
 ```
 
-## REMOVE VERTICES WITH ONLY DEGREE
+We might want to also delete vertices if they only have a degree of one. We might want to do this if we were focused on interrelatedness within a network. Once again, as this is creating a new subgraph, all network features must once again be re-calculated. A different community detection algorithm is also being used this time.
 
 ```{R}
 set.seed(123)
@@ -247,10 +357,15 @@ vertex_strength = strength(graph_cns_sub_three, mode = "all", weights = E(graph_
 edge_weight = E(graph_cns_sub_three)$weight
 
 lay = layout_with_dh(graph_cns_sub_three)
+
+community_cns_sub_three <- cluster_louvain(graph_cns_sub_three)
 ```
 
-```{r, fig.width=12, fig.height=9}
+All these features can be used in a new plot.
+
+```{r, fig.width=10, fig.height=8}
 plot(
+  community_cns_sub_three,
   graph_cns_sub_three,
   layout = layout_with_dh(graph_cns_sub_three),
   vertex.size = vertex_strength / 5000,
@@ -258,12 +373,9 @@ plot(
 )
 ```
 
+# 10. Creating a bipartite network
 
-# PART 3 - SPECIFIC BNF SECTIONS
-
-```{R}
-head(data)
-```
+A bipartite network is a graph where nodes are divided into two distinct groups, and connections can only occur between groups, not within the same group. For our use case, this could help us identify co-prescribing of given BNF sections. We will explore this, by creating a bipartite network that looks at the relationships between the 'Drugs for dementia', 'Drugs used in psychoses and related disorders' BNF sections. First, we will create a dataframe to create our network from, and then create the networkj itself.
 
 ```{r}
 sections_vec = c("Drugs for dementia", "Drugs used in psychoses and related disorders")
@@ -287,13 +399,18 @@ graph_section_df = data %>%
   )
 
 graph_section = graph_from_data_frame(graph_section_df, directed = FALSE)
+
+vcount(graph_section)
+ecount(graph_section)
 ```
 
-
+Final thing is to use a TRUE/FALSE to create a binary distinction between each 'side' of the bipartite graph. This T/F flag *must* be saved within a feature called 'type' within each vertex. The code below does this. The same method can be used to attribute any selection of values to the vertices within a network.
 
 ```{r}
 V(graph_section)$type = ifelse(V(graph_section)$name %in% dementia_vec, TRUE, FALSE)
 ```
+
+The layout also *must* be specified as bipartite. By default a bipartite network is structured top to bottom. We want side to side, so do a little transfrmation of the layour coordinates to achieve this. We can then create an initial plot.
 
 ```{r, fig.width=12, fig.height=9}
 lay = layout_as_bipartite(graph_section)
@@ -306,8 +423,18 @@ plot(
 )
 ```
 
+# 11. Create a subgraph from given edge weights
 
-```{r}
+Rather than select the top 1% of edges with the highest weight, we might want to only retain edge weights above a given value. In this instance, we might only want to retain edge weights over 100, namely co-prescribing combinations where at least 100 patients aged 65 or over were prescribed a chemical substance combination within the same month in care homes in England in 2024/25. 
+
+After we have created this subgraph, we then need to re-calculate various things us:
+
+- The bipartite network
+- The transformed coordinates
+- Vertex strength
+- Edge weight
+
+```{r, fig.width=10, fig.height=8}
 keep_edges = E(graph_section)$weight >= 100
 
 edges = E(graph_section)[keep_edges]
@@ -322,26 +449,7 @@ set.seed(1234)
 
 lay = layout_as_bipartite(graph_section_sub)
 lay <- cbind(lay[,2], -lay[,1])
-```
 
-```{r, fig.width=12, fig.height=9}
-plot(
-  graph_section_sub,
-  layout = lay,
-  vertex.size = 3
-)
-```
-
-
-
-```{r}
-vertex_strength = strength(graph_section_sub, mode = "all", weights = E(graph_section_sub)$weight)
-
-edge_weight = E(graph_section_sub)$weight
-```
-
-
-```{r, fig.width=12, fig.height=9}
 vertex_strength = strength(graph_section_sub, mode = "all", weights = E(graph_section_sub)$weight)
 
 edge_weight = E(graph_section_sub)$weight
@@ -354,10 +462,9 @@ plot(
 )
 ```
 
+# 12. Labelling a visualisation
 
-
-
-
+From a clinical perspective, or from a perspective relevant to your use case, you may want to highlight or label certain edge weight. We can do this by first defining our vertex pairs of interest.
 
 ```{r}
 vertex_pairs <- data.frame(
@@ -379,7 +486,16 @@ vertex_pairs <- data.frame(
 vertex_pairs
 ```
 
-```{r, fig.width=12, fig.height=10}
+This function seems a like a fair bit of code, but is actually quite simple when broken down. What the function does is:
+
+1. Generates an edge feature called 'col', with the default colour of light grey
+2. Generates an edge feature called 'label', with the default label of NA (i.e. blank)
+3. Then identifying which edges are the ones which connect the list of supplied vertex pairs
+4. An edge label of the patient count is added to the identified edges
+5. An edge colour is then applied to the identified edges
+6. The supplied graph input is then returned with these amendments
+
+```{r, fig.width=10, fig.height=8}
 label_edge_pairs <- function(graph, pairs, base_col = "#D9D9D990", highlight_col = "#FF5FA2FF") {
   
   # Remove all labels first
@@ -406,20 +522,47 @@ label_edge_pairs <- function(graph, pairs, base_col = "#D9D9D990", highlight_col
   # Return modified graph
   return(graph)
 }
+```
 
+We can then create a labelled subgraph using this function and plot the new subgraph.
 
+```{r, fig.width=10, fig.height=8}
+graph_section_sub_label = label_edge_pairs(graph_section_sub, vertex_pairs)
 
-dist <- scales::rescale(log1p(vertex_strength), to = c(1, 4))
+plot(
+  graph_section_sub_label,
+  layout = lay,
+  vertex.size = vertex_strength / 600,
+  vertex.label = gsub(" ", "\n", V(graph_section_sub_label)$name),
+  vertex.label.color = "black",
+  vertex.label.dist = dist,
+  vertex.label.degree = pi,
+  edge.color = E(graph_section_sub_label)$col,
+  edge.width = edge_weight / 500,
+  edge.label = E(graph_section_sub_label)$label,
+  edge.label.cex = 1.2,
+  edge.label.color = "black"
+)
+```
 
-graph_section_sub_label = label_edge_pairs(graph_section_sub, pairs)
+# 13. Saving a hi-res plot
 
-#len <- scales::rescale(nchar(V(graph_section_sub_label)$name), to = c(2, 6))
+When we have finally generated a plot we are happy with, we can save it as a high-res file, either in a png or pdf format. Before we do that, we will gnerate two final features. These are other 'default' features of a vertex. Basically, is we generate two vertex features called 'shape' and 'color', when we plot the network these will automatically be the shape and color of the vertices. 
 
+Various aesthetic steps have also been added, which will not be covered in detail for time reasons. They can be used for reference if you want to do something similar in the future. These include:
+
+- A title
+- A legend
+- A caption
+
+We can use the *pdf* function to define where to save out plot and the *dev.off* function to indicate when we are done 'adding' to plot (as the title, legend and caption are in effect pasted on top of the initial chart). We can manually inspect the final pdf output. As it is saved in the output folder, it is not displayed below.
+
+```{r, fig.width=10, fig.height=8}
 V(graph_section_sub_label)$shape <- ifelse(V(graph_section_sub_label)$type, "circle", "square")
 
 V(graph_section_sub_label)$color <- ifelse(V(graph_section_sub_label)$type,"steelblue", "firebrick") 
 
-pdf("output/network_plot.pdf", width = 10, height = 12)
+pdf("output/network_plot.pdf", width = 10, height = 14)
 
 plot(
   graph_section_sub_label,
@@ -436,26 +579,33 @@ plot(
   edge.label.color = "black"
 )
 
-# png("network_plot.png",
-#     width = 3000,
-#     height = 3000,
-#     res = 300)
-
 title(
   main = "The number of distinct care home patients co-prescribed specific combinations\nof dementia and antipsychotic drugs within the same month in 2025/26",
-      cex.main = 1.3,
-      font.main = 2)
+  cex.main = 1.3,
+  font.main = 2
+  )
 
 caption <- paste(strwrap(
-"Edges represent co-prescribing frequency between dementia drugs and antipsychotics. Highlighted edges indicate clinically concerning or high-risk combinations. Node colour and shape distinguish drug classes. Edge width reflects prescribing frequency. Vertex size reflects the 'strength' of a vertex, or the total sum of its weight with other nodes. The same patient could appear in multiple edge, if they were prescribed three or given drugs with the same month. Care home patients must be co-prescribed drugs within the same month to be included within an edge weight.\n\n\n",
+"Donepezil + Haloperidol: increased risk of confusion and cognitive decline.\n
+Donepezil + Levomepromazine: effects on cognition and strong sedation may increase falls risk and delirium.\n
+Memantine + Haloperidol: sedation, stiffness, or worsening cognitive function side effects in vulnerable patients.\n
+Memantine + Levomepromazine: can increase sedation and anticholinergic burden, raising risks of confusion and reduced alertness.\n
+Rivastigmine + Levomepromazine: levomepromazine can counteract cognitive benefits and increase sedation-related harms.\n\n\n
+Edges represent co-prescribing frequency between dementia drugs and antipsychotics. Highlighted edges indicate clinically concerning or high-risk combinations. Node colour and shape distinguish drug classes. Edge width reflects prescribing frequency. Vertex size reflects the 'strength' of a vertex, or the total sum of its weight with other nodes. The same patient could appear in multiple edge, if they were prescribed three or given drugs with the same month. Care home patients must be co-prescribed drugs within the same month to be included within an edge weight.",
   width = 150),
   collapse = "\n")
 
-mtext(caption <- paste0(caption, "\n\n\n"), side = 1, line = 4, cex = 0.8)
+mtext(
+  caption <- paste0(caption, "\n\n\n"), 
+  side = 1, 
+  line = 4, 
+  cex = 0.8, 
+  adj = 0
+  )
 
 legend(
   "top",
-  inset = 0.05,
+  inset = 0.02,
   legend = c("Dementia drugs", "Antipsychotics"),
   col = c("steelblue", "firebrick"),
   pch = c(21, 22),
@@ -466,5 +616,59 @@ legend(
 dev.off()
 ```
 
+# 14. Summary
 
-# Summary
+Creating a network in R starts with carefully defining what your nodes and edges represent in the real world, then structuring your data into an edge list (typically a data frame with two node columns and an optional weight column). From this edge list, a graph object is generated using igraph, which becomes the foundation for all further analysis. Once the network is built, everything else (visualisation, metrics, community detection, and subgraphs) flows from this structure. Defining and generating your edge list in the first instance, is the first critical step in a  network analysis workflow.
+
+After the network is built, the focus shifts from construction to interpretation. This is about being clear about what you want to find out, what you want to communicate, and how different measures and visualisations can support those aims. Network analysis is therefore not just a technical process, but an iterative one where plots, metrics, and structure are used together to explore, refine, and sometimes even demonstrate the patterns you are trying to understand.
+
+# 15. Reference
+
+We have used the following igraph functions in today's session:
+
+## Graph creation / structure
+
+- graph_from_data_frame() – builds graph from edge list data frame
+- delete_vertices() – removes nodes from a graph
+
+## Graph inspection
+
+- is_simple() – checks for self-loops or multiple edges
+- vcount() – counts vertices
+- ecount() – counts edges
+- V() – accesses vertices
+- E() – accesses edges
+
+## Edge / vertex attributes
+
+- E(graph)$weight – access edge weights
+- V(graph)$type – assign bipartite membership
+- V(graph)$shape – set vertex shape
+- V(graph)$color – set vertex colour
+
+## Graph metrics
+
+- strength() – vertex strength (weighted degree)
+- degree() – number of connections per node
+
+## Community detection
+
+- cluster_edge_betweenness() – Girvan–Newman method
+- cluster_louvain() – modularity optimisation method
+- membership() – extracts community membership
+- sizes() – community sizes
+
+## Layouts (visualisation)
+
+- layout_with_dh() – Davidson–Harel layout
+- layout_as_bipartite() – bipartite graph layout
+
+## Plotting (igraph base)
+
+- plot() – renders graph
+- layout = ... argument (used with layouts above)
+
+## Edge selection helpers (igraph-specific syntax)
+
+- E(graph)[condition] – edge filtering
+- V(graph)[condition] – vertex filtering

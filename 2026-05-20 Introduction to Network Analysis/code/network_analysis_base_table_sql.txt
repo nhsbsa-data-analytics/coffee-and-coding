@@ -61,3 +61,5 @@ group BY
     chem_sub_two,
     section_one,
     section_two;
+having
+    count(*) >= 10
