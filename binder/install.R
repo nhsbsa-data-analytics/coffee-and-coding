@@ -46,17 +46,15 @@
 #     "tm",
 #     "wordcloud2",
 #     "reticulate",
-#     "mlbench"
+#     "mlbench",
+#     "igraph"
 #    )
 #  )
 
 install.packages(
   c(
     "dplyr",
-    "tidytext",
-    "stringdist",
-    "stringr",
-    "highcharter"
+    "igraph"
   )
 )
 

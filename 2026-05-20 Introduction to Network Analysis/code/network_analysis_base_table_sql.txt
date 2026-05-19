@@ -1,0 +1,65 @@
+with
+
+pats as (
+select 
+    distinct
+    nhs_no, 
+    year_month, 
+    chemical_substance_bnf_descr,
+    section_descr
+    
+FROM 
+    data_from_oracle.latest.int646_base_20200401_20250331
+where 
+    year_month >= 202404 
+    and year_month <= 202503 
+    and ch_flag = 1
+    and chapter_descr = 'Central Nervous System'
+)
+,
+
+pats_join as (
+select 
+    t1.year_month,
+    t1.nhs_no,
+    t1.chemical_substance_bnf_descr  as  chem_sub_one,
+    t2.chemical_substance_bnf_descr  as  chem_sub_two,
+    t1.section_descr                 as  section_one,
+    t2.section_descr                 as  section_two
+FROM 
+    pats  t1
+inner join 
+    pats  t2
+    on t1.year_month  =  t2.year_month
+    and t1.nhs_no     =  t2.nhs_no 
+    and t1.chemical_substance_bnf_descr < t2.chemical_substance_bnf_descr
+)
+,
+
+pats_distinct as (
+select 
+    distinct
+    nhs_no,
+    chem_sub_one,
+    chem_sub_two,
+    section_one,
+    section_two
+from 
+    pats_join
+)
+
+select  
+    chem_sub_one,
+    chem_sub_two,
+    section_one,
+    section_two,
+    count(*)  as  n
+from 
+    pats_distinct
+group BY    
+    chem_sub_one,
+    chem_sub_two,
+    section_one,
+    section_two;
+having
+    count(*) >= 10
