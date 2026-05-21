@@ -535,7 +535,6 @@ plot(
   vertex.size = vertex_strength / 600,
   vertex.label = gsub(" ", "\n", V(graph_section_sub_label)$name),
   vertex.label.color = "black",
-  vertex.label.dist = dist,
   vertex.label.degree = pi,
   edge.color = E(graph_section_sub_label)$col,
   edge.width = edge_weight / 500,
