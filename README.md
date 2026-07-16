@@ -20,8 +20,7 @@ This online tool requires the user to have a free account and will allow a proje
 
 -   [Posit cloud login](https://posit.cloud/content/yours?sort=name_asc)
 -   [Guide to using posit cloud](posit%20cloud%20rstudio/Using%20Posit%20Cloud%20RStudio%20environment.pdf)
--   [![Open In Colab](https://colab.research.google.com/github/nhsbsa-data-analytics/coffee-and-coding)
--   
+-   [Open In Colab](https://colab.research.google.com/github/nhsbsa-data-analytics/coffee-and-coding)   
 
 Once you have the Coffee and Coding project open in Posit Cloud, you can update it from this repository by using the `git pull` command in the Terminal.
 
