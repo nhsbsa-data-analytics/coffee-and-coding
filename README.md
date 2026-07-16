@@ -31,6 +31,9 @@ We are actively looking for volunteers to plan and host future sessions. Please 
 
 | Date (\* next session) | Host                             | Title                                                       |
 |:-----------------------|:---------------------------------|:------------------------------------------------------------|
+| 2026-07-29             | Kayoung Goffe                    | Classifying survey comments                                 |
+| 2026-05-20             | Adnan Shroufi                    | Introduction to Network Analysis                            |
+| 2026-03-25             | Rohini Subramaniam               | Intent-based chatbot pipeline built using NLP               |
 | 2026-02-18             | Mark McPherson & Ian Wells       | Introduction to Test Driven Development                     |
 | 2026-01-21             | Kayoung Goffe                    | Using Hugging Face models in Fabric                         |
 | 2025-09-25             | Ryan Legget                      | Data Pipelines in Fabric                                    |
